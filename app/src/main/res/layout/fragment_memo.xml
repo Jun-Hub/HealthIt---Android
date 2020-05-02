@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="@string/banner_ad_unit_id3">
+    </com.google.android.gms.ads.AdView>
+
+    <TextView
+        android:id="@+id/textView_no_memo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAlignment="center"
+        android:text="@string/alert_no_memo"
+        android:textColor="@android:color/darker_gray"
+        android:textSize="20sp"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
+
+    <com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
+        android:layout_below="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:handleHeight="40dp"
+        app:handleWidth="25dp"
+        app:handleHasFixedSize="true"
+        app:handleDrawable="@drawable/ic_scroll_bar"
+        app:popupDrawable="@drawable/corner_shape_primary"
+        android:id="@+id/fast_scroller">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:listitem="@layout/item_memo"
+            />
+    </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
+
+    <com.leinardi.android.speeddial.SpeedDialOverlayLayout
+        android:id="@+id/overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorOverlay"/>
+
+    <com.leinardi.android.speeddial.SpeedDialView
+        android:id="@+id/add_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        app:sdMainFabClosedSrc="@drawable/ic_add_btn"
+        app:sdOverlayLayout="@id/overlay"/>
+
+</RelativeLayout>

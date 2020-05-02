@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch
+        android:id="@+id/switch_toolBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:base_release_color="@color/colorOverlay"
+        app:base_press_color="@android:color/secondary_text_dark"
+        app:ball_release_color="@color/colorNotification"
+        app:ball_press_color="@android:color/white"
+        app:icon_release="@drawable/ic_delete_release"
+        app:icon_press="@drawable/ic_delete_press"
+        android:layout_gravity="center"
+        android:layout_marginEnd="10dp"
+        />
+
+</LinearLayout>

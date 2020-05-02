@@ -1,0 +1,155 @@
+<resources>
+    <string name="app_name">헬스잇</string>
+    <string name="title_nutrition">영양정보</string>
+    <string name="title_routine">운동 루틴</string>
+    <string name="title_notes">운동 일지</string>
+    <string name="title_timer">타이머</string>
+
+    <string name="blank">\u0020</string>
+
+    <string name="text_full_body">무분할</string>
+    <string name="text_2day_split">2분할</string>
+    <string name="text_3day_split">3분할</string>
+    <string name="text_4day_split">4분할</string>
+    <string name="text_5day_split">5분할</string>
+    <string name="text_strength">스트렝스</string>
+
+    <string name="text_name_work_out">운동 이름</string>
+    <string name="text_weight">무게</string>
+    <string name="text_set">세트</string>
+    <string name="text_reps">반복수</string>
+    <string name="hint_routine_name">루틴 이름을 입력하세요.</string>
+    <string name="source">출처 : </string>
+    <string name="my_routine">내 운동 루틴 설정</string>
+
+    <string name="title_hint">제목</string>
+    <string name="content_hint">메모</string>
+    <string name="title_no">제목없음</string>
+    <string name="content_no">메모없음</string>
+
+    <string name="action_save">저장</string>
+    <string name="action_edit">편집</string>
+    <string name="action_edit_on">on</string>
+    <string name="action_edit_off">off</string>
+    <string name="action_delete">삭제</string>
+    <string name="action_pin">고정</string>
+    <string name="action_set">설정</string>
+    <string name="select_tag">태그</string>
+
+    <string name="gallery">갤러리</string>
+    <string name="camera">카메라</string>
+    <string name="url">URL</string>
+
+    <string name="alert_no_memo">저장된 기록이 없습니다. \n\n 오른쪽 하단에 있는 추가버튼으로 \n 기록을 추가해보세요!</string>
+    <string name="alert_delete">기록을 삭제하시겠습니까?</string>
+    <string name="alert_title_url">URL로 이미지 추가</string>
+    <string name="alert_url">가져올 외부 이미지 url를 입력하세요.</string>
+    <string name="alert_save">작성중인 내용이 있습니다. 저장하시겠습니까?</string>
+    <string name="hint_tag">태그 이름을 입력하세요</string>
+    <string name="title_activity_settings">설정</string>
+
+    <string-array name="alert_entries">
+        <item>무음</item>
+        <item>진동</item>
+        <item>알림음</item>
+        <item>진동과 알림음</item>
+    </string-array>
+
+    <string-array name="alert_values">
+        <item>silent</item>
+        <item>vibrate</item>
+        <item>ring</item>
+        <item>vibrate_and_ring</item>
+    </string-array>
+
+    <string-array name="ring_entries">
+        <item>Light weight babe</item>
+        <item>알림음1</item>
+        <item>알림음2</item>
+        <item>알림음3</item>
+        <item>알림음4</item>
+        <item>알림음5</item>
+        <item>알림음6</item>
+        <item>알림음7</item>
+    </string-array>
+
+    <string-array name="ring_values">
+        <item>light_weight_babe</item>
+        <item>ring1</item>
+        <item>ring2</item>
+        <item>ring3</item>
+        <item>ring4</item>
+        <item>ring5</item>
+        <item>ring6</item>
+        <item>ring7</item>
+    </string-array>
+
+    <!-- Main Activity -->
+    <string name="notice_exit">뒤로가기를 한번 더 누르면 종료됩니다.</string>
+
+    <!-- Memo Fragment -->
+    <string name="new_log">새 일지</string>
+    <string name="open_my_routine">내 루틴 열기</string>
+
+    <!-- Timer Fragment -->
+    <string name="min">m</string>
+    <string name="sec">s</string>
+
+    <!-- SettingsFragment -->
+    <string name="suggestion_board">개발자에게 문의 및 건의</string>
+    <string name="error_board">개발자에게 오류 알리기</string>
+    <string name="rate_app">앱 평가하기</string>
+    <string name="settings_toast">현재 타이머가 실행 중이므로 타이머 종료 후부터 설정이 적용됩니다.</string>
+
+    <!-- AddActivity -->
+    <string name="notice_max_photo">사진은 최대 %1$d장까지만 업로드 가능합니다.</string>
+    <string name="notice_max_img_capacity">%1$dMB 이상의 대용량 이미지는 불러올 수 없습니다.</string>
+    <string name="notice_max_capacity">저장할 이미지의 총용량이 너무 큽니다. \n 이미지 개수를 줄여보세요!</string>
+
+    <!-- Memo Detail Activity-->
+    <string name="no_title">제목이 없습니다</string>
+    <string name="create_date">작성 날짜:%1$s</string>
+    <string name="notice_pin">일지가 고정되어 리스트 상단에 노출됩니다.</string>
+
+    <!-- Set Template Activity -->
+    <string name="routine_num">루틴%1$d</string>
+
+    <!-- Permission -->
+    <string name="deny_take_photo">권한 요청을 거부하여 사진 촬영을 실행할 수 없습니다.</string>
+    <string name="deny_gallery">권한 요청을 거부하여 갤러리를 실행할 수 없습니다.</string>
+    <string name="request_take_photo">사진 촬영을 위해서 접근 권한이 필요합니다.</string>
+    <string name="request_gallery">갤러리 접근을 위해 권한이 필요합니다.</string>
+    <string name="deny_request">거부하셨습니다. 하지만 [설정] > [권한] 에서 권한을 허용할 수 있습니다.</string>
+
+    <!-- Preference Titles -->
+    <string name="alert_header">타이머 알림</string>
+    <string name="memo_header">운동 일지</string>
+
+    <!-- Alert Preferences -->
+    <string name="ring_title">알림음 설정</string>
+    <string name="alert_title">알림 모드</string>
+
+    <!-- Sync Preferences -->
+    <string name="tag1_title">태그1 이름</string>
+    <string name="tag2_title">태그2 이름</string>
+    <string name="tag3_title">태그3 이름</string>
+    <string name="tag4_title">태그4 이름</string>
+    <string name="tag5_title">태그5 이름</string>
+    <string name="tag6_title">태그6 이름</string>
+
+    <!-- MemoListAdapter -->
+    <string name="memo_record">%1$d개의 운동, 총 %2$d세트</string>
+
+    <!-- RecordListAdapter -->
+    <string name="name_guide">(터치해서 수정)</string>
+    <string name="notice_max_record">최대 %1$d개까지 생성 가능합니다.</string>
+
+    <string name="admob_app_id">ca-app-pub-6263138384822549~7206516262</string>
+    <string name="banner_ad_unit_id1">ca-app-pub-6263138384822549/1954189581</string>
+    <string name="banner_ad_unit_id2">ca-app-pub-6263138384822549/2641201248</string>
+    <string name="banner_ad_unit_id3">ca-app-pub-6263138384822549/7318812859</string>
+    <string name="banner_ad_unit_id4">ca-app-pub-6263138384822549/4692649518</string>
+    <string name="banner_ad_unit_id5">ca-app-pub-6263138384822549/4516555540</string>
+    <string name="banner_ad_unit_id_for_test">ca-app-pub-3940256099942544/6300978111</string>
+
+</resources>

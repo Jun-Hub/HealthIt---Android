@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    >
+    <item
+        android:id="@+id/action_sort"
+        android:title=""
+        app:showAsAction="ifRoom"
+        android:actionLayout="@layout/layout_spinner"/>
+    <item
+        android:id="@+id/action_edit"
+        android:title=""
+        app:showAsAction="always"
+        android:actionLayout="@layout/layout_switch"/>
+</menu>

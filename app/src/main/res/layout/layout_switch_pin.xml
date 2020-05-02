@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <com.github.zagum.switchicon.SwitchIconView
+        android:id="@+id/switch_toolBar"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:padding="6dp"
+        android:layout_margin="6dp"
+        android:layout_gravity="center"
+        app:si_animation_duration="350"
+        app:si_disabled_color="#CBCACA"
+        app:si_tint_color="#E0A593"
+        app:si_enabled="false"
+        app:si_no_dash="false"
+        app:srcCompat="@drawable/ic_pin"/>
+
+</LinearLayout>

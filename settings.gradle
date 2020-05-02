@@ -1,0 +1,2 @@
+rootProject.name='HealthIt'
+include ':app'

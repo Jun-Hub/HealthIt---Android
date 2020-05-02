@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/colorPrimaryDark"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorPrimaryDark"
+    android:orientation="vertical">
+
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="@string/banner_ad_unit_id5">
+    </com.google.android.gms.ads.AdView>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/alert_header"
+        android:theme="@style/PrefCategory" />
+
+    <LinearLayout
+        android:id="@+id/pref_alert"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_custom"
+        android:orientation="vertical"
+        style="@style/PrefLayout">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/alert_title"
+            android:theme="@style/PrefTitle" />
+
+        <TextView
+            android:id="@+id/pref_alert_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/PrefValue" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/pref_ring"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_custom"
+        android:orientation="vertical"
+        style="@style/PrefLayout">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/ring_title"
+            android:theme="@style/PrefTitle" />
+
+        <TextView
+            android:id="@+id/pref_ring_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/PrefValue" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:background="@color/colorDivider" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/memo_header"
+        android:theme="@style/PrefCategory" />
+
+    <TextView
+        android:id="@+id/pref_template"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/my_routine"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:background="@drawable/ripple_custom"
+        android:theme="@style/PrefTitle"
+        />
+
+    <LinearLayout
+        android:id="@+id/pref_tag1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_custom"
+        android:orientation="vertical"
+        style="@style/PrefLayout">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:background="@drawable/ic_circle_red"
+                android:contentDescription="@string/app_name"
+                style="@style/PrefTagImg"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tag1_title"
+                android:theme="@style/PrefTitle" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/pref_tag1_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/PrefValue" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/pref_tag2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_custom"
+        android:orientation="vertical"
+        style="@style/PrefLayout">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                style="@style/PrefTagImg"
+                android:background="@drawable/ic_circle_orange"
+                android:contentDescription="@string/app_name"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tag2_title"
+                android:theme="@style/PrefTitle" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/pref_tag2_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/PrefValue" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/pref_tag3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_custom"
+        android:orientation="vertical"
+        style="@style/PrefLayout">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                style="@style/PrefTagImg"
+                android:background="@drawable/ic_circle_yellow"
+                android:contentDescription="@string/app_name"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tag3_title"
+                android:theme="@style/PrefTitle" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/pref_tag3_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/PrefValue" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/pref_tag4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_custom"
+        android:orientation="vertical"
+        style="@style/PrefLayout">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                style="@style/PrefTagImg"
+                android:background="@drawable/ic_circle_green"
+                android:contentDescription="@string/app_name"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tag4_title"
+                android:theme="@style/PrefTitle" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/pref_tag4_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/PrefValue" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/pref_tag5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_custom"
+        android:orientation="vertical"
+        style="@style/PrefLayout">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                style="@style/PrefTagImg"
+                android:background="@drawable/ic_circle_blue"
+                android:contentDescription="@string/app_name"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tag5_title"
+                android:theme="@style/PrefTitle" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/pref_tag5_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/PrefValue" />
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/pref_tag6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_custom"
+        android:orientation="vertical"
+        style="@style/PrefLayout">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                style="@style/PrefTagImg"
+                android:background="@drawable/ic_circle_purple"
+                android:contentDescription="@string/app_name"
+                />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/tag6_title"
+                android:theme="@style/PrefTitle" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/pref_tag6_value"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/PrefValue" />
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:background="@color/colorDivider" />
+
+    <TextView
+        android:id="@+id/rate_app"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/rate_app"
+        android:padding="20dp"
+        android:background="@drawable/ripple_custom"
+        android:theme="@style/PrefTitle"
+        />
+
+    <TextView
+        android:id="@+id/suggestion_board"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/suggestion_board"
+        android:padding="20dp"
+        android:background="@drawable/ripple_custom"
+        android:theme="@style/PrefTitle"
+        />
+
+    <TextView
+        android:id="@+id/error_board"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/error_board"
+        android:padding="20dp"
+        android:background="@drawable/ripple_custom"
+        android:theme="@style/PrefTitle"
+        />
+
+</LinearLayout>
+</ScrollView>

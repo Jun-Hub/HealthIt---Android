@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@+id/navigation_memo">
+
+    <fragment
+        android:id="@+id/navigation_routine"
+        android:name="io.jun.healthit.view.fragment.RoutineFragment"
+        android:label="@string/title_routine"
+        tools:layout="@layout/fragment_routine" />
+
+    <fragment
+        android:id="@+id/navigation_memo"
+        android:name="io.jun.healthit.view.fragment.MemoFragment"
+        android:label="@string/title_notes"
+        tools:layout="@layout/fragment_memo" />
+
+    <fragment
+        android:id="@+id/navigation_timer"
+        android:name="io.jun.healthit.view.fragment.TimerFragment"
+        android:label="@string/title_timer"
+        tools:layout="@layout/fragment_timer" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
+        android:name="io.jun.healthit.view.fragment.SettingsFragment"
+        android:label="@string/title_activity_settings" />
+
+</navigation>
