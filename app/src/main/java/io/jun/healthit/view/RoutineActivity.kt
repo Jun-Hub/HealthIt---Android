@@ -23,8 +23,8 @@ class RoutineActivity : AppCompatActivity() {
 
         //툴바 세팅
         setSupportActionBar(toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        supportActionBar!!.title = null
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = null
 
         MobileAds.initialize(this)
         val mAdView: AdView = findViewById(R.id.adView)

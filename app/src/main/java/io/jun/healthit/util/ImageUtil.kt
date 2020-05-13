@@ -96,7 +96,7 @@ class ImageUtil {
     //이미지 사이즈 가져오기 : 대용량 이미지의 저장 방지
     fun getImageSize(imageUri: Uri, activity: Activity): Int {
         var dataSize = 0
-        val scheme = imageUri.scheme!!
+        val scheme = imageUri.scheme
         if (scheme == ContentResolver.SCHEME_CONTENT) {
             try {
                 val fileInputStream: InputStream? =

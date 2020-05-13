@@ -60,7 +60,7 @@ class SettingsFragment : Fragment() {
         preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
         prefAlertValue = root.findViewById(R.id.pref_alert_value)
-        prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(context!!))
+        prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(requireContext()))
 
         val prefAlert = root.findViewById<LinearLayout>(R.id.pref_alert)
         prefAlert.setOnClickListener {
@@ -69,7 +69,7 @@ class SettingsFragment : Fragment() {
 
 
         prefRingValue = root.findViewById(R.id.pref_ring_value)
-        prefRingValue.text = prefEntryConverter(prefViewModel.getRingSettings(context!!))
+        prefRingValue.text = prefEntryConverter(prefViewModel.getRingSettings(requireContext()))
 
         val prefRing = root.findViewById<LinearLayout>(R.id.pref_ring)
         prefRing.setOnClickListener {
@@ -88,42 +88,42 @@ class SettingsFragment : Fragment() {
             DialogUtil.showTagDialog(this, 1, layoutInflater)
         }
         prefTag1Value = root.findViewById(R.id.pref_tag1_value)
-        prefTag1Value.text = prefViewModel.getOneOfTagSettings(context!!, 1)
+        prefTag1Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 1)
 
         val prefTag2 = root.findViewById<LinearLayout>(R.id.pref_tag2)
         prefTag2.setOnClickListener {
             DialogUtil.showTagDialog(this, 2,layoutInflater)
         }
         prefTag2Value = root.findViewById(R.id.pref_tag2_value)
-        prefTag2Value.text = prefViewModel.getOneOfTagSettings(context!!, 2)
+        prefTag2Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 2)
 
         val prefTag3 = root.findViewById<LinearLayout>(R.id.pref_tag3)
         prefTag3.setOnClickListener {
             DialogUtil.showTagDialog(this, 3, layoutInflater)
         }
         prefTag3Value = root.findViewById(R.id.pref_tag3_value)
-        prefTag3Value.text = prefViewModel.getOneOfTagSettings(context!!, 3)
+        prefTag3Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 3)
 
         val prefTag4 = root.findViewById<LinearLayout>(R.id.pref_tag4)
         prefTag4.setOnClickListener {
             DialogUtil.showTagDialog(this, 4, layoutInflater)
         }
         prefTag4Value = root.findViewById(R.id.pref_tag4_value)
-        prefTag4Value.text = prefViewModel.getOneOfTagSettings(context!!, 4)
+        prefTag4Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 4)
 
         val prefTag5 = root.findViewById<LinearLayout>(R.id.pref_tag5)
         prefTag5.setOnClickListener {
             DialogUtil.showTagDialog(this, 5, layoutInflater)
         }
         prefTag5Value = root.findViewById(R.id.pref_tag5_value)
-        prefTag5Value.text = prefViewModel.getOneOfTagSettings(context!!, 5)
+        prefTag5Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 5)
 
         val prefTag6 = root.findViewById<LinearLayout>(R.id.pref_tag6)
         prefTag6.setOnClickListener {
             DialogUtil.showTagDialog(this, 6, layoutInflater)
         }
         prefTag6Value = root.findViewById(R.id.pref_tag6_value)
-        prefTag6Value.text = prefViewModel.getOneOfTagSettings(context!!, 6)
+        prefTag6Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 6)
 
 
         val sugBoard = root.findViewById<TextView>(R.id.suggestion_board)
@@ -149,9 +149,9 @@ class SettingsFragment : Fragment() {
     private fun registerPrefChangeListener() {
         prefChangeListener = OnSharedPreferenceChangeListener {_, key ->
             when(key) {
-                "alert" -> prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(context!!))
+                "alert" -> prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(requireContext()))
                 "ring" -> {
-                    val ring = prefViewModel.getRingSettings(context!!)
+                    val ring = prefViewModel.getRingSettings(requireContext())
                     prefRingValue.text = prefEntryConverter(ring)
 
                     mediaPlayer = when(ring) {
@@ -168,12 +168,12 @@ class SettingsFragment : Fragment() {
                     mediaPlayer.start()
                     isPlayerInit = true
                 }
-                "tag1" -> prefTag1Value.text = prefViewModel.getOneOfTagSettings(context!!, 1)
-                "tag2" -> prefTag2Value.text = prefViewModel.getOneOfTagSettings(context!!, 2)
-                "tag3" -> prefTag3Value.text = prefViewModel.getOneOfTagSettings(context!!, 3)
-                "tag4" -> prefTag4Value.text = prefViewModel.getOneOfTagSettings(context!!, 4)
-                "tag5" -> prefTag5Value.text = prefViewModel.getOneOfTagSettings(context!!, 5)
-                "tag6" -> prefTag6Value.text = prefViewModel.getOneOfTagSettings(context!!, 6)
+                "tag1" -> prefTag1Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 1)
+                "tag2" -> prefTag2Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 2)
+                "tag3" -> prefTag3Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 3)
+                "tag4" -> prefTag4Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 4)
+                "tag5" -> prefTag5Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 5)
+                "tag6" -> prefTag6Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 6)
             }
         }
 

@@ -41,7 +41,7 @@ class FilePathUtil {
 
                 val selection = "_id=?"
                 val selectionArgs = arrayOf(split[1])
-                return getDataColumn(context, contentUri!!, selection, selectionArgs)
+                return contentUri?.let { getDataColumn(context, it, selection, selectionArgs) }
             }
         } else if ("content".equals(uri.scheme, ignoreCase = true)) {
             return getDataColumn(context, uri, null, null)

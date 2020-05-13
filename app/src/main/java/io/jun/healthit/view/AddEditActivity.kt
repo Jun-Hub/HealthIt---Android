@@ -34,7 +34,7 @@ import io.jun.healthit.viewmodel.MemoViewModel
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import io.jun.healthit.viewmodel.PrefViewModel
-import kotlinx.android.synthetic.main.activity_edit.*
+import kotlinx.android.synthetic.main.activity_add_edit.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -42,8 +42,7 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import kotlin.properties.Delegates
 
-//TODO 사실 여기나 MemoDetailActivity나 메모 DB를 livedata로 받아올 수는 없지 않은가?
-class EditActivity : AppCompatActivity() {
+class AddEditActivity : AppCompatActivity() {
 
     private lateinit var prefViewModel: PrefViewModel
     private lateinit var memoViewModel: MemoViewModel
@@ -56,14 +55,17 @@ class EditActivity : AppCompatActivity() {
     private lateinit var layoutM: LinearLayoutManager
     private lateinit var currentPhotoPath: String
     private lateinit var photoURI: Uri
-    private lateinit var date: String
+
+    private var isNewMemo by Delegates.notNull<Boolean>()
     private var tag by Delegates.notNull<Int>()
     private var pin by Delegates.notNull<Boolean>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_edit)
+        setContentView(R.layout.activity_add_edit)
 
+        isNewMemo = intent.getBooleanExtra("newMemo", false)
+        val templateId = intent.getIntExtra("templateId", 0)
         memoId = intent.getIntExtra("id", 0)
 
         //툴바 세팅
@@ -73,14 +75,15 @@ class EditActivity : AppCompatActivity() {
 
         prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
         memoViewModel = ViewModelProvider(this).get(MemoViewModel::class.java)
+
         val layoutManagerRecord = LinearLayoutManager(this)
         photoAdapter = PhotoListAdapter(this, true)
-        recordAdapter = RecordListAdapter(this, true, onlyForAddNew = false)
-        layoutM =  LinearLayoutManager(this@EditActivity, LinearLayoutManager.HORIZONTAL, false)
+        recordAdapter = RecordListAdapter(this, true, isNewMemo)
+        layoutM =  LinearLayoutManager(this@AddEditActivity, LinearLayoutManager.HORIZONTAL, false)
 
         //리사이클러뷰의 아이템간 구분선
         val itemDecoration = DividerItemDecoration(this, 0).apply {
-            setDrawable(this@EditActivity.getDrawable(R.drawable.divider_photo)!!)
+            this@AddEditActivity.getDrawable(R.drawable.divider_photo)?.let { setDrawable(it) }
         }
 
         recyclerView_record.apply {
@@ -94,32 +97,51 @@ class EditActivity : AppCompatActivity() {
             addItemDecoration(itemDecoration)
         }
 
-        btn_add_record.setOnClickListener {
-            recordAdapter.addRecordDefault()
-            layoutManagerRecord.scrollToPosition(recordAdapter.itemCount-1)
+        if(!isNewMemo) {
+            //편집할 메모 LiveData로 가져오기
+            memoActualLive = memoViewModel.getMemoById(memoId!!)
+            memoActualLive.observe(this@AddEditActivity, Observer { memo ->
+                editText_title.setText(memo.title)
+                editText_content.setText(memo.content)
+                for (i in memo.record!!.indices)
+                    recordAdapter.addRecord(memo.record[i])
+                textView_date.text = memo.date
+                tag = memo.tag!!
+                pin = memo.pin!!
+                CoroutineScope(Dispatchers.IO).launch {
+                    //DB에서 불러온 byteArray를 Bitmap으로 변환 및 리사이클러뷰에 저장
+                    for (i in memo.photo!!.indices) {
+                        val bitmap = BitmapFactory.decodeByteArray(
+                            memo.photo[i],
+                            0,
+                            memo.photo[i].size,
+                            ImageUtil.decodingOption()
+                        )
+                        withContext(Dispatchers.Main) { photoAdapter.addPhoto(bitmap) }
+                    }
+                }
+            })
+        } else {
+            //오늘 날짜로 설정
+            textView_date.text = EtcUtil.getCurrentDate()
         }
 
-        //편집할 메모 LiveData로 가져오기
-        memoActualLive = memoViewModel.getMemoById(memoId!!)
-        memoActualLive.observe(this@EditActivity, Observer { memo ->
-            editText_title.setText(memo.title)
-            editText_content.setText(memo.content)
-            for(i in memo.record!!.indices)
-                recordAdapter.addRecord(memo.record[i])
-            textView_date.text = memo.date!!
-            tag = memo.tag!!
-            pin = memo.pin!!
-            CoroutineScope(Dispatchers.IO).launch {
-                //DB에서 불러온 byteArray를 Bitmap으로 변환 및 리사이클러뷰에 저장
-                for (i in memo.photo!!.indices) {
-                    val bitmap = BitmapFactory.decodeByteArray(memo.photo[i], 0, memo.photo[i].size, ImageUtil.decodingOption())
-                    withContext(Dispatchers.Main) { photoAdapter.addPhoto(bitmap) }
-                }
+        //템플릿으로 열기로 넘어왔다면
+        if(templateId != 0) {
+            recordAdapter.clearRecords()    //추가됬었던 레코드 샘플 비우기
+            val records = prefViewModel.getTemplate(templateId, this)
+            for(i in records.indices) {
+                recordAdapter.addRecord(records[i])
             }
-        })
+        }
 
         btn_edit_date.setOnClickListener {
             DialogUtil.dateDialog(textView_date, this, layoutInflater)
+        }
+
+        btn_add_record.setOnClickListener {
+            recordAdapter.addRecordDefault()
+            layoutManagerRecord.scrollToPosition(recordAdapter.itemCount-1)
         }
 
         //앨범에서 사진 가져오기 버튼
@@ -140,7 +162,7 @@ class EditActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         //메모 프래그먼트에서 메모를 삭제 했을때 livedata nullPointException 방지를 위해 observer 제거
-        if (memoActualLive.hasObservers())
+        if (!isNewMemo && memoActualLive.hasObservers())
             memoActualLive.removeObservers(this)
     }
 
@@ -168,10 +190,10 @@ class EditActivity : AppCompatActivity() {
 
             //임시 파일 생성
             val photoFile = withContext(Dispatchers.IO) {
-                ImageUtil.createImageFile(this@EditActivity)
+                ImageUtil.createImageFile(this@AddEditActivity)
             }
             currentPhotoPath = photoFile.absolutePath
-            photoURI = FileProvider.getUriForFile(this@EditActivity, packageName, photoFile)
+            photoURI = FileProvider.getUriForFile(this@AddEditActivity, packageName, photoFile)
 
             val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
                 resolveActivity(packageManager)
@@ -191,21 +213,21 @@ class EditActivity : AppCompatActivity() {
                 if (requestCode == Setting.GALLERY_REQUEST_CODE && data != null) {
                     data.data?.also {
 
-                        val imageSize = ImageUtil.getImageSize(it, this@EditActivity)
+                        val imageSize = ImageUtil.getImageSize(it, this@AddEditActivity)
 
                         if (imageSize < Setting.IMAGE_SIZE_LIMIT) {
 
                             //sdk 버전에 따라 다르게 비트맵으로 변환
                             val imageBitmap = when {
                                 Build.VERSION.SDK_INT > 28 -> {
-                                    val source = ImageDecoder.createSource( this@EditActivity.contentResolver, it)
+                                    val source = ImageDecoder.createSource( this@AddEditActivity.contentResolver, it)
                                     withContext(Dispatchers.IO) { ImageDecoder.decodeBitmap(source) }
                                 }
-                                else -> withContext(Dispatchers.IO) { MediaStore.Images.Media.getBitmap(this@EditActivity.contentResolver, it)}
+                                else -> withContext(Dispatchers.IO) { MediaStore.Images.Media.getBitmap(this@AddEditActivity.contentResolver, it)}
                             }
 
                             //가져온 사진을 원래 각도로 회전
-                            val galleryPhotoPath = FilePathUtil.getPath(this@EditActivity, it)
+                            val galleryPhotoPath = FilePathUtil.getPath(this@AddEditActivity, it)
                             if (galleryPhotoPath != null) {
                                 val exifOrientation = withContext(Dispatchers.IO) {
                                     ExifInterface(galleryPhotoPath).getAttributeInt(
@@ -221,7 +243,7 @@ class EditActivity : AppCompatActivity() {
                                     }
                             }
                         } else {
-                            Toast.makeText(this@EditActivity, String.format(getString(R.string.notice_max_img_capacity), Setting.IMAGE_SIZE_LIMIT_MB), Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@AddEditActivity, String.format(getString(R.string.notice_max_img_capacity), Setting.IMAGE_SIZE_LIMIT_MB), Toast.LENGTH_LONG).show()
                         }
 
                     }
@@ -252,7 +274,8 @@ class EditActivity : AppCompatActivity() {
         //스피닝 아이템 선언 후 연결
         val tagSpinner: Spinner = item.actionView.findViewById(R.id.tag_spinner)
         tagSpinner.adapter = SpinnerAdapter(this, prefViewModel.getTagSettings(this, false))
-        tagSpinner.setSelection(intent.getIntExtra("tag", 0))
+        if(!isNewMemo)
+            tagSpinner.setSelection(intent.getIntExtra("tag", 0))
 
         tagSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -287,7 +310,9 @@ class EditActivity : AppCompatActivity() {
                     }
 
                     withContext(Dispatchers.Main) {
-                        DialogUtil.saveMemoDialog(false, this@EditActivity, layoutInflater, memoViewModel, memoId, title, content, recordAdapter.records ,byteArrayList, textView_date.text.toString(), tag, pin)
+                        DialogUtil.saveMemoDialog(isNewMemo, this@AddEditActivity, layoutInflater, memoViewModel,
+                            if(isNewMemo) null else memoId, title, content, recordAdapter.records ,byteArrayList,
+                            textView_date.text.toString(), tag, if(isNewMemo)false else pin)
                     }
                 }
                 true
@@ -315,10 +340,13 @@ class EditActivity : AppCompatActivity() {
 
                     if (totalSize > Setting.TOTAL_SIZE_LIMIT) {
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(this@EditActivity, getString(R.string.notice_max_capacity), Toast.LENGTH_LONG).show()
+                            Toast.makeText(this@AddEditActivity, getString(R.string.notice_max_capacity), Toast.LENGTH_LONG).show()
                         }
                     } else {
-                        memoViewModel.update(Memo(memoId!!, title, content, recordAdapter.records, byteArrayList, textView_date.text.toString(), tag, pin))
+                        if(isNewMemo)
+                            memoViewModel.insert(Memo(0, title, content, recordAdapter.records, byteArrayList, textView_date.text.toString(), tag, false))
+                        else
+                            memoViewModel.update(Memo(memoId!!, title, content, recordAdapter.records, byteArrayList, textView_date.text.toString(), tag, pin))
                         finish()
                     }
                 }
@@ -347,7 +375,9 @@ class EditActivity : AppCompatActivity() {
             }
 
             withContext(Dispatchers.Main) {
-                DialogUtil.saveMemoDialog(false, this@EditActivity, layoutInflater, memoViewModel, memoId, title, content, recordAdapter.records, byteArrayList, textView_date.text.toString(), tag, pin)
+                DialogUtil.saveMemoDialog(isNewMemo, this@AddEditActivity, layoutInflater, memoViewModel,
+                    if(isNewMemo) null else memoId, title, content, recordAdapter.records, byteArrayList,
+                    textView_date.text.toString(), tag, if(isNewMemo) false else pin)
             }
         }
     }
@@ -357,10 +387,10 @@ class EditActivity : AppCompatActivity() {
 
         private var cameraPermission: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {    //permission 허가 상태라면
-                this@EditActivity.takePhoto()
+                this@AddEditActivity.takePhoto()
             }
             override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {  //permission 거부 상태라면
-                Toast.makeText(this@EditActivity, getString(R.string.deny_take_photo), Toast.LENGTH_LONG).show()
+                Toast.makeText(this@AddEditActivity, getString(R.string.deny_take_photo), Toast.LENGTH_LONG).show()
             }
         }
         fun checkCameraPermission() {
@@ -374,10 +404,10 @@ class EditActivity : AppCompatActivity() {
 
         private var readPermission: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {    //permission 허가 상태라면
-                this@EditActivity.openGallery()
+                this@AddEditActivity.openGallery()
             }
             override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {  //permission 거부 상태라면
-                Toast.makeText(this@EditActivity, getString(R.string.deny_gallery), Toast.LENGTH_LONG).show()
+                Toast.makeText(this@AddEditActivity, getString(R.string.deny_gallery), Toast.LENGTH_LONG).show()
             }
         }
         fun checkReadPermission() {

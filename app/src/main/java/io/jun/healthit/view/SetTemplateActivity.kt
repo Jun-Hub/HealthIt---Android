@@ -25,12 +25,12 @@ class SetTemplateActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_set_template)
 
-        templateId = intent.getIntExtra("id", 0)
+        templateId = intent.getIntExtra("templateId", 0)
 
         //툴바 세팅
         setSupportActionBar(toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        supportActionBar!!.title = null
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = null
 
         prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
 

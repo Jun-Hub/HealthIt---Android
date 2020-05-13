@@ -17,7 +17,7 @@ import io.jun.healthit.R
 import io.jun.healthit.adapter.MemoListAdapter
 import io.jun.healthit.adapter.SpinnerAdapter
 import io.jun.healthit.util.DialogUtil
-import io.jun.healthit.view.AddActivity
+import io.jun.healthit.view.AddEditActivity
 import io.jun.healthit.viewmodel.MemoViewModel
 import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch
 import com.google.android.gms.ads.AdRequest
@@ -96,7 +96,7 @@ class MemoFragment : Fragment() {
         addBtn.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { actionItem ->
             when (actionItem.id) {
                 R.id.new_memo -> {
-                    startActivity(Intent(this.context, AddActivity::class.java))
+                    startActivity(Intent(this.context, AddEditActivity::class.java).putExtra("newMemo", true))
                     addBtn.close() // To close the Speed Dial with animation
                     return@OnActionSelectedListener true // false will close it without animation
                 }

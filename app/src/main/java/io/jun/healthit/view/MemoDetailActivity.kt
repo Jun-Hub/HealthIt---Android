@@ -45,8 +45,8 @@ class MemoDetailActivity : AppCompatActivity() {
 
         //툴바 세팅
         setSupportActionBar(toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        supportActionBar!!.title = null
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = null
 
         memoId = intent.getIntExtra("id", 0)
 
@@ -55,7 +55,7 @@ class MemoDetailActivity : AppCompatActivity() {
         memoViewModel = ViewModelProvider(this).get(MemoViewModel::class.java)
         val photoAdapter = PhotoListAdapter(this, false)
         val itemDecoration = DividerItemDecoration(this@MemoDetailActivity, 0).apply {
-            setDrawable(this@MemoDetailActivity.getDrawable(R.drawable.divider_photo)!!) //아이템간 구분선
+            this@MemoDetailActivity.getDrawable(R.drawable.divider_photo)?.let { setDrawable(it) } //아이템간 구분선
         }
 
         val layoutManagerRecord = LinearLayoutManager(this)
@@ -110,7 +110,11 @@ class MemoDetailActivity : AppCompatActivity() {
                 else -> R.drawable.transparent
             })
 
-            textView_tag.text = if(memo.tag==0) "" else prefViewModel.getOneOfTagSettings(this, memo.tag!!)
+            textView_tag.text = if(memo.tag==0) "" else memo.tag?.let {
+                prefViewModel.getOneOfTagSettings(this,
+                    it
+                )
+            }
 
             if(!alreadyLoad) {
                 if (memo.photo.isNullOrEmpty())
@@ -174,7 +178,7 @@ class MemoDetailActivity : AppCompatActivity() {
                 true
             }
             R.id.action_edit -> {   //편집 버튼
-                startActivity(Intent(this, EditActivity::class.java)
+                startActivity(Intent(this, AddEditActivity::class.java)
                     .putExtra("id", memoId)
                     .putExtra("tag", memo.tag))
                 finish()

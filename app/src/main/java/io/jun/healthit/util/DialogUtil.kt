@@ -21,7 +21,7 @@ import io.jun.healthit.adapter.RecordListAdapter
 import io.jun.healthit.model.Memo
 import io.jun.healthit.model.Record
 import io.jun.healthit.service.TimerService
-import io.jun.healthit.view.AddActivity
+import io.jun.healthit.view.AddEditActivity
 import io.jun.healthit.view.SetTemplateActivity
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
@@ -282,26 +282,26 @@ class DialogUtil {
             val intent = if(settingsMode)
                             Intent(fragment.context, SetTemplateActivity::class.java)
                         else
-                            Intent(fragment.context, AddActivity::class.java)
+                            Intent(fragment.context, AddEditActivity::class.java).putExtra("newMemo", true)
 
             fragment.context?.let {
                 AlertDialog.Builder(it, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar)
                     .setTitle(title)
                     .setItems(templates) { _, which ->
                         when(which) {
-                            0 -> { intent.putExtra("id",1)
+                            0 -> { intent.putExtra("templateId",1)
                                 fragment.startActivity(intent) }
-                            1 -> { intent.putExtra("id",2)
+                            1 -> { intent.putExtra("templateId",2)
                                 fragment.startActivity(intent) }
-                            2 -> { intent.putExtra("id",3)
+                            2 -> { intent.putExtra("templateId",3)
                                 fragment.startActivity(intent) }
-                            3 -> { intent.putExtra("id",4)
+                            3 -> { intent.putExtra("templateId",4)
                                 fragment.startActivity(intent) }
-                            4 -> { intent.putExtra("id",5)
+                            4 -> { intent.putExtra("templateId",5)
                                 fragment.startActivity(intent) }
-                            5 -> { intent.putExtra("id",6)
+                            5 -> { intent.putExtra("templateId",6)
                                 fragment.startActivity(intent) }
-                            6 -> { intent.putExtra("id",7)
+                            6 -> { intent.putExtra("templateId",7)
                                 fragment.startActivity(intent) }
                         }
                     }.show()
