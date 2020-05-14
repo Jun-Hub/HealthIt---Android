@@ -4,10 +4,10 @@ import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
+import android.graphics.drawable.Drawable
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.Menu
@@ -18,12 +18,14 @@ import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.exifinterface.media.ExifInterface
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import io.jun.healthit.R
 import io.jun.healthit.adapter.PhotoListAdapter
 import io.jun.healthit.adapter.RecordListAdapter
@@ -59,6 +61,8 @@ class AddEditActivity : AppCompatActivity() {
     private var isNewMemo by Delegates.notNull<Boolean>()
     private var tag by Delegates.notNull<Int>()
     private var pin by Delegates.notNull<Boolean>()
+
+    private val byteArrayList = ArrayList<ByteArray>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,7 +119,7 @@ class AddEditActivity : AppCompatActivity() {
                             memo.photo[i],
                             0,
                             memo.photo[i].size,
-                            ImageUtil.decodingOption()
+                            BitmapFactory.Options()
                         )
                         withContext(Dispatchers.Main) { photoAdapter.addPhoto(bitmap) }
                     }
@@ -203,6 +207,20 @@ class AddEditActivity : AppCompatActivity() {
         }
     }
 
+    private fun addPhoto(uri: Uri?, filePath: String?) {
+        Glide.with(this@AddEditActivity)
+            .asBitmap()
+            .load(uri ?: filePath)
+            .into(object : CustomTarget<Bitmap>(800, 600) {
+                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                    photoAdapter.addPhoto(resource)
+                    layoutM.scrollToPosition(photoAdapter.itemCount - 1)
+                }
+                override fun onLoadCleared(placeholder: Drawable?) {
+                }
+            })
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -213,54 +231,15 @@ class AddEditActivity : AppCompatActivity() {
                 if (requestCode == Setting.GALLERY_REQUEST_CODE && data != null) {
                     data.data?.also {
 
-                        val imageSize = ImageUtil.getImageSize(it, this@AddEditActivity)
-
-                        if (imageSize < Setting.IMAGE_SIZE_LIMIT) {
-
-                            //sdk 버전에 따라 다르게 비트맵으로 변환
-                            val imageBitmap = when {
-                                Build.VERSION.SDK_INT > 28 -> {
-                                    val source = ImageDecoder.createSource( this@AddEditActivity.contentResolver, it)
-                                    withContext(Dispatchers.IO) { ImageDecoder.decodeBitmap(source) }
-                                }
-                                else -> withContext(Dispatchers.IO) { MediaStore.Images.Media.getBitmap(this@AddEditActivity.contentResolver, it)}
-                            }
-
-                            //가져온 사진을 원래 각도로 회전
-                            val galleryPhotoPath = FilePathUtil.getPath(this@AddEditActivity, it)
-                            if (galleryPhotoPath != null) {
-                                val exifOrientation = withContext(Dispatchers.IO) {
-                                    ExifInterface(galleryPhotoPath).getAttributeInt(
-                                        ExifInterface.TAG_ORIENTATION,
-                                        ExifInterface.ORIENTATION_UNDEFINED
-                                    )
-                                }
-                                ImageUtil.exifOrientationToDegrees(exifOrientation, imageBitmap)
-                                    .also { rotatedBitmap ->
-                                        //리사이클러뷰에 사진 추가
-                                        photoAdapter.addPhoto(rotatedBitmap)
-                                        layoutM.scrollToPosition(photoAdapter.itemCount - 1)
-                                    }
-                            }
-                        } else {
+                        if (ImageUtil.getImageSize(it, this@AddEditActivity) < Setting.IMAGE_SIZE_LIMIT)
+                            addPhoto(it, null)
+                        else
                             Toast.makeText(this@AddEditActivity, String.format(getString(R.string.notice_max_img_capacity), Setting.IMAGE_SIZE_LIMIT_MB), Toast.LENGTH_LONG).show()
-                        }
 
                     }
                     //카메라 촬영으로 사진 가져왔을 때
                 } else if (requestCode == Setting.TAKE_PHOTO_REQUEST_CODE) {
-                    //사진을 원래 각도로 회전
-                    val exifOrientation = withContext(Dispatchers.IO){
-                        ExifInterface(currentPhotoPath).getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
-                    }
-
-                    BitmapFactory.decodeFile(currentPhotoPath, ImageUtil.decodingOption()).also {
-                        ImageUtil.exifOrientationToDegrees(exifOrientation, it).also { rotatedBitmap ->
-                            //리사이클러뷰에 사진 추가
-                            photoAdapter.addPhoto(rotatedBitmap)
-                            layoutM.scrollToPosition(photoAdapter.itemCount - 1)
-                        }
-                    }
+                    addPhoto(null, currentPhotoPath)
                 }
             }
         }
@@ -295,23 +274,11 @@ class AddEditActivity : AppCompatActivity() {
             android.R.id.home -> {  //툴바의 뒤로가기 버튼
                 CoroutineScope(Dispatchers.Default).launch {
 
-                    val title = if(EtcUtil.isAllBlank(editText_title.text.toString())) ""
-                                else editText_title.text.toString()
-
-                    val content = if(EtcUtil.isAllBlank(editText_content.text.toString())) ""
-                                else editText_content.text.toString()
-                    val byteArrayList = ArrayList<ByteArray>()
-
-                    //byteArray로 첨부된 이미지 용량 압축
-                    for (i in 0 until photoAdapter.itemCount) {
-                        ImageUtil.bitmapToByteArray(photoAdapter.getBitmap(i), 10).also {
-                            byteArrayList.add(it)
-                        }
-                    }
+                    addByteArray()
 
                     withContext(Dispatchers.Main) {
                         DialogUtil.saveMemoDialog(isNewMemo, this@AddEditActivity, layoutInflater, memoViewModel,
-                            if(isNewMemo) null else memoId, title, content, recordAdapter.records ,byteArrayList,
+                            if(isNewMemo) null else memoId, titleToString(), contentToString(), recordAdapter.records ,byteArrayList,
                             textView_date.text.toString(), tag, if(isNewMemo)false else pin)
                     }
                 }
@@ -322,21 +289,10 @@ class AddEditActivity : AppCompatActivity() {
 
                 CoroutineScope(Dispatchers.Default).launch {
 
-                    val title = if(EtcUtil.isAllBlank(editText_title.text.toString())) ""
-                                else editText_title.text.toString()
+                    addByteArray()
 
-                    val content = if(EtcUtil.isAllBlank(editText_content.text.toString())) ""
-                                else editText_content.text.toString()
-                    val byteArrayList = ArrayList<ByteArray>()
                     var totalSize = 0
-
-                    //byteArray로 첨부된 이미지 용량 압축
-                    for (i in 0 until photoAdapter.itemCount) {
-                        ImageUtil.bitmapToByteArray(photoAdapter.getBitmap(i), 10).also {
-                            byteArrayList.add(it)
-                            totalSize += it.size
-                        }
-                    }
+                    for (i in byteArrayList.indices) totalSize += byteArrayList[i].size
 
                     if (totalSize > Setting.TOTAL_SIZE_LIMIT) {
                         withContext(Dispatchers.Main) {
@@ -344,9 +300,10 @@ class AddEditActivity : AppCompatActivity() {
                         }
                     } else {
                         if(isNewMemo)
-                            memoViewModel.insert(Memo(0, title, content, recordAdapter.records, byteArrayList, textView_date.text.toString(), tag, false))
+                            memoViewModel.insert(Memo(0, titleToString(), contentToString(), recordAdapter.records, byteArrayList, textView_date.text.toString(), tag, false))
                         else
-                            memoViewModel.update(Memo(memoId!!, title, content, recordAdapter.records, byteArrayList, textView_date.text.toString(), tag, pin))
+                            memoViewModel.update(Memo(memoId!!, titleToString(), contentToString(), recordAdapter.records, byteArrayList, textView_date.text.toString(), tag, pin))
+
                         finish()
                     }
                 }
@@ -363,21 +320,27 @@ class AddEditActivity : AppCompatActivity() {
 
         CoroutineScope(Dispatchers.Default).launch {
 
-            val title = editText_title.text.toString()
-            val content = editText_content.text.toString()
-            val byteArrayList = ArrayList<ByteArray>()
-
-            //byteArray로 첨부된 이미지 용량 압축
-            for (i in 0 until photoAdapter.itemCount) {
-                ImageUtil.bitmapToByteArray(photoAdapter.getBitmap(i),10).also {
-                    byteArrayList.add(it)
-                }
-            }
+            addByteArray()
 
             withContext(Dispatchers.Main) {
                 DialogUtil.saveMemoDialog(isNewMemo, this@AddEditActivity, layoutInflater, memoViewModel,
-                    if(isNewMemo) null else memoId, title, content, recordAdapter.records, byteArrayList,
+                    if(isNewMemo) null else memoId, titleToString(), contentToString(), recordAdapter.records, byteArrayList,
                     textView_date.text.toString(), tag, if(isNewMemo) false else pin)
+            }
+        }
+    }
+
+    private fun titleToString() = if(EtcUtil.isAllBlank(editText_title.text.toString())) ""
+    else editText_title.text.toString()
+
+    private fun contentToString() = if(EtcUtil.isAllBlank(editText_content.text.toString())) ""
+    else editText_content.text.toString()
+
+    private fun addByteArray() {
+        //byteArray로 첨부된 이미지 용량 압축
+        for (i in 0 until photoAdapter.itemCount) {
+            ImageUtil.bitmapToByteArray(photoAdapter.getBitmap(i), 50).also {
+                byteArrayList.add(it)
             }
         }
     }

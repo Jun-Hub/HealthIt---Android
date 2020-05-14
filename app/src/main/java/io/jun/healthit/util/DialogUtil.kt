@@ -34,48 +34,6 @@ class DialogUtil {
 
     companion object {
 
-        //외부 url로 이미지 가져오기
-        fun imageUrlDialog(
-            activity: Activity,
-            layoutInflater: LayoutInflater,
-            photoAdapter: PhotoListAdapter,
-            layoutM: LinearLayoutManager
-        ) {
-
-            val inflater = layoutInflater.inflate(R.layout.dialog_image_url, null as ViewGroup?)
-
-            inflater.findViewById<EditText>(R.id.editText_url).also { editText ->
-
-                AlertDialog.Builder(
-                        activity,
-                        android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar
-                    )
-                    .setView(inflater)
-                    .setPositiveButton("확인") { _, _ ->
-                        //받은 url로 접속 후 이미지 가져오기
-                        CoroutineScope(Dispatchers.Default).launch {
-                            val url = editText.text.toString()
-
-                            if (url.contains("http:") || url.contains("https:")) {
-                                ImageUtil.GetImageFromURL(layoutM, photoAdapter, activity)
-                                    .execute(url)
-                            } else {
-                                withContext(Dispatchers.Main) {
-                                    Toast.makeText(
-                                        activity,
-                                        "'http:' 또는 'https:'로 시작하는 URL 경로를 입력해주세요.",
-                                        Toast.LENGTH_LONG
-                                    ).show()
-                                }
-                            }
-                        }
-                    }
-                    .setNegativeButton("취소") { _, _ ->
-                    }
-                    .show()
-            }
-        }
-
         fun dateDialog(textDate:TextView, activity: Activity, layoutInflater: LayoutInflater) {
             val inflater = layoutInflater.inflate(R.layout.dialog_date, null as ViewGroup?)
 

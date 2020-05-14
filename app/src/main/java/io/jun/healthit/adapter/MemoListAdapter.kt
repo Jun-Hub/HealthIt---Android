@@ -1,7 +1,9 @@
 package io.jun.healthit.adapter
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,6 +13,9 @@ import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import io.jun.healthit.R
 import io.jun.healthit.model.Memo
 import io.jun.healthit.util.ImageUtil
@@ -100,11 +105,19 @@ class MemoListAdapter internal constructor(
 
             if (current.photo!!.isNotEmpty()) {
                 CoroutineScope(Dispatchers.Default).launch {
-                    val bitmap = BitmapFactory.decodeByteArray(current.photo[0], 0, current.photo[0].size, ImageUtil.decodingOption())
-                    withContext(Dispatchers.Main) {
-                        holder.memoImage.visibility = View.VISIBLE
-                        holder.memoImage.setImageBitmap(bitmap)
-                    }
+
+                    Glide.with(fragment)
+                        .asBitmap()
+                        .load(current.photo[0])
+                        .into(object : CustomTarget<Bitmap>() {
+                            override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                                holder.memoImage.visibility = View.VISIBLE
+                                holder.memoImage.setImageBitmap(resource)
+                            }
+                            override fun onLoadCleared(placeholder: Drawable?) {
+                            }
+                        })
+
                 }
             } else
                 holder.memoImage.visibility = View.GONE

@@ -1,8 +1,10 @@
 package io.jun.healthit.view
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
@@ -15,12 +17,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import io.jun.healthit.R
 import io.jun.healthit.adapter.PhotoListAdapter
 import io.jun.healthit.adapter.RecordListAdapter
 import io.jun.healthit.model.Memo
 import io.jun.healthit.util.DialogUtil
-import io.jun.healthit.util.ImageUtil
 import io.jun.healthit.viewmodel.MemoViewModel
 import com.github.zagum.switchicon.SwitchIconView
 import io.jun.healthit.viewmodel.PrefViewModel
@@ -120,17 +124,19 @@ class MemoDetailActivity : AppCompatActivity() {
                 if (memo.photo.isNullOrEmpty())
                     recyclerView_photo.visibility = View.GONE
                 else {
+                    recyclerView_photo.visibility = View.VISIBLE
+
                     CoroutineScope(Dispatchers.IO).launch {
                         //bitmap으로 디코딩 후 리사이클러뷰에 추가
                         for (i in memo.photo.indices) {
                             val bitmap =
-                                BitmapFactory.decodeByteArray(memo.photo[i], 0, memo.photo[i].size, ImageUtil.decodingOption())
+                                BitmapFactory.decodeByteArray(memo.photo[i], 0, memo.photo[i].size, BitmapFactory.Options())
                             withContext(Dispatchers.Main) {
-                                recyclerView_photo.visibility = View.VISIBLE
                                 photoAdapter.addPhoto(bitmap)
                             }
                         }
                     }
+
                 }
             }
 

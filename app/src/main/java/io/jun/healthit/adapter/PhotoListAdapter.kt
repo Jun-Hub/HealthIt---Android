@@ -53,7 +53,7 @@ class PhotoListAdapter internal constructor(
             holder.imageView.setOnClickListener {
                 CoroutineScope(Dispatchers.Default).launch {
                     //비트맵을 byteArray로 압축
-                    val byteArray = ImageUtil.bitmapToByteArray(current, 30)
+                    val byteArray = ImageUtil.bitmapToByteArray(current, 100)
                     context.startActivity(Intent(context, PhotoDetailActivity::class.java).apply {
                         putExtra("byteArray", byteArray)
                     })
