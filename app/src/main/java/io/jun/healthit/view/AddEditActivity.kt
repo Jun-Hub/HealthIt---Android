@@ -112,6 +112,7 @@ class AddEditActivity : AppCompatActivity() {
                 textView_date.text = memo.date
                 tag = memo.tag!!
                 pin = memo.pin!!
+
                 CoroutineScope(Dispatchers.IO).launch {
                     //DB에서 불러온 byteArray를 Bitmap으로 변환 및 리사이클러뷰에 저장
                     for (i in memo.photo!!.indices) {
