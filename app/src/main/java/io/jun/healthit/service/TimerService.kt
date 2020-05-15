@@ -1,12 +1,19 @@
 package io.jun.healthit.service
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
+import android.graphics.PixelFormat
 import android.media.MediaPlayer
 import android.os.*
+import android.view.LayoutInflater
+import android.view.MotionEvent
+import android.view.View
+import android.view.WindowManager
 import androidx.lifecycle.MutableLiveData
 import io.jun.healthit.R
 import io.jun.healthit.util.NotiUtil
+import uk.co.barbuzz.beerprogressview.BeerProgressView
 
 class TimerService : Service() {
 
@@ -22,10 +29,19 @@ class TimerService : Service() {
     private lateinit var mediaPlayer: MediaPlayer
     private var isPlayerInit = false
 
+    //floating view
+    private lateinit var mWindowManager: WindowManager
+    private lateinit var mFloatingView: View
+    private lateinit var collapsedView: View
+    private lateinit var expandedView: View
+    private lateinit var progressCountdown: BeerProgressView
+
     override fun onCreate() {
         super.onCreate()
         vibrator = this.getSystemService(VIBRATOR_SERVICE) as Vibrator
         isRunning = true
+
+        setFloatingView()
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -60,6 +76,7 @@ class TimerService : Service() {
 
         if(isPlayerInit) mediaPlayer.release()
         isRunning = false
+        mWindowManager.removeView(mFloatingView)
     }
 
     //어플이 종료될 때 발생. TimerService는 BindService라서 호출이 안됌
@@ -77,6 +94,7 @@ class TimerService : Service() {
             secondsRemaining = setTime.toLong()
             timerLengthSeconds = setTime.toLong()
             progressMax.postValue(setTime)
+            progressCountdown.max = setTime
             startForeground(1, NotiUtil.createNotification(this, setTime))
         }
 
@@ -127,6 +145,7 @@ class TimerService : Service() {
         NotiUtil.updateNotification(this, showTime, isPlaying = true, isPausing =  false)
         leftTime.value = showTime
         progress.postValue((timerLengthSeconds - secondsRemaining).toInt())
+        progressCountdown.beerProgress = (timerLengthSeconds - secondsRemaining).toInt()
     }
 
     private fun finishEffect() {
@@ -166,6 +185,77 @@ class TimerService : Service() {
         } else {
             vibrator.vibrate(longArrayOf(0, 250, 100, 250, 100, 250), -1)
         }
+    }
+
+    private fun setFloatingView() {
+        //getting the widget layout from xml using layout inflater
+        mFloatingView = LayoutInflater.from(this).inflate(R.layout.layout_floating_widget, null)
+
+        //setting the layout parameters
+        val params = WindowManager.LayoutParams(
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.WRAP_CONTENT,
+            WindowManager.LayoutParams.TYPE_PHONE,
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            PixelFormat.TRANSLUCENT
+        )
+
+        //getting windows services and adding the floating view to it
+        mWindowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        mWindowManager.addView(mFloatingView, params)
+
+        //getting the collapsed and expanded view from the floating view
+        collapsedView = mFloatingView.findViewById(R.id.layoutCollapsed)
+        expandedView = mFloatingView.findViewById(R.id.layoutExpanded)
+        progressCountdown = mFloatingView.findViewById(R.id.beerProgressView)
+
+        //adding click listener to close button and expanded view
+        mFloatingView.findViewById<View>(R.id.buttonClose).setOnClickListener {
+            collapsedView.visibility = View.GONE
+            expandedView.visibility = View.GONE
+        }
+        expandedView.setOnClickListener {
+            //switching views
+            collapsedView.visibility = View.VISIBLE
+            expandedView.visibility = View.GONE
+        }
+
+        //adding an touchlistener to make drag movement of the floating widget
+        mFloatingView.findViewById<View>(R.id.relativeLayoutParent)
+            .setOnTouchListener(object : View.OnTouchListener {
+                private var initialX = 0
+                private var initialY = 0
+                private var initialTouchX = 0f
+                private var initialTouchY = 0f
+                override fun onTouch(
+                    v: View,
+                    event: MotionEvent
+                ): Boolean {
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            initialX = params.x
+                            initialY = params.y
+                            initialTouchX = event.rawX
+                            initialTouchY = event.rawY
+                            return true
+                        }
+                        MotionEvent.ACTION_UP -> {
+                            //when the drag is ended switching the state of the widget
+                            collapsedView.visibility = View.GONE
+                            expandedView.visibility = View.VISIBLE
+                            return true
+                        }
+                        MotionEvent.ACTION_MOVE -> {
+                            //this code is helping the widget to move around the screen with fingers
+                            params.x = initialX + (event.rawX - initialTouchX).toInt()
+                            params.y = initialY + (event.rawY - initialTouchY).toInt()
+                            mWindowManager.updateViewLayout(mFloatingView, params)
+                            return true
+                        }
+                    }
+                    return false
+                }
+            })
     }
 
     companion object {

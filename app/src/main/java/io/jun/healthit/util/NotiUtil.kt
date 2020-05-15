@@ -9,13 +9,10 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.lifecycle.ViewModelProvider
 import io.jun.healthit.R
 import io.jun.healthit.service.TimerService
 import io.jun.healthit.view.MainActivity
-import io.jun.healthit.viewmodel.PrefViewModel
 import kotlin.properties.Delegates
-
 
 class NotiUtil {
 

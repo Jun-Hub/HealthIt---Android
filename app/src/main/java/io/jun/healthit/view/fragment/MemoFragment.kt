@@ -60,7 +60,7 @@ class MemoFragment : Fragment() {
         addBtn = root.findViewById(R.id.add_btn)
         val textViewNoMemo: TextView = root.findViewById(R.id.textView_no_memo)
         val itemDecoration = DividerItemDecoration(this.context, 1)
-        itemDecoration.setDrawable(requireContext().getDrawable(R.drawable.divider_memo)!!)
+        requireContext().getDrawable(R.drawable.divider_memo)?.let { itemDecoration.setDrawable(it) }
 
         val layoutM = LinearLayoutManager(this.context)
 

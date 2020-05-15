@@ -17,6 +17,7 @@ import io.jun.healthit.R
 import io.jun.healthit.service.TimerService
 import io.jun.healthit.viewmodel.PrefViewModel
 import io.jun.healthit.viewmodel.TimerViewModel
+import uk.co.barbuzz.beerprogressview.BeerProgressView
 
 class TimerFragment : Fragment() {
 
@@ -25,7 +26,7 @@ class TimerFragment : Fragment() {
     private lateinit var btnStart: ImageButton
     private lateinit var btnPause: ImageButton
     private lateinit var btnStop: ImageButton
-    private lateinit var progressCountdown: ProgressBar
+    private lateinit var progressCountdown: BeerProgressView
     private lateinit var textViewCountdown: TextView
     private lateinit var numberPickerMin: NumberPicker
     private lateinit var numberPickerSec: NumberPicker
@@ -59,7 +60,7 @@ class TimerFragment : Fragment() {
         })
 
         timerViewModel.getProgress().observe(requireActivity(), Observer { progress ->
-            progressCountdown.progress = progress
+            progressCountdown.beerProgress = progress
         })
 
         timerViewModel.getProgressMax().observe(requireActivity(), Observer { max ->
@@ -76,7 +77,7 @@ class TimerFragment : Fragment() {
                     isReplay = false
                     progressCountdown.apply {
                         max = 0
-                        progress = 0
+                        beerProgress = 0
                     }
                 }
             }
@@ -97,7 +98,7 @@ class TimerFragment : Fragment() {
         btnStart = root.findViewById(R.id.btn_start)
         btnPause = root.findViewById(R.id.btn_pause)
         btnStop = root.findViewById(R.id.btn_stop)
-        progressCountdown = root.findViewById(R.id.progress_countdown)
+        progressCountdown = root.findViewById(R.id.beerProgressView)
         textViewCountdown = root.findViewById(R.id.textView_countdown)
         numberPickerMin = root.findViewById(R.id.numberPicker_min)
         numberPickerSec = root.findViewById(R.id.numberPicker_sec)
@@ -164,5 +165,4 @@ class TimerFragment : Fragment() {
             }
         }
     }
-
 }

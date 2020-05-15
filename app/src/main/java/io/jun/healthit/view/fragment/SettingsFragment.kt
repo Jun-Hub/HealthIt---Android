@@ -1,6 +1,8 @@
 package io.jun.healthit.view.fragment
 
+import android.Manifest
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
@@ -13,12 +15,15 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.TedPermission
 import io.jun.healthit.R
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.Setting
@@ -231,6 +236,26 @@ class SettingsFragment : Fragment() {
         super.onStop()
         if(isPlayerInit) mediaPlayer.release()
         preferences.unregisterOnSharedPreferenceChangeListener(prefChangeListener)
+    }
+
+    inner class Permission(private val context: Context) {
+
+        private var overlayPermission: PermissionListener = object : PermissionListener {
+            override fun onPermissionGranted() {    //permission 허가 상태라면
+
+            }
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {  //permission 거부 상태라면
+                Toast.makeText(requireContext(), getString(R.string.deny_take_photo), Toast.LENGTH_LONG).show()
+            }
+        }
+        fun checkAlertPermission() {
+            TedPermission.with(context)
+                .setPermissionListener(overlayPermission)
+                .setRationaleMessage("오버레이")
+                .setDeniedMessage("거부됨")
+                .setPermissions(Manifest.permission.SYSTEM_ALERT_WINDOW)
+                .check()
+        }
     }
 }
 
