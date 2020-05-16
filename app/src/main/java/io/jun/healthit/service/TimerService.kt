@@ -227,6 +227,7 @@ class TimerService : Service() {
                 private var initialY = 0
                 private var initialTouchX = 0f
                 private var initialTouchY = 0f
+
                 override fun onTouch(
                     v: View,
                     event: MotionEvent
