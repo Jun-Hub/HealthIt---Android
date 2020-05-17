@@ -230,7 +230,10 @@ class TimerService : Service() {
 
         floatingView.findViewById<ImageButton>(R.id.btn_extension).setOnClickListener {
             floatingView.visibility = View.GONE
-            startActivity(Intent(this, MainActivity::class.java))
+            Intent(this, MainActivity::class.java).also {
+                it.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(it)
+            }
         }
 
         floatingView.findViewById<ImageButton>(R.id.btn_close).setOnClickListener {
