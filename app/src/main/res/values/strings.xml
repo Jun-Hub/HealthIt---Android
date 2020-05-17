@@ -117,8 +117,10 @@
     <!-- Permission -->
     <string name="deny_take_photo">권한 요청을 거부하여 사진 촬영을 실행할 수 없습니다.</string>
     <string name="deny_gallery">권한 요청을 거부하여 갤러리를 실행할 수 없습니다.</string>
+    <string name="deny_overlay">권한 요청을 거부하여 Floating 모드를 실행할 수 없습니다.</string>
     <string name="request_take_photo">사진 촬영을 위해서 접근 권한이 필요합니다.</string>
     <string name="request_gallery">갤러리 접근을 위해 권한이 필요합니다.</string>
+    <string name="request_overlay">Floating 모드 실행을 위해 권한이 필요합니다.</string>
     <string name="deny_request">거부하셨습니다. 하지만 [설정] > [권한] 에서 권한을 허용할 수 있습니다.</string>
 
     <!-- Preference Titles -->
@@ -128,6 +130,8 @@
     <!-- Alert Preferences -->
     <string name="ring_title">알림음 설정</string>
     <string name="alert_title">알림 모드</string>
+    <string name="floating_title">Floating 모드</string>
+    <string name="floating_is">타이머 실행 중에 화면을 벗어나면 미니타이머를 통해 다른 앱 상단에서 계속 재생됩니다.</string>
 
     <!-- Sync Preferences -->
     <string name="tag1_title">태그1 이름</string>

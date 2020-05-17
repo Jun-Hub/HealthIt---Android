@@ -27,6 +27,11 @@ class PrefViewModel(application: Application) : AndroidViewModel(application) {
     fun setRingSettings(context: Context, value: String) = repository.setRingSettings(context, value)
 
 
+    fun getFloatingSettings(context: Context) = repository.getFloatingSettings(context)
+
+    fun setFloatingSettings(context: Context, value:Boolean) = repository.setFloatingSettings(context,value)
+
+
     fun getTagSettings(context: Context, forSort: Boolean) = repository.getTagSettings(context, forSort)
 
     fun getOneOfTagSettings(context: Context, index: Int) = repository.getOneOfTagSettings(context, index)

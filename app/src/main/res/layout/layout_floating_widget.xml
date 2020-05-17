@@ -1,87 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout
+    android:id="@+id/parent_view"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
+    <View
+        android:layout_width="60dp"
+        android:layout_height="57dp"
+        android:layout_marginTop="3dp"
+        android:background="@color/colorFloatingBackground"/>
 
-    <RelativeLayout
-        android:id="@+id/relativeLayoutParent"
+    <uk.co.barbuzz.beerprogressview.BeerProgressView
+        android:id="@+id/beerProgressView"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        app:beerColor="@color/colorAccentTransparent"
+        app:bubbleColor="#AEE3FC"
+        app:bubbleCount="0"
+        app:waveAmplitude="1dp" />
+
+    <TextView
+        android:id="@+id/textView_countdown"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        tools:ignore="UselessParent">
+        android:layout_centerInParent="true"
+        android:textColor="@android:color/black"
+        android:textSize="18sp"
+        />
 
-        <!-- this is the collapsed layout -->
-        <RelativeLayout
-            android:id="@+id/layoutCollapsed"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="visible">
+    <ImageButton
+        android:id="@+id/btn_extension"
+        android:layout_width="17dp"
+        android:layout_height="17dp"
+        android:contentDescription="@string/app_name"
+        android:background="@drawable/ic_full_screen" />
 
-            <uk.co.barbuzz.beerprogressview.BeerProgressView
-                android:id="@+id/beerProgressView"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                app:beerColor="#74ccf4"
-                app:bubbleColor="#AEE3FC"
-                app:bubbleCount="4"
-                app:waveAmplitude="2dp"/>
+    <ImageButton
+        android:id="@+id/btn_close"
+        android:layout_width="22dp"
+        android:layout_height="22dp"
+        android:layout_marginStart="38dp"
+        android:contentDescription="@string/app_name"
+        android:background="@drawable/ic_delete_btn" />
 
-            <ImageView
-                android:id="@+id/buttonClose"
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:layout_marginLeft="50dp"
-                android:src="@drawable/ic_delete_btn" />
-        </RelativeLayout>
+    <ImageButton
+        android:id="@+id/btn_play"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:background="@drawable/ic_play"
+        android:layout_centerInParent="true"
+        android:contentDescription="@string/app_name"
+        android:visibility="gone"
+        />
 
-        <!-- this is the expanded layout -->
-        <LinearLayout
-            android:id="@+id/layoutExpanded"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#a0c3d7"
-            android:orientation="horizontal"
-            android:padding="8dp"
-            android:visibility="gone">
-
-            <ImageView
-                android:id="@+id/buttonSimplifiedCodingExpanded"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:src="@drawable/ic_arrow_down_5_orange"
-                tools:ignore="ContentDescription" />
-
-            <LinearLayout
-                android:id="@+id/buttonSimplifiedCoding"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="15dp"
-                    android:paddingRight="15dp"
-                    android:paddingTop="15dp"
-                    android:text="Simplified Coding"
-                    android:textAlignment="center"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-                    android:textColor="#ffffff"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="www.simplifiedcoding.net"
-                    android:textAlignment="center"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Medium"
-                    android:textColor="#ffffff"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-        </LinearLayout>
-    </RelativeLayout>
-</FrameLayout>
+</RelativeLayout>

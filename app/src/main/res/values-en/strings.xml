@@ -59,13 +59,17 @@
     <string name="routine_num">Routine%1$d</string>
     <string name="deny_take_photo">Can\'t take a photo because you have denied the permission request.</string>
     <string name="deny_gallery">Can\'t open gallery because you have denied the permission request.</string>
+    <string name="deny_overlay">Can\'t turn on Floating mode because you have denied the permission request.</string>
     <string name="request_take_photo">Permission is required for taking pictures.</string>
     <string name="request_gallery">Permission is required for opening gallery.</string>
+    <string name="request_overlay">Permission is required for Floating mode.</string>
     <string name="deny_request">You have denied. However, you can grant permissions at [Settings] > [Permissions].</string>
     <string name="alert_header">Timer Alert</string>
     <string name="memo_header">Workout Log</string>
     <string name="ring_title">Set Ring</string>
     <string name="alert_title">Alert Mode</string>
+    <string name="floating_title">Floating Mode</string>
+    <string name="floating_is">If you leave the timer screen while the timer is running, the mini-timer will continue to play at the top of other apps.</string>
     <string name="tag1_title">Tag1 Name</string>
     <string name="tag2_title">Tag2 Name</string>
     <string name="tag3_title">Tag3 Name</string>

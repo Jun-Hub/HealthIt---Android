@@ -32,6 +32,7 @@ class TimerFragment : Fragment() {
     private lateinit var numberPickerSec: NumberPicker
     private lateinit var numberPickerLayout: LinearLayout
 
+    private var isRunning = false
     private var isReplay = false
     private var mBound: Boolean = false
 
@@ -71,10 +72,17 @@ class TimerFragment : Fragment() {
             updateButtons(state)
 
             when(state) {
-                TimerService.Companion.TimerState.Running -> isReplay = false
-                TimerService.Companion.TimerState.Paused -> isReplay = true
+                TimerService.Companion.TimerState.Running -> {
+                    isReplay = false
+                    isRunning = true
+                }
+                TimerService.Companion.TimerState.Paused -> {
+                    isReplay = true
+                    isRunning = false
+                }
                 else -> {
                     isReplay = false
+                    isRunning = false
                     progressCountdown.apply {
                         max = 0
                         beerProgress = 0
@@ -92,6 +100,12 @@ class TimerFragment : Fragment() {
         mBound = false
         //마지막으로 설정했던 시간을 저장
         prefViewModel.setPreviousTimerSet(numberPickerMin.value, numberPickerSec.value, requireContext())
+        if(isRunning && prefViewModel.getFloatingSettings(requireContext())) {
+            Intent(requireContext(), TimerService::class.java).let {
+                it.action = "FLOATING"
+                startForegroundService(requireContext(), it)
+            }
+        }
     }
 
     private fun initView(root: View) {

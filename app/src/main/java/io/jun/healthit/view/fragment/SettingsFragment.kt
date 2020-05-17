@@ -13,9 +13,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
@@ -38,6 +36,8 @@ class SettingsFragment : Fragment() {
 
     private lateinit var preferences: SharedPreferences
     private lateinit var prefChangeListener: OnSharedPreferenceChangeListener
+
+    private lateinit var switchFloating:Switch
 
     private lateinit var prefAlertValue: TextView
     private lateinit var prefRingValue: TextView
@@ -72,7 +72,6 @@ class SettingsFragment : Fragment() {
             DialogUtil.showAlertDialog(this)
         }
 
-
         prefRingValue = root.findViewById(R.id.pref_ring_value)
         prefRingValue.text = prefEntryConverter(prefViewModel.getRingSettings(requireContext()))
 
@@ -81,6 +80,15 @@ class SettingsFragment : Fragment() {
             DialogUtil.showRingDialog(this)
         }
 
+        switchFloating = root.findViewById(R.id.switch_floating)
+        switchFloating.isChecked = prefViewModel.getFloatingSettings(requireContext())
+        switchFloating.setOnCheckedChangeListener { _, isChecked ->
+            Permission(requireContext(), isChecked).checkAlertWindowPermission()
+        }
+        val prefFloating:RelativeLayout = root.findViewById(R.id.pref_floating)
+        prefFloating.setOnClickListener {
+            switchFloating.toggle()
+        }
 
         val prefTemplate = root.findViewById<TextView>(R.id.pref_template)
         prefTemplate.setOnClickListener {
@@ -238,21 +246,22 @@ class SettingsFragment : Fragment() {
         preferences.unregisterOnSharedPreferenceChangeListener(prefChangeListener)
     }
 
-    inner class Permission(private val context: Context) {
+    inner class Permission(context: Context, value:Boolean) {
 
         private var overlayPermission: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {    //permission 허가 상태라면
-
+                prefViewModel.setFloatingSettings(context, value)
             }
             override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {  //permission 거부 상태라면
-                Toast.makeText(requireContext(), getString(R.string.deny_take_photo), Toast.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), getString(R.string.deny_overlay), Toast.LENGTH_LONG).show()
+                switchFloating.isChecked = false
             }
         }
-        fun checkAlertPermission() {
+        fun checkAlertWindowPermission() {
             TedPermission.with(context)
                 .setPermissionListener(overlayPermission)
-                .setRationaleMessage("오버레이")
-                .setDeniedMessage("거부됨")
+                .setRationaleMessage(getString(R.string.request_overlay))
+                .setDeniedMessage(getString(R.string.deny_request))
                 .setPermissions(Manifest.permission.SYSTEM_ALERT_WINDOW)
                 .check()
         }

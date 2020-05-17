@@ -71,6 +71,44 @@
 
     </LinearLayout>
 
+    <RelativeLayout
+        android:id="@+id/pref_floating"
+        style="@style/PrefLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/ripple_custom">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@id/switch_floating"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/floating_title"
+                android:theme="@style/PrefTitle" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/floating_is"
+                android:theme="@style/PrefValue" />
+
+        </LinearLayout>
+
+        <Switch
+            android:id="@+id/switch_floating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="8dp"
+            />
+
+    </RelativeLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="0.1dp"
