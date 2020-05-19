@@ -16,7 +16,6 @@ import io.jun.healthit.view.MainActivity
 import uk.co.barbuzz.beerprogressview.BeerProgressView
 import kotlin.properties.Delegates
 
-
 class TimerService : Service() {
 
     private lateinit var timer: CountDownTimer
@@ -63,6 +62,7 @@ class TimerService : Service() {
                         intent.getBooleanExtra("forReplay", false)
                     )
                     if(::floatingView.isInitialized && floatingView.visibility == View.VISIBLE) {
+                        floatingProgress.max = intent.getIntExtra("setTime", 0)
                         floatingTextCountDown.visibility = View.VISIBLE
                         floatingPlayBtn.visibility = View.GONE
                     }
@@ -89,10 +89,14 @@ class TimerService : Service() {
             windowManager.removeView(floatingView)
     }
 
-    //어플이 종료될 때 발생. TimerService는 BindService라서 호출이 안됌
+    //어플이 종료될 때 발생.
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
 
+        if(::timer.isInitialized) {
+            timer.cancel()
+            timerState.postValue(TimerState.Stopped)
+        }
         NotiUtil.removeNotification()
         stopSelf()
     }
@@ -215,13 +219,13 @@ class TimerService : Service() {
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
-            if(Build.VERSION.SDK_INT > 25)
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+            if(Build.VERSION.SDK_INT > 25) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             else WindowManager.LayoutParams.TYPE_PHONE,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             PixelFormat.TRANSLUCENT
-        )
-        params.gravity = Gravity.TOP or Gravity.START
+        ).apply {
+            gravity = Gravity.TOP or Gravity.START
+        }
 
         //getting windows services and adding the floating view to it
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager

@@ -122,13 +122,15 @@ class TimerFragment : Fragment() {
 
             val setTime = numberPickerMin.value * 60 + numberPickerSec.value
 
-            val serviceIntent = Intent(this.context, TimerService::class.java)
-            serviceIntent.action = "PLAY"
-            serviceIntent.putExtra("setTime", setTime)
-            serviceIntent.putExtra("forReplay", isReplay)
-            serviceIntent.putExtra("alertSetting", prefViewModel.getAlertSettings(requireContext()))
-            serviceIntent.putExtra("ringSetting", prefViewModel.getRingSettings(requireContext()))
-            startForegroundService(requireContext(), serviceIntent)
+            Intent(this.context, TimerService::class.java).apply {
+                action = "PLAY"
+                putExtra("setTime", setTime)
+                putExtra("forReplay", isReplay)
+                putExtra("alertSetting", prefViewModel.getAlertSettings(requireContext()))
+                putExtra("ringSetting", prefViewModel.getRingSettings(requireContext()))
+            }.let {
+                startForegroundService(requireContext(), it)
+            }
         }
 
         btnPause.setOnClickListener {
@@ -145,13 +147,16 @@ class TimerFragment : Fragment() {
     }
 
     private fun initNumberPicker() {
-        numberPickerMin.minValue = 0
-        numberPickerMin.maxValue = 15
-        numberPickerSec.minValue = 0
-        numberPickerSec.maxValue = 59
-
-        numberPickerMin.value = prefViewModel.getPreviousTimerSetMin(requireContext())
-        numberPickerSec.value = prefViewModel.getPreviousTimerSetSec(requireContext())
+        numberPickerMin.apply {
+            minValue = 0
+            maxValue = 15
+            value = prefViewModel.getPreviousTimerSetMin(requireContext())
+        }
+        numberPickerSec.apply {
+            minValue = 0
+            maxValue = 59
+            value = prefViewModel.getPreviousTimerSetSec(requireContext())
+        }
     }
 
     private fun updateButtons(state: TimerService.Companion.TimerState) {
