@@ -7,15 +7,15 @@
     android:layout_height="wrap_content">
 
     <View
-        android:layout_width="60dp"
-        android:layout_height="58dp"
-        android:layout_marginTop="2dp"
+        android:layout_width="65dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="1dp"
         android:background="@color/colorFloatingBackground"/>
 
     <uk.co.barbuzz.beerprogressview.BeerProgressView
         android:id="@+id/beerProgressView"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="65dp"
+        android:layout_height="65dp"
         app:beerColor="@color/colorAccentTransparent"
         app:bubbleColor="#AEE3FC"
         app:bubbleCount="0"
@@ -41,7 +41,7 @@
         android:id="@+id/btn_close"
         android:layout_width="22dp"
         android:layout_height="22dp"
-        android:layout_marginStart="38dp"
+        android:layout_marginStart="44dp"
         android:contentDescription="@string/app_name"
         android:background="@drawable/ic_delete_btn" />
 

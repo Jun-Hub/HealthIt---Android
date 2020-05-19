@@ -62,6 +62,10 @@ class TimerService : Service() {
                         intent.getIntExtra("setTime", 0),
                         intent.getBooleanExtra("forReplay", false)
                     )
+                    if(::floatingView.isInitialized && floatingView.visibility == View.VISIBLE) {
+                        floatingTextCountDown.visibility = View.VISIBLE
+                        floatingPlayBtn.visibility = View.GONE
+                    }
                 }
                 "PAUSE" -> pauseTimer()
                 "STOP" -> stopTimer()

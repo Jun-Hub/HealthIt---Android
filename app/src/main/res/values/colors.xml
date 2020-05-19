@@ -3,7 +3,7 @@
     <color name="colorPrimary">#18171C</color>
     <color name="colorPrimaryDark">#18171C</color>
     <color name="colorAccent">#9200F8</color>
-    <color name="colorAccentTransparent">#AA9200F8</color>
+    <color name="colorAccentTransparent">#999200F8</color>
     <color name="colorWesternPurple">#CC1AD9</color>
     <color name="colorNotification">#6A00F3</color>
     <color name="colorLightOrange">#F3B88F</color>
@@ -11,5 +11,5 @@
     <color name="colorOverlay">#802D2D2D</color>
     <color name="colorPopOut">#202126</color>
     <color name="colorDivider">#474747</color>
-    <color name="colorFloatingBackground">#7DFFFFFF</color>
+    <color name="colorFloatingBackground">#CCFFFFFF</color>
 </resources>
