@@ -16,7 +16,7 @@
         android:id="@+id/beerProgressView"
         android:layout_width="65dp"
         android:layout_height="65dp"
-        app:beerColor="@color/colorAccentTransparent"
+        app:beerColor="@color/colorWater"
         app:bubbleColor="#AEE3FC"
         app:bubbleCount="0"
         app:waveAmplitude="1dp" />

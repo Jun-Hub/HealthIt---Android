@@ -1,35 +1,38 @@
 package io.jun.healthit.view
 
+import android.Manifest
+import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.drawable.Drawable
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.target.CustomTarget
-import com.bumptech.glide.request.transition.Transition
+import com.github.zagum.switchicon.SwitchIconView
+import com.gun0912.tedpermission.PermissionListener
+import com.gun0912.tedpermission.TedPermission
 import io.jun.healthit.R
 import io.jun.healthit.adapter.PhotoListAdapter
 import io.jun.healthit.adapter.RecordListAdapter
 import io.jun.healthit.model.Memo
 import io.jun.healthit.util.DialogUtil
+import io.jun.healthit.util.ImageUtil
 import io.jun.healthit.viewmodel.MemoViewModel
-import com.github.zagum.switchicon.SwitchIconView
 import io.jun.healthit.viewmodel.PrefViewModel
 import kotlinx.android.synthetic.main.activity_memo_detail.*
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 
 class MemoDetailActivity : AppCompatActivity() {
 
@@ -82,10 +85,11 @@ class MemoDetailActivity : AppCompatActivity() {
             this.memo = memo
 
             if(memo.title=="") {
-                textView_title.apply {
-                    text = getString(R.string.no_title)
-                    setTextColor(Color.LTGRAY) }
-            } else textView_title.text = memo.title
+                textView_title.visibility = View.GONE
+            } else {
+                textView_title.visibility = View.VISIBLE
+                textView_title.text = memo.title
+            }
 
 
             if(memo.content=="") {
@@ -148,7 +152,7 @@ class MemoDetailActivity : AppCompatActivity() {
         super.onPause()
         //메모 프래그먼트에서 메모를 삭제 했을때 livedata nullPointException 방지를 위해 observer 제거
         if (memoActualLive.hasObservers())
-                memoActualLive.removeObservers(this)
+            memoActualLive.removeObservers(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -183,6 +187,14 @@ class MemoDetailActivity : AppCompatActivity() {
                 finish()
                 true
             }
+            R.id.action_add_template -> {   //현 루틴 템플릿에 추가하기 버튼
+                memo.record?.let { DialogUtil.addDirectlyTemplateDialog(layoutInflater, this, it) }
+                true
+            }
+            R.id.action_save_as_image -> {
+                Permission(this).checkWritePermission()
+                true
+            }
             R.id.action_edit -> {   //편집 버튼
                 startActivity(Intent(this, AddEditActivity::class.java)
                     .putExtra("id", memoId)
@@ -200,5 +212,25 @@ class MemoDetailActivity : AppCompatActivity() {
         }
     }
 
+    inner class Permission(private val context: Context) {
 
+        private var writePermission: PermissionListener = object : PermissionListener {
+            override fun onPermissionGranted() {    //permission 허가 상태라면
+                //운동기록 이미지로 저장하기
+                ImageUtil.saveImage(ImageUtil.getBitmapFromRecyclerView(recyclerView_record), context, getString(R.string.app_name))
+                Toast.makeText(context, R.string.screenshot_success, Toast.LENGTH_SHORT).show()
+            }
+            override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {  //permission 거부 상태라면
+                Toast.makeText(context, getString(R.string.deny_screenshot), Toast.LENGTH_LONG).show()
+            }
+        }
+        fun checkWritePermission() {
+            TedPermission.with(context)
+                .setPermissionListener(writePermission)
+                .setRationaleMessage(getString(R.string.request_screenshot))
+                .setDeniedMessage(getString(R.string.deny_request))
+                .setPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                .check()
+        }
+    }
 }

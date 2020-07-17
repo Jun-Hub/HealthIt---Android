@@ -88,7 +88,7 @@
         android:id="@+id/btn_add_record"
         android:layout_width="28dp"
         android:layout_height="28dp"
-        android:background="@drawable/ic_add_btn_circle"
+        android:background="@drawable/ic_plus_btn"
         android:layout_alignParentEnd="true"
         android:layout_centerVertical="true"
         android:src="?android:attr/selectableItemBackground"

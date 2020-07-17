@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:orientation="horizontal"
+<RelativeLayout android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch
-        android:id="@+id/switch_toolBar"
+    <io.ghyeok.stickyswitch.widget.StickySwitch
+        android:id="@+id/sticky_switch"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:base_release_color="@android:color/tertiary_text_dark"
-        app:base_press_color="@color/colorNotification"
-        app:ball_release_color="@android:color/secondary_text_dark"
-        app:ball_press_color="@color/colorAccent"
-        app:icon_release="@drawable/ic_delete_press"
-        app:icon_press="@drawable/ic_delete_release"
-        android:layout_gravity="center"
+        android:layout_height="20dp"
+        android:layout_centerVertical="true"
+        app:ss_animationDuration="450"
+        app:ss_iconPadding="5dp"
+        app:ss_iconSize="10dp"
+        app:ss_sliderBackgroundColor="#343434"
+        app:ss_switchColor="@color/colorAccent"
         android:layout_marginEnd="10dp"
-        />
+        app:ss_animationType="line"/>
 
-</LinearLayout>
+</RelativeLayout>

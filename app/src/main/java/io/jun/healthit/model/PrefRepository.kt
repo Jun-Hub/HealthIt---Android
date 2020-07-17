@@ -121,12 +121,7 @@ class PrefRepository {
     fun getTemplate(key: Int, context: Context): List<Record> {
         //defValue가 json 형태가 아니면 error를 일으키므로 defValue를 만들어줌
         val record = Record(if (Setting.IN_KOREA) "(터치해서 수정)" else ("(Touch to edit)"), 40, 5, 10)
-        val recordList = listOf(
-            record,
-            record,
-            record
-        )
-        val defJsonValue = Gson().toJson(recordList)
+        val defJsonValue = Gson().toJson(listOf(record))
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         val type: Type = object : TypeToken<List<Record>>() {}.type

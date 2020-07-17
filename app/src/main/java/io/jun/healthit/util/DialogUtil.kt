@@ -14,9 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
-import androidx.recyclerview.widget.LinearLayoutManager
 import io.jun.healthit.R
-import io.jun.healthit.adapter.PhotoListAdapter
 import io.jun.healthit.adapter.RecordListAdapter
 import io.jun.healthit.model.Memo
 import io.jun.healthit.model.Record
@@ -25,10 +23,6 @@ import io.jun.healthit.view.AddEditActivity
 import io.jun.healthit.view.SetTemplateActivity
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class DialogUtil {
 
@@ -192,7 +186,7 @@ class DialogUtil {
 
             val prefViewModel = ViewModelProvider(fragment).get(PrefViewModel::class.java)
 
-            val inflater = layoutInflater.inflate(R.layout.dialog_tag, null as ViewGroup?)
+            val inflater = layoutInflater.inflate(R.layout.dialog_set_name, null as ViewGroup?)
             val titleText = inflater.findViewById<TextView>(R.id.textView_title)
             titleText.text = if (Setting.IN_KOREA) "태그$index 이름" else "Tag$index Name"
 
@@ -219,23 +213,24 @@ class DialogUtil {
 
         fun showTemplateDialog(fragment: Fragment, settingsMode: Boolean) {
 
-            val prefViewModel = ViewModelProvider(fragment).get(PrefViewModel::class.java)
+            val prefViewModel =  ViewModelProvider(fragment).get(PrefViewModel::class.java)
 
-                val templates = arrayOf(
-                    fragment.context?.let {prefViewModel.getTemplateName(1, it)},
-                    fragment.context?.let {prefViewModel.getTemplateName(2, it)},
-                    fragment.context?.let {prefViewModel.getTemplateName(3, it)},
-                    fragment.context?.let {prefViewModel.getTemplateName(4, it)},
-                    fragment.context?.let {prefViewModel.getTemplateName(5, it)},
-                    fragment.context?.let {prefViewModel.getTemplateName(6, it)},
-                    fragment.context?.let {prefViewModel.getTemplateName(7, it)}
-                )
+            val templates = arrayOf(
+                fragment.context?.let { prefViewModel.getTemplateName(1, it) },
+                fragment.context?.let { prefViewModel.getTemplateName(2, it) },
+                fragment.context?.let { prefViewModel.getTemplateName(3, it) },
+                fragment.context?.let { prefViewModel.getTemplateName(4, it) },
+                fragment.context?.let { prefViewModel.getTemplateName(5, it) },
+                fragment.context?.let { prefViewModel.getTemplateName(6, it) },
+                fragment.context?.let { prefViewModel.getTemplateName(7, it) }
+            )
 
             val title = if(settingsMode) {
-                if (Setting.IN_KOREA) "내 루틴 만들기" else "Create My Routine"
-            }
-                        else {
-                if (Setting.IN_KOREA) "내 루틴으로 새 일지 쓰기" else "Create a New Log with My Routine"
+                if (Setting.IN_KOREA) "내 루틴 만들기"
+                else "Create My Routine"
+            } else {
+                if (Setting.IN_KOREA) "내 루틴으로 새 일지 쓰기"
+                else "Create a New Log with My Routine"
             }
             val intent = if(settingsMode)
                             Intent(fragment.context, SetTemplateActivity::class.java)
@@ -275,18 +270,119 @@ class DialogUtil {
 
             AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar)
                 .setView(inflater)
-                .setPositiveButton("저장") { _, _ ->
+                .setPositiveButton(if(Setting.IN_KOREA)"저장" else "SAVE") { _, _ ->
                     prefViewModel.setTemplateName(templateId, templateName, activity)
                     prefViewModel.setTemplate(templateId, adapter.records, activity)
                     activity.finish()
                 }
-                .setNegativeButton("취소") { _, _ ->
+                .setNegativeButton(if (Setting.IN_KOREA) "취소" else "CANCEL") { _, _ ->
                 }
-                .setNeutralButton("저장 안함") { _, _ ->
+                .setNeutralButton(if (Setting.IN_KOREA) "저장 안함" else "DON'T SAVE") { _, _ ->
                     activity.finish()
                 }
                 .show()
         }
+
+
+        /** MemodetailActivity애서 현 기록 내 루틴에 추가하기 start **/
+
+        fun addDirectlyTemplateDialog(layoutInflater: LayoutInflater, activity: AppCompatActivity,
+                                    records: List<Record>) {
+
+            val inflater = layoutInflater.inflate(R.layout.dialog_add_directly, null as ViewGroup?)
+
+            AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar)
+                .setView(inflater)
+                .setPositiveButton(if (Setting.IN_KOREA) "확인" else "OK") { _, _ ->
+                    templateNameDialog(activity, layoutInflater, records)
+                }
+                .setNegativeButton(if (Setting.IN_KOREA) "취소" else "CANCEL") { _, _ ->
+                }
+                .show()
+        }
+
+        private fun templateNameDialog(activity: AppCompatActivity, layoutInflater: LayoutInflater, records: List<Record>) {
+
+            val inflater = layoutInflater.inflate(R.layout.dialog_set_name, null as ViewGroup?)
+            val titleText = inflater.findViewById<TextView>(R.id.textView_title)
+            titleText.text = if (Setting.IN_KOREA) "추가할 루틴 이름" else "Name of The Routine to Add"
+
+            inflater.findViewById<EditText>(R.id.editText).also { editText ->
+
+                AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar)
+                    .setView(inflater)
+                    .setPositiveButton(if (Setting.IN_KOREA) "확인" else "OK") { _, _ ->
+                        showDirectlyTemplateDialog(activity, editText.text.toString(), records)
+                        EtcUtil.closeKeyboard(activity)
+                    }
+                    .setNegativeButton(if (Setting.IN_KOREA) "취소" else "CANCEL") { _, _ ->
+                        EtcUtil.closeKeyboard(activity)
+                    }
+                    .show()
+            }
+            EtcUtil.showKeyboard(activity)
+        }
+
+        private fun showDirectlyTemplateDialog(activity: AppCompatActivity, name: String, records: List<Record>) {
+
+            val prefViewModel = ViewModelProvider(activity).get(PrefViewModel::class.java)
+
+            val templates = arrayOf(
+                prefViewModel.getTemplateName(1, activity),
+                prefViewModel.getTemplateName(2, activity),
+                prefViewModel.getTemplateName(3, activity),
+                prefViewModel.getTemplateName(4, activity),
+                prefViewModel.getTemplateName(5, activity),
+                prefViewModel.getTemplateName(6, activity),
+                prefViewModel.getTemplateName(7, activity)
+            )
+
+            val title = if (Setting.IN_KOREA) "내 루틴에 추가하기" else "Add to My Routine"
+
+            AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar)
+                .setTitle(title)
+                .setItems(templates) { _, which ->
+                    when (which) {   //루틴 이름과 루틴템플릿 저장
+                        0 -> {
+                            prefViewModel.setTemplateName(1, name, activity)
+                            prefViewModel.setTemplate(1, records, activity)
+                            Toast.makeText(activity,R.string.add_success ,Toast.LENGTH_SHORT).show()
+                        }
+                        1 -> {
+                            prefViewModel.setTemplateName(2, name, activity)
+                            prefViewModel.setTemplate(2, records, activity)
+                            Toast.makeText(activity,R.string.add_success ,Toast.LENGTH_SHORT).show()
+                        }
+                        2 -> {
+                            prefViewModel.setTemplateName(3, name, activity)
+                            prefViewModel.setTemplate(3, records, activity)
+                            Toast.makeText(activity,R.string.add_success ,Toast.LENGTH_SHORT).show()
+                        }
+                        3 -> {
+                            prefViewModel.setTemplateName(4, name, activity)
+                            prefViewModel.setTemplate(4, records, activity)
+                            Toast.makeText(activity,R.string.add_success ,Toast.LENGTH_SHORT).show()
+                        }
+                        4 -> {
+                            prefViewModel.setTemplateName(5, name, activity)
+                            prefViewModel.setTemplate(5, records, activity)
+                            Toast.makeText(activity,R.string.add_success ,Toast.LENGTH_SHORT).show()
+                        }
+                        5 -> {
+                            prefViewModel.setTemplateName(6, name, activity)
+                            prefViewModel.setTemplate(6, records, activity)
+                            Toast.makeText(activity,R.string.add_success ,Toast.LENGTH_SHORT).show()
+                        }
+                        6 -> {
+                            prefViewModel.setTemplateName(7, name, activity)
+                            prefViewModel.setTemplate(7, records, activity)
+                            Toast.makeText(activity,R.string.add_success ,Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }.show()
+        }
+        /** MemodetailActivity애서 현 기록 내 루틴에 추가하기 end **/
+
 
         fun editRecordDialog(adapter: RecordListAdapter, context: Context,
                              layoutInflater: LayoutInflater, index:Int, current: Record) {
@@ -309,7 +405,7 @@ class DialogUtil {
                 android.R.layout.simple_list_item_1, Setting.WORK_OUT_LIST))
 
             name.text = if(current.name == if(Setting.IN_KOREA)"(터치해서 수정)" else "(Touch to edit)") SpannableStringBuilder("")
-                        else SpannableStringBuilder(current.name)
+            else SpannableStringBuilder(current.name)
 
             weight.text = SpannableStringBuilder(current.weight.toString())
 
@@ -346,9 +442,9 @@ class DialogUtil {
                     val repsInt = if(reps.text.toString()=="") 0 else reps.text.toString().toInt()
 
                     adapter.editRecord(index, Record(name.text.toString(),
-                                                weightInt,
-                                                setInt,
-                                                repsInt))
+                        weightInt,
+                        setInt,
+                        repsInt))
                 }
                 .setNegativeButton(if(Setting.IN_KOREA)"취소" else "CANCEL") { _, _ ->
                 }

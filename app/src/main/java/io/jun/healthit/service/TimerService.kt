@@ -61,7 +61,7 @@ class TimerService : Service() {
                         intent.getIntExtra("setTime", 0),
                         intent.getBooleanExtra("forReplay", false)
                     )
-                    if(::floatingView.isInitialized && floatingView.visibility == View.VISIBLE) {
+                    if(::floatingView.isInitialized) {
                         floatingProgress.max = intent.getIntExtra("setTime", 0)
                         floatingTextCountDown.visibility = View.VISIBLE
                         floatingPlayBtn.visibility = View.GONE

@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/navigation_routine"
         android:name="io.jun.healthit.view.fragment.RoutineFragment"
-        android:label="@string/title_routine"
+        android:label="@string/title_tip"
         tools:layout="@layout/fragment_routine" />
 
     <fragment

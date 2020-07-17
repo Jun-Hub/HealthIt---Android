@@ -1,7 +1,9 @@
 package io.jun.healthit.view
 
+import android.content.pm.PackageInfo
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -51,6 +53,8 @@ class MainActivity : AppCompatActivity() {
             resources.configuration.locale.language
 
         inKorea = language == "ko"
+
+        getVersionInfo()
     }
 
     override fun onBackPressed() {
@@ -62,4 +66,11 @@ class MainActivity : AppCompatActivity() {
             finish()
         }
     }
+
+    private fun getVersionInfo() {
+        val info = packageManager.getPackageInfo(packageName, 0)
+        val version = info.versionName
+        Log.e("Asdasd", "" + version)
+    }
+
 }

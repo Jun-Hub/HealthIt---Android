@@ -31,13 +31,15 @@ class RoutineActivity : AppCompatActivity() {
         val adRequest = AdRequest.Builder().build()
         mAdView.loadAd(adRequest)
 
-        when(intent.getStringExtra("routineType")) {
+        when(intent.getStringExtra("tipType")) {
             "full_body" -> adapter = ExpListAdapter(Setting.fullBodyRoutineList)
             "2day_split" -> adapter = ExpListAdapter(Setting.split2dayRoutineList)
             "3day_split" -> adapter = ExpListAdapter(Setting.split3dayRoutineList)
             "4day_split" -> adapter = ExpListAdapter(Setting.split4dayRoutineList)
             "5day_split" -> adapter = ExpListAdapter(Setting.split5dayRoutineList)
             "strength" -> adapter = ExpListAdapter(Setting.strengthRoutineList)
+            "common_sense" -> adapter = ExpListAdapter(Setting.commonSenseList)
+            "common_sense_diet" -> adapter = ExpListAdapter(Setting.commonSenseDietList)
         }
 
         recyclerView.adapter = adapter

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">헬스잇</string>
     <string name="title_nutrition">영양정보</string>
-    <string name="title_routine">운동 루틴</string>
+    <string name="title_tip">운동팁</string>
     <string name="title_notes">운동 일지</string>
     <string name="title_timer">타이머</string>
 
@@ -13,6 +13,8 @@
     <string name="text_4day_split">4분할</string>
     <string name="text_5day_split">5분할</string>
     <string name="text_strength">스트렝스</string>
+    <string name="text_common_sense">운동 상식</string>
+    <string name="text_common_sense_diet">다이어트 상식</string>
 
     <string name="text_name_work_out">운동 이름</string>
     <string name="text_weight">무게</string>
@@ -45,7 +47,8 @@
     <string name="alert_title_url">URL로 이미지 추가</string>
     <string name="alert_url">가져올 외부 이미지 url를 입력하세요.</string>
     <string name="alert_save">작성중인 내용이 있습니다. 저장하시겠습니까?</string>
-    <string name="hint_tag">태그 이름을 입력하세요</string>
+    <string name="alert_add_directly">현재 운동기록을 내 운동 루틴에 추가하시겠습니까?\n *이미 존재하는 루틴에 추가할 경우 자동으로 덮어쓰기 됩니다.</string>
+    <string name="hint_tag">이름을 입력하세요</string>
     <string name="title_activity_settings">설정</string>
 
     <string-array name="alert_entries">
@@ -98,7 +101,7 @@
     <!-- SettingsFragment -->
     <string name="suggestion_board">개발자에게 문의 및 건의</string>
     <string name="error_board">개발자에게 오류 알리기</string>
-    <string name="rate_app">앱 평가하기</string>
+    <string name="rate_app">(๑˃̵ᴗ˂̵)و ♡ 앱 평가하기(부탁드립니다)</string>
     <string name="settings_toast">현재 타이머가 실행 중이므로 타이머 종료 후부터 설정이 적용됩니다.</string>
 
     <!-- AddActivity -->
@@ -110,6 +113,8 @@
     <string name="no_title">제목이 없습니다</string>
     <string name="create_date">작성 날짜:%1$s</string>
     <string name="notice_pin">일지가 고정되어 리스트 상단에 노출됩니다.</string>
+    <string name="add_success">루틴 추가 완료</string>
+    <string name="screenshot_success">갤러리에 스크린샷 저장 완료</string>
 
     <!-- Set Template Activity -->
     <string name="routine_num">루틴%1$d</string>
@@ -117,9 +122,11 @@
     <!-- Permission -->
     <string name="deny_take_photo">권한 요청을 거부하여 사진 촬영을 실행할 수 없습니다.</string>
     <string name="deny_gallery">권한 요청을 거부하여 갤러리를 실행할 수 없습니다.</string>
+    <string name="deny_screenshot">권한 요청을 거부하여 이미지를 저장할 수 없습니다.</string>
     <string name="deny_overlay">권한 요청을 거부하여 Floating 모드를 실행할 수 없습니다.</string>
     <string name="request_take_photo">사진 촬영을 위해서 접근 권한이 필요합니다.</string>
     <string name="request_gallery">갤러리 접근을 위해 권한이 필요합니다.</string>
+    <string name="request_screenshot">스크린샷 저장을 위해 접근 권한이 필요합니다.</string>
     <string name="request_overlay">Floating 모드 실행을 위해 권한이 필요합니다.</string>
     <string name="deny_request">거부하셨습니다. 하지만 [설정] > [권한] 에서 권한을 허용할 수 있습니다.</string>
 
@@ -142,11 +149,16 @@
     <string name="tag6_title">태그6 이름</string>
 
     <!-- MemoListAdapter -->
-    <string name="memo_record">%1$d개의 운동, 총 %2$d세트</string>
+    <string name="memo_record">총 %1$d세트, %2$d볼륨</string>
 
     <!-- RecordListAdapter -->
     <string name="name_guide">(터치해서 수정)</string>
     <string name="notice_max_record">최대 %1$d개까지 생성 가능합니다.</string>
+
+    <!-- menu_memo_detail -->
+    <string name="menu_add_routine">내 루틴에 추가</string>
+    <string name="menu_save_as_image">이미지로 저장</string>
+    <string name="menu_delete">삭제</string>
 
     <string name="admob_app_id">ca-app-pub-6263138384822549~7206516262</string>
     <string name="banner_ad_unit_id1">ca-app-pub-6263138384822549/1954189581</string>

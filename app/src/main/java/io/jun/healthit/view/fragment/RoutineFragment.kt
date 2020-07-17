@@ -1,20 +1,23 @@
 package io.jun.healthit.view.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.cardview.widget.CardView
 import androidx.fragment.app.Fragment
-import io.jun.healthit.R
-import io.jun.healthit.view.RoutineActivity
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.RecyclerView
+import com.cleveroad.fanlayoutmanager.FanLayoutManager
+import com.cleveroad.fanlayoutmanager.FanLayoutManagerSettings
+import com.cleveroad.fanlayoutmanager.callbacks.FanChildDrawingOrderCallback
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
+import io.jun.healthit.R
+import io.jun.healthit.adapter.TipListAdapter
+import io.jun.healthit.model.Tip
 
 class RoutineFragment : Fragment() {
-
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -28,43 +31,44 @@ class RoutineFragment : Fragment() {
         val adRequest = AdRequest.Builder().build()
         mAdView.loadAd(adRequest)
 
-        val intent = Intent(this.context, RoutineActivity::class.java)
+        val recyclerView = root.findViewById<RecyclerView>(R.id.recyclerView)
 
-        val cardViewFullBody:CardView = root.findViewById(R.id.cardView_full_body)
-        cardViewFullBody.setOnClickListener {
-            intent.putExtra("routineType", "full_body")
-            startActivity(intent)
+        val fanLayoutManagerSettings = FanLayoutManagerSettings
+            .newBuilder(context)
+            .withFanRadius(true)
+            .withAngleItemBounce(5f)
+            .withViewHeightDp(180f)
+            .withViewWidthDp(120f)
+            .build()
+
+        val fanLayoutManager = FanLayoutManager(requireContext(), fanLayoutManagerSettings)
+
+        val tipAdapter = TipListAdapter(requireContext(), fanLayoutManager)
+        tipAdapter.apply {
+            add(Tip(getString(R.string.text_common_sense), null, R.drawable.ic_moonk, "common_sense"))
+            add(Tip(getString(R.string.text_common_sense_diet), null, R.drawable.ic_hamburger, "common_sense_diet"))
+            add(Tip(getString(R.string.text_full_body), "for beginner", R.drawable.ic_0, "full_body"))
+            add(Tip(getString(R.string.text_2day_split), "for intermediate", R.drawable.ic_2, "2day_split"))
+            add(Tip(getString(R.string.text_3day_split), "for advanced", R.drawable.ic_3, "3day_split"))
+            add(Tip(getString(R.string.text_4day_split), "for advanced", R.drawable.ic_4, "4day_split"))
+            add(Tip(getString(R.string.text_5day_split), "not recommended", R.drawable.ic_5, "5day_split"))
+            add(Tip(getString(R.string.text_strength), "optional", R.drawable.ic_strength, "strength"))
         }
 
-        val carViewSplit2day: CardView = root.findViewById(R.id.cardView_split_2day)
-        carViewSplit2day.setOnClickListener {
-            intent.putExtra("routineType", "2day_split")
-            startActivity(intent)
-        }
+        tipAdapter.setOnItemClickListener(object : TipListAdapter.OnItemClickListener {
+            override fun onItemClicked(pos: Int, view: View?) {
+                fanLayoutManager.switchItem(recyclerView, pos)
+            }
+        })
 
-        val cardViewSplit3day: CardView = root.findViewById(R.id.cardView_split_3day)
-        cardViewSplit3day.setOnClickListener {
-            intent.putExtra("routineType", "3day_split")
-            startActivity(intent)
-        }
-
-        val cardViewSplit4day: CardView = root.findViewById(R.id.cardView_split_4day)
-        cardViewSplit4day.setOnClickListener {
-            intent.putExtra("routineType", "4day_split")
-            startActivity(intent)
-        }
-
-        val cardViewSplit5day: CardView = root.findViewById(R.id.cardView_split_5day)
-        cardViewSplit5day.setOnClickListener {
-            intent.putExtra("routineType", "5day_split")
-            startActivity(intent)
-        }
-        val cardViewStrength: CardView = root.findViewById(R.id.cardView_strength)
-        cardViewStrength.setOnClickListener {
-            intent.putExtra("routineType", "strength")
-            startActivity(intent)
+        recyclerView.apply {
+            layoutManager = fanLayoutManager
+            itemAnimator = DefaultItemAnimator()
+            adapter = tipAdapter
+            setChildDrawingOrderCallback(FanChildDrawingOrderCallback(fanLayoutManager))
         }
 
         return root
     }
+
 }

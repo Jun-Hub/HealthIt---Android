@@ -87,7 +87,12 @@ class MemoListAdapter internal constructor(
             setEA += current.record[i].set
         }
 
-        holder.memoRecord.text = String.format(fragment.getString(R.string.memo_record), current.record.size, setEA)
+        var volume = 0
+        for(i in current.record.indices) {
+            volume += (current.record[i].weight * current.record[i].set * current.record[i].reps)
+        }
+
+        holder.memoRecord.text = String.format(fragment.getString(R.string.memo_record), setEA, volume)
 
             holder.memoDate.text = current.date
 

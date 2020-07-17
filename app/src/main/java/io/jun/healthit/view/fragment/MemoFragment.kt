@@ -4,7 +4,9 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Bundle
 import android.view.*
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.Spinner
+import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
@@ -13,19 +15,22 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.AdView
+import com.google.android.gms.ads.MobileAds
+import com.leinardi.android.speeddial.SpeedDialActionItem
+import com.leinardi.android.speeddial.SpeedDialView
+import io.ghyeok.stickyswitch.widget.StickySwitch
+import io.ghyeok.stickyswitch.widget.StickySwitch.OnSelectedChangeListener
 import io.jun.healthit.R
 import io.jun.healthit.adapter.MemoListAdapter
 import io.jun.healthit.adapter.SpinnerAdapter
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.view.AddEditActivity
 import io.jun.healthit.viewmodel.MemoViewModel
-import com.github.glomadrian.materialanimatedswitch.MaterialAnimatedSwitch
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
-import com.leinardi.android.speeddial.SpeedDialActionItem
-import com.leinardi.android.speeddial.SpeedDialView
 import io.jun.healthit.viewmodel.PrefViewModel
+import org.jetbrains.annotations.NotNull
+
 
 class MemoFragment : Fragment() {
 
@@ -90,7 +95,6 @@ class MemoFragment : Fragment() {
             }
         })
 
-
         initFab()
 
         addBtn.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { actionItem ->
@@ -118,11 +122,17 @@ class MemoFragment : Fragment() {
         val edit = menu.findItem(R.id.action_edit)
         edit.setActionView(R.layout.layout_switch)
 
-        val switchBtn: MaterialAnimatedSwitch = edit.actionView.findViewById(R.id.switch_toolBar)
-        switchBtn.setOnCheckedChangeListener { isChecked ->
-            //매터리얼 스위치 체크 상태에 따라 livedata on, off
-            editOn.value = isChecked
+        // Set Selected Change Listener
+        val stickySwitch: StickySwitch = edit.actionView.findViewById(R.id.sticky_switch)
+        stickySwitch.onSelectedChangeListener = object : OnSelectedChangeListener {
+            override fun onSelectedChange(
+                @NotNull direction: StickySwitch.Direction,
+                @NotNull text: String
+            ) {
+                editOn.value = direction.name == "RIGHT"
+            }
         }
+        stickySwitch.setRightIcon(R.drawable.ic_delete_release)
 
         //메모 정렬 스피너 셋팅
         val sort = menu.findItem(R.id.action_sort)

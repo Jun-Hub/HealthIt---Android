@@ -73,7 +73,7 @@
     <EditText
         android:id="@+id/editText_content"
         android:layout_width="match_parent"
-        android:layout_height="70dp"
+        android:layout_height="60dp"
         android:textSize="16sp"
         android:autofillHints="@string/content_hint"
         android:hint="@string/content_hint"
@@ -143,9 +143,9 @@
 
         <ImageButton
             android:id="@+id/btn_add_record"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:background="@drawable/ic_add_btn_circle"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:background="@drawable/ic_plus_btn"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             android:src="?android:attr/selectableItemBackground"
@@ -169,7 +169,7 @@
     <RelativeLayout
         android:id="@+id/layout_photo"
         android:layout_width="match_parent"
-        android:layout_height="140dp"
+        android:layout_height="120dp"
         android:background="@drawable/border_top"
         android:layout_marginTop="10dp"
         android:layout_alignParentBottom="true">
@@ -178,15 +178,15 @@
             android:id="@+id/layout_gallery"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="6dp"
             android:layout_marginStart="6dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="10dp"
             android:orientation="vertical">
 
             <ImageButton
                 android:id="@+id/btn_gallery"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:background="@drawable/ic_gallery"
                 android:src="?android:attr/selectableItemBackground"
                 android:contentDescription="@string/app_name"/>
@@ -210,8 +210,8 @@
 
             <ImageButton
                 android:id="@+id/btn_take_photo"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:background="@drawable/ic_photo_camera"
                 android:src="?android:attr/selectableItemBackground"
                 android:contentDescription="@string/app_name"/>
