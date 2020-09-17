@@ -1,6 +1,6 @@
 # HealthIt
 헬스잇 - 운동일지, 타이머, 루틴 앱 <br>
-__[Playstore Link](https://play.google.com/store/apps/details?id=io.jun.healthit)__
+👉🏻👉🏻[Playstore Link](https://play.google.com/store/apps/details?id=io.jun.healthit)👈🏻👈🏻
 * Room DB
 * Glide
 * Coroutine
