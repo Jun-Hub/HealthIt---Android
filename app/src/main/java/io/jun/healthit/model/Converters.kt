@@ -2,6 +2,7 @@ package io.jun.healthit.model
 
 import androidx.room.TypeConverter
 import com.google.gson.Gson
+import io.jun.healthit.model.data.Record
 
 class Converters {
 

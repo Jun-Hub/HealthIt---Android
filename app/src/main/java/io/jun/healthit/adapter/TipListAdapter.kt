@@ -11,7 +11,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.cleveroad.fanlayoutmanager.FanLayoutManager
 import io.jun.healthit.R
-import io.jun.healthit.model.Tip
+import io.jun.healthit.model.data.Tip
 import io.jun.healthit.view.RoutineActivity
 
 class TipListAdapter(val context: Context, private val fanLayoutManager: FanLayoutManager):

@@ -1,10 +1,13 @@
-package io.jun.healthit.model
+package io.jun.healthit.model.repository
 
 import android.content.Context
+import androidx.core.content.edit
 import androidx.preference.PreferenceManager
 import io.jun.healthit.R
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import io.jun.healthit.model.data.Record
+import io.jun.healthit.model.data.Tag
 import io.jun.healthit.util.Setting
 import java.lang.reflect.Type
 
@@ -120,7 +123,7 @@ class PrefRepository {
 
     fun getTemplate(key: Int, context: Context): List<Record> {
         //defValue가 json 형태가 아니면 error를 일으키므로 defValue를 만들어줌
-        val record = Record(if (Setting.IN_KOREA) "(터치해서 수정)" else ("(Touch to edit)"), 40, 5, 10)
+        val record = Record(if (Setting.IN_KOREA) "(터치해서 수정)" else ("(Touch to edit)"), 40f, 5, 10)
         val defJsonValue = Gson().toJson(listOf(record))
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -152,6 +155,20 @@ class PrefRepository {
         val editor = PreferenceManager.getDefaultSharedPreferences(context).edit()
         editor.putString(templateName + key, name)
         editor.apply()
+    }
+
+    private val viewModeId = "view.mode_id"
+
+    fun getViewMode(context: Context): String? {
+        val preferences = PreferenceManager.getDefaultSharedPreferences(context)
+        return preferences.getString(viewModeId, "LEFT")
+    }
+
+    //TODO KTX 문법으로 바꾸기
+    fun setViewMode(mode: String, context: Context) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit {
+            putString(viewModeId, mode)
+        }
     }
 
 }

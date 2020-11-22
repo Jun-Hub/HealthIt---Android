@@ -4,9 +4,9 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import io.jun.healthit.model.Memo
+import io.jun.healthit.model.data.Memo
 import io.jun.healthit.model.MemoDatabase
-import io.jun.healthit.model.MemoRepository
+import io.jun.healthit.model.repository.MemoRepository
 import io.jun.healthit.view.fragment.MemoFragment
 import kotlinx.coroutines.launch
 

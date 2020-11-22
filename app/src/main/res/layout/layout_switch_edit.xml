@@ -6,7 +6,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <io.ghyeok.stickyswitch.widget.StickySwitch
-        android:id="@+id/sticky_switch"
+        android:id="@+id/sticky_switch_edit"
         android:layout_width="wrap_content"
         android:layout_height="20dp"
         android:layout_centerVertical="true"

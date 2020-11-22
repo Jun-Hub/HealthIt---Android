@@ -3,6 +3,7 @@
     <string name="title_nutrition">영양정보</string>
     <string name="title_tip">운동팁</string>
     <string name="title_notes">운동 일지</string>
+    <string name="title_weight">몸무게</string>
     <string name="title_timer">타이머</string>
 
     <string name="blank">\u0020</string>
@@ -94,6 +95,13 @@
     <string name="new_log">새 일지</string>
     <string name="open_my_routine">내 루틴 열기</string>
 
+    <!-- Weight Fragment -->
+    <string name="text_body_weight">체중</string>
+    <string name="text_skeletal_muscle">골격근량</string>
+    <string name="text_fat_percentage">체지방률</string>
+    <string name="text_kg">kg</string>
+    <string name="text_percent">%</string>
+
     <!-- Timer Fragment -->
     <string name="min">m</string>
     <string name="sec">s</string>
@@ -166,6 +174,7 @@
     <string name="banner_ad_unit_id3">ca-app-pub-6263138384822549/7318812859</string>
     <string name="banner_ad_unit_id4">ca-app-pub-6263138384822549/4692649518</string>
     <string name="banner_ad_unit_id5">ca-app-pub-6263138384822549/4516555540</string>
+    <string name="banner_ad_unit_weight_fragment">ca-app-pub-6263138384822549/5454785310</string>
     <string name="banner_ad_unit_id_for_test">ca-app-pub-3940256099942544/6300978111</string>
 
 </resources>

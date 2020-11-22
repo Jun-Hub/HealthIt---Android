@@ -1,6 +1,8 @@
-package io.jun.healthit.model
+package io.jun.healthit.model.repository
 
 import androidx.lifecycle.LiveData
+import io.jun.healthit.model.MemoDao
+import io.jun.healthit.model.data.Memo
 
 // Declares the DAO as a private property in the constructor. Pass in the DAO
 // instead of the whole database, because you only need access to the DAO

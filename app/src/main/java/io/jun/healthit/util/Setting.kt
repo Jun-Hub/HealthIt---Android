@@ -1,13 +1,13 @@
 package io.jun.healthit.util
 
 import com.chad.library.adapter.base.entity.MultiItemEntity
-import io.jun.healthit.model.ParentRoutine
-import io.jun.healthit.model.Routine
+import io.jun.healthit.model.data.ParentRoutine
+import io.jun.healthit.model.data.Routine
 import io.jun.healthit.view.MainActivity
 
 //공통으로 사용되는 상수값들 설정
-class Setting {
-    companion object {
+object Setting {
+
         val IN_KOREA = MainActivity.inKorea
         const val GALLERY_REQUEST_CODE = 0
         const val TAKE_PHOTO_REQUEST_CODE = 1
@@ -17,6 +17,8 @@ class Setting {
         const val MAX_PHOTO = 7
         const val MAX_RECORD = 50
         const val MAX_SET = 20
+
+        const val DECORATOR_RADIUS = 11f
 
 
         val WORK_OUT_LIST = arrayOf("스쿼트", "런지", "덤벨 런지", "워킹 런지", "덤벨 스쿼트",
@@ -620,5 +622,5 @@ class Setting {
             return commonSenseDietList
         }
         val commonSenseDietList = commonSenseDietList()
-    }
+
 }

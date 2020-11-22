@@ -6,8 +6,8 @@ import com.chad.library.adapter.base.BaseMultiItemQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
 import com.chad.library.adapter.base.entity.MultiItemEntity
 import io.jun.healthit.R
-import io.jun.healthit.model.ParentRoutine
-import io.jun.healthit.model.Routine
+import io.jun.healthit.model.data.ParentRoutine
+import io.jun.healthit.model.data.Routine
 
 class ExpListAdapter (data: List<MultiItemEntity>) : BaseMultiItemQuickAdapter<MultiItemEntity, BaseViewHolder>(data) {
 

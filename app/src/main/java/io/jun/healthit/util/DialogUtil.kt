@@ -3,7 +3,6 @@ package io.jun.healthit.util
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -16,17 +15,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
 import io.jun.healthit.R
 import io.jun.healthit.adapter.RecordListAdapter
-import io.jun.healthit.model.Memo
-import io.jun.healthit.model.Record
+import io.jun.healthit.model.data.Memo
+import io.jun.healthit.model.data.Record
 import io.jun.healthit.service.TimerService
 import io.jun.healthit.view.AddEditActivity
 import io.jun.healthit.view.SetTemplateActivity
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
 
-class DialogUtil {
-
-    companion object {
+object DialogUtil {
 
         fun dateDialog(textDate:TextView, activity: Activity, layoutInflater: LayoutInflater) {
             val inflater = layoutInflater.inflate(R.layout.dialog_date, null as ViewGroup?)
@@ -84,7 +81,7 @@ class DialogUtil {
                             else "Total capacity of images is too large. \n Reduce the number of images!",
                             Toast.LENGTH_LONG
                         ).show()
-                    } else {
+                    } else {    //TODO 이미 같은 날짜에 저장된 메모가 있으면 반려시키기
                         if (forAdd)  //새로운 메모 추가
                             memoViewModel.insert(
                                 Memo(0, title, content, records, byteArrayList, date, tag, pin)
@@ -385,7 +382,8 @@ class DialogUtil {
 
 
         fun editRecordDialog(adapter: RecordListAdapter, context: Context,
-                             layoutInflater: LayoutInflater, index:Int, current: Record) {
+                             layoutInflater: LayoutInflater, index:Int, current: Record
+        ) {
 
             val inflater = layoutInflater.inflate(R.layout.dialog_record, null as ViewGroup?)
 
@@ -415,58 +413,41 @@ class DialogUtil {
 
 
             weightUpBtn.setOnClickListener {
-                weight.text = makePlus(weight, 5)
+                weight.text = EtcUtil.makePlusFloat(weight, 5f)
             }
             weightDownBtn.setOnClickListener {
-                weight.text = makeMinus(weight, 5)
+                weight.text = EtcUtil.makeMinusFloat(weight, 5f)
             }
 
             setUpBtn.setOnClickListener {
-                set.text = makePlus(set, 1)
+                set.text = EtcUtil.makePlus(set, 1)
             }
             setDownBtn.setOnClickListener {
-                set.text = makeMinus(set, 1)
+                set.text = EtcUtil.makeMinus(set, 1)
             }
 
             repsUpBtn.setOnClickListener {
-                reps.text = makePlus(reps, 1)
+                reps.text = EtcUtil.makePlus(reps, 1)
             }
             repsDownBtn.setOnClickListener {
-                reps.text = makeMinus(reps, 1)
+                reps.text = EtcUtil.makeMinus(reps, 1)
             }
 
             AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar).setView(inflater)
                 .setPositiveButton(if(Setting.IN_KOREA)"저장" else "SAVE") { _, _ ->
-                    val weightInt = if(weight.text.toString()=="") 0 else weight.text.toString().toInt()
+                    val weightFloat = if(weight.text.toString()=="" || weight.text.toString()==".") 0f else weight.text.toString().toFloat()
                     val setInt = if(set.text.toString()=="") 0 else set.text.toString().toInt()
                     val repsInt = if(reps.text.toString()=="") 0 else reps.text.toString().toInt()
 
                     adapter.editRecord(index, Record(name.text.toString(),
-                        weightInt,
+                        weightFloat,
                         setInt,
-                        repsInt))
+                        repsInt)
+                    )
                 }
                 .setNegativeButton(if(Setting.IN_KOREA)"취소" else "CANCEL") { _, _ ->
                 }
                 .show()
         }
 
-        //버튼 누를 때 마다 editText 수 증가
-        private fun makePlus(editText: EditText, plusValue: Int) : Editable {
-
-            return SpannableStringBuilder(
-                if(editText.text.toString() == "") plusValue.toString()
-                else (editText.text.toString().toInt()+plusValue).toString()
-            )
-        }
-
-        //버튼 누를 때 마다 editText 수 감소
-        private fun makeMinus(editText: EditText, minusValue: Int) : Editable {
-            return SpannableStringBuilder(
-                if(editText.text.toString() == "" || editText.text.toString().toInt() <= minusValue)
-                    if(minusValue == 1) "1"
-                    else "0"
-                else (editText.text.toString().toInt()-minusValue).toString())
-        }
-    }
 }

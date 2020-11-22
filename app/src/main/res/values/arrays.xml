@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="sort_array">
-        <item>정렬</item>
-        <item>칼로리 적은 순</item>
-        <item>탄수화물 적은 순</item>
-        <item>단백질 많은 순</item>
-        <item>지방 적은 순</item>
-    </string-array>
-
-    <!-- Reply Preference -->
 
     <!-- Reply Preference -->
     <string-array name="reply_entries">

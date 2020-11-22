@@ -1,4 +1,4 @@
-package io.jun.healthit.model
+package io.jun.healthit.model.data
 
 data class Tip(val name: String,
                 val recommend: String?,

@@ -11,7 +11,7 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.lifecycle.MutableLiveData
 import io.jun.healthit.R
-import io.jun.healthit.util.NotiUtil
+import io.jun.healthit.util.NotificationUtil
 import io.jun.healthit.view.MainActivity
 import uk.co.barbuzz.beerprogressview.BeerProgressView
 import kotlin.properties.Delegates
@@ -97,7 +97,7 @@ class TimerService : Service() {
             timer.cancel()
             timerState.postValue(TimerState.Stopped)
         }
-        NotiUtil.removeNotification()
+        NotificationUtil.removeNotification()
         stopSelf()
     }
 
@@ -109,7 +109,7 @@ class TimerService : Service() {
             secondsRemaining = setTime.toLong()
             timerLengthSeconds = setTime.toLong()
             progressMax.postValue(setTime)
-            startForeground(1, NotiUtil.createNotification(this, setTime))
+            startForeground(1, NotificationUtil.createNotification(this, setTime))
         }
 
         timer = object : CountDownTimer(secondsRemaining * 1000, 1000) {
@@ -121,7 +121,7 @@ class TimerService : Service() {
                 val secondsInMinuteUntilFinished = (setTime - minutesUntilFinished * 60)
                 val secondsStr = secondsInMinuteUntilFinished.toString()
                 val showTime = "$minutesUntilFinished : ${if (secondsStr.length == 2) secondsStr else "0$secondsStr"}"
-                NotiUtil.updateNotification(this@TimerService, showTime, isPlaying = false, isPausing =  false)
+                NotificationUtil.updateNotification(this@TimerService, showTime, isPlaying = false, isPausing =  false)
             }
 
             override fun onTick(millisUntilFinished: Long) {
@@ -137,7 +137,7 @@ class TimerService : Service() {
         if(::timer.isInitialized) {
             timer.cancel()
             timerState.postValue(TimerState.Paused)
-            NotiUtil.updateNotification(this, showTime, isPlaying = false, isPausing = true)
+            NotificationUtil.updateNotification(this, showTime, isPlaying = false, isPausing = true)
         }
     }
 
@@ -145,7 +145,7 @@ class TimerService : Service() {
         if(::timer.isInitialized) {
             timer.cancel()
             timerState.postValue(TimerState.Stopped)
-            NotiUtil.removeNotification()
+            NotificationUtil.removeNotification()
             stopSelf()
         }
     }
@@ -156,7 +156,7 @@ class TimerService : Service() {
         val secondsStr = secondsInMinuteUntilFinished.toString()
         showTime = "$minutesUntilFinished : ${if (secondsStr.length == 2) secondsStr else "0$secondsStr"}"
 
-        NotiUtil.updateNotification(this, showTime, isPlaying = true, isPausing =  false)
+        NotificationUtil.updateNotification(this, showTime, isPlaying = true, isPausing =  false)
         leftTime.value = showTime
         if(::floatingTextCountDown.isInitialized)
             floatingTextCountDown.text = showTime

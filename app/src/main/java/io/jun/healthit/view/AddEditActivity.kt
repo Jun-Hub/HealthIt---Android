@@ -22,7 +22,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
@@ -30,7 +32,7 @@ import io.jun.healthit.R
 import io.jun.healthit.adapter.PhotoListAdapter
 import io.jun.healthit.adapter.RecordListAdapter
 import io.jun.healthit.adapter.SpinnerAdapter
-import io.jun.healthit.model.Memo
+import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.*
 import io.jun.healthit.viewmodel.MemoViewModel
 import com.gun0912.tedpermission.PermissionListener
@@ -44,7 +46,7 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import kotlin.properties.Delegates
 
-class AddEditActivity : AppCompatActivity() {
+class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
     private lateinit var prefViewModel: PrefViewModel
     private lateinit var memoViewModel: MemoViewModel
@@ -52,9 +54,11 @@ class AddEditActivity : AppCompatActivity() {
 
     private var memoId:Int? = null
 
+    private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var recordAdapter: RecordListAdapter
     private lateinit var photoAdapter: PhotoListAdapter
-    private lateinit var layoutM: LinearLayoutManager
+    private lateinit var layoutManagerRecord: LinearLayoutManager
+    private lateinit var layoutManager: LinearLayoutManager
     private lateinit var currentPhotoPath: String
     private lateinit var photoURI: Uri
 
@@ -80,26 +84,7 @@ class AddEditActivity : AppCompatActivity() {
         prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
         memoViewModel = ViewModelProvider(this).get(MemoViewModel::class.java)
 
-        val layoutManagerRecord = LinearLayoutManager(this)
-        photoAdapter = PhotoListAdapter(this, true)
-        recordAdapter = RecordListAdapter(this, true, isNewMemo)
-        layoutM =  LinearLayoutManager(this@AddEditActivity, LinearLayoutManager.HORIZONTAL, false)
-
-        //리사이클러뷰의 아이템간 구분선
-        val itemDecoration = DividerItemDecoration(this, 0).apply {
-            this@AddEditActivity.getDrawable(R.drawable.divider_photo)?.let { setDrawable(it) }
-        }
-
-        recyclerView_record.apply {
-            adapter = recordAdapter
-            layoutManager = layoutManagerRecord
-        }
-
-        recyclerView_photo.apply {
-            adapter = photoAdapter
-            layoutManager = layoutM
-            addItemDecoration(itemDecoration)
-        }
+        setRecyclerView()
 
         if(!isNewMemo) {
             //편집할 메모 LiveData로 가져오기
@@ -140,6 +125,53 @@ class AddEditActivity : AppCompatActivity() {
             }
         }
 
+        setClickListener()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        //메모 프래그먼트에서 메모를 삭제 했을때 livedata nullPointException 방지를 위해 observer 제거
+        if (!isNewMemo && memoActualLive.hasObservers())
+            memoActualLive.removeObservers(this)
+    }
+
+    //RecordAdapter의 viewHolder를 itemTouchHelper에 연결
+    override fun onDragStarted(viewHolder: RecyclerView.ViewHolder) {
+        itemTouchHelper.startDrag(viewHolder)
+    }
+
+    private fun setRecyclerView() {
+        layoutManagerRecord = LinearLayoutManager(this)
+        photoAdapter = PhotoListAdapter(this, true)
+        recordAdapter = RecordListAdapter(this, true, isNewMemo)
+        layoutManager =  LinearLayoutManager(this@AddEditActivity, LinearLayoutManager.HORIZONTAL, false)
+
+        //리사이클러뷰의 아이템간 구분선
+        val itemDecoration = DividerItemDecoration(this, 0).apply {
+            this@AddEditActivity.getDrawable(R.drawable.divider_photo)?.let { setDrawable(it) }
+        }
+
+        recyclerView_record.apply {
+            adapter = recordAdapter
+            layoutManager = layoutManagerRecord
+        }
+
+        recyclerView_photo.apply {
+            adapter = photoAdapter
+            layoutManager = layoutManager
+            addItemDecoration(itemDecoration)
+        }
+
+        //adapter의 eventlistener를 이 액티비티로 초기화
+        recordAdapter.setOnAdapterEventListener(this)
+        //아이템 터치 헬퍼 연결
+        val callback = ItemTouchHelperCallback(recordAdapter)
+        itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(recyclerView_record)
+    }
+
+    private fun setClickListener() {
+
         btn_edit_date.setOnClickListener {
             DialogUtil.dateDialog(textView_date, this, layoutInflater)
         }
@@ -164,12 +196,6 @@ class AddEditActivity : AppCompatActivity() {
         }
     }
 
-    override fun onPause() {
-        super.onPause()
-        //메모 프래그먼트에서 메모를 삭제 했을때 livedata nullPointException 방지를 위해 observer 제거
-        if (!isNewMemo && memoActualLive.hasObservers())
-            memoActualLive.removeObservers(this)
-    }
 
     //업로드 가능한 최대 사진 갯수 넘었는지 체크
     private fun isFullPhoto() =
@@ -215,7 +241,7 @@ class AddEditActivity : AppCompatActivity() {
             .into(object : CustomTarget<Bitmap>(800, 600) {
                 override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
                     photoAdapter.addPhoto(resource)
-                    layoutM.scrollToPosition(photoAdapter.itemCount - 1)
+                    layoutManager.scrollToPosition(photoAdapter.itemCount - 1)
                 }
                 override fun onLoadCleared(placeholder: Drawable?) {
                 }

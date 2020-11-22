@@ -2,7 +2,6 @@ package io.jun.healthit.adapter
 
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
@@ -17,16 +16,15 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import io.jun.healthit.R
-import io.jun.healthit.model.Memo
-import io.jun.healthit.util.ImageUtil
+import io.jun.healthit.model.data.Memo
 import io.jun.healthit.view.MemoDetailActivity
 import io.jun.healthit.view.fragment.MemoFragment
 import io.jun.healthit.viewmodel.MemoViewModel
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
+import io.jun.healthit.util.EtcUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class MemoListAdapter internal constructor(
     private val fragment: MemoFragment
@@ -49,7 +47,7 @@ class MemoListAdapter internal constructor(
     inner class MemoViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val memoTitle: TextView = itemView.findViewById(R.id.textView_title)
         val memoContent: TextView = itemView.findViewById(R.id.textView_content)
-        val memoRecord:TextView = itemView.findViewById(R.id.textView_record)
+        val memoRecord: TextView = itemView.findViewById(R.id.textView_record)
         val memoDate: TextView = itemView.findViewById(R.id.textView_date)
         val memoImage: ImageView = itemView.findViewById(R.id.imageView)
         val memoTag: ImageView = itemView.findViewById(R.id.imageView_tag)
@@ -82,17 +80,8 @@ class MemoListAdapter internal constructor(
                 }
             }
 
-        var setEA = 0
-        for(i in current.record!!.indices) {
-            setEA += current.record[i].set
-        }
-
-        var volume = 0
-        for(i in current.record.indices) {
-            volume += (current.record[i].weight * current.record[i].set * current.record[i].reps)
-        }
-
-        holder.memoRecord.text = String.format(fragment.getString(R.string.memo_record), setEA, volume)
+        val setAndVolume = current.record?.let { EtcUtil.calculateSetAndVolume(it) }
+        holder.memoRecord.text = String.format(fragment.getString(R.string.memo_record), setAndVolume?.first, setAndVolume?.second)
 
             holder.memoDate.text = current.date
 
@@ -161,13 +150,7 @@ class MemoListAdapter internal constructor(
         originSortMemos = memos
 
         //핀메모로 설정할 때 이 function이 한 번 더 실행되기 때문에 메모리스트들 초기화
-        tag0Memos.clear()
-        tag1Memos.clear()
-        tag2Memos.clear()
-        tag3Memos.clear()
-        tag4Memos.clear()
-        tag5Memos.clear()
-        tag6Memos.clear()
+        clearTagMemos()
 
         //메모들의 태그별로 따로 리스트 만들기
         for (j in memos.indices) {
@@ -183,6 +166,16 @@ class MemoListAdapter internal constructor(
         }
     }
 
+    private fun clearTagMemos() {
+        tag0Memos.clear()
+        tag1Memos.clear()
+        tag2Memos.clear()
+        tag3Memos.clear()
+        tag4Memos.clear()
+        tag5Memos.clear()
+        tag6Memos.clear()
+    }
+
     override fun getItemCount() = memos.size
 
     //fast Scroll 라이브러리 : 스크롤바 터치시 보여줄 아이템 정보
@@ -192,7 +185,7 @@ class MemoListAdapter internal constructor(
     }
 
     //메모 태그에 따라 정렬
-    fun sortMemoList(i:Int) {
+    fun changeMemoByTag(i:Int) {
         when(i) {
             0 -> this.memos = originSortMemos
             1 -> this.memos = tag0Memos

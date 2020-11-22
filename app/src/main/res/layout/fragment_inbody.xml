@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark">
+
+    <com.google.android.gms.ads.AdView
+        xmlns:ads="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        ads:adSize="SMART_BANNER"
+        ads:adUnitId="@string/banner_ad_unit_id_for_test">
+    </com.google.android.gms.ads.AdView>
+
+    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+        android:id="@+id/calendarView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/adView"
+        app:mcv_tileSize="50dp"
+        app:mcv_weekDayTextAppearance="@style/CalendarViewWeekColor"
+        app:mcv_dateTextAppearance="@style/CalendarViewTextColor"
+        app:mcv_headerTextAppearance="@style/CalendarViewTextColor"
+        app:mcv_selectionColor="@color/colorOrangeJuice"
+        app:mcv_arrowColor="@android:color/darker_gray"
+        />
+
+    <ScrollView
+        android:id="@+id/scrollView_calendar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/calendarView">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_gravity="center_horizontal"
+            >
+
+            <include
+                android:id="@+id/memo_detail"
+                layout="@layout/item_memo"
+                android:layout_width="match_parent"
+                android:layout_height="118dp"
+                android:visibility="gone"
+                />
+
+            <LinearLayout
+                android:id="@+id/layout_weight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="75dp"
+                    android:text="@string/text_body_weight"
+                    android:textColor="@android:color/white" />
+
+                <EditText
+                    android:id="@+id/editText_weight"
+                    android:layout_width="75dp"
+                    android:layout_height="45dp"
+                    android:maxLength="6"
+                    style="@style/WeightEditTextTheme"
+                    android:hint="@string/blank"
+                    android:autofillHints=""
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text_kg"
+                    android:layout_marginEnd="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@android:color/white" />
+
+                <ImageButton
+                    android:id="@+id/imageBtn_up_weight"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/ic_arrow_up_1_orange"
+                    style="@style/RecordImgBtnTheme"
+                    android:contentDescription="@string/app_name"
+                    />
+
+                <ImageButton
+                    android:id="@+id/imageBtn_down_weight"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:background="@drawable/ic_arrow_down_1_orange"
+                    style="@style/RecordImgBtnTheme"
+                    android:contentDescription="@string/app_name"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layout_set"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="50dp"
+                    android:text="@string/text_skeletal_muscle"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@android:color/white" />
+
+                <EditText
+                    android:id="@+id/editText_muscle"
+                    style="@style/WeightEditTextTheme"
+                    android:layout_width="75dp"
+                    android:layout_height="45dp"
+                    android:autofillHints=""
+                    android:hint="@string/blank"
+                    android:maxLength="5" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text_kg"
+                    android:layout_marginEnd="20dp"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@android:color/white" />
+
+                <ImageButton
+                    android:id="@+id/imageBtn_up_muscle"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/ic_arrow_up_1_orange"
+                    style="@style/RecordImgBtnTheme"
+                    android:contentDescription="@string/app_name"
+                    />
+
+                <ImageButton
+                    android:id="@+id/imageBtn_down_muscle"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:background="@drawable/ic_arrow_down_1_orange"
+                    style="@style/RecordImgBtnTheme"
+                    android:contentDescription="@string/app_name"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                >
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="50dp"
+                    android:textColor="@android:color/white"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/text_fat_percentage"/>
+
+                <EditText
+                    android:id="@+id/editText_percent_fat"
+                    android:layout_width="75dp"
+                    android:layout_height="45dp"
+                    android:maxLength="5"
+                    style="@style/WeightEditTextTheme"
+                    android:hint="@string/blank"
+                    android:autofillHints=""
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/text_percent"
+                    android:layout_marginEnd="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:textColor="@android:color/white" />
+
+                <ImageButton
+                    android:id="@+id/imageBtn_up_percent_fat"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/ic_arrow_up_1_orange"
+                    style="@style/RecordImgBtnTheme"
+                    android:contentDescription="@string/app_name"
+                    />
+
+                <ImageButton
+                    android:id="@+id/imageBtn_down_percent_fat"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:background="@drawable/ic_arrow_down_1_orange"
+                    style="@style/RecordImgBtnTheme"
+                    android:contentDescription="@string/app_name"
+                    />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_save"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:background="@drawable/button_body_inactive"
+                android:text="@string/action_save"
+                android:textColor="@color/colorDivider"
+                android:textStyle="bold"
+                android:enabled="false"
+                />
+
+        </LinearLayout>
+    </ScrollView>
+
+</RelativeLayout>

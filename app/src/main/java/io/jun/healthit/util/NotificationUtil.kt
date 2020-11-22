@@ -14,9 +14,7 @@ import io.jun.healthit.service.TimerService
 import io.jun.healthit.view.MainActivity
 import kotlin.properties.Delegates
 
-class NotiUtil {
-
-    companion object {
+object NotificationUtil {
 
         private lateinit var channelId: String
         private lateinit var notificationManager: NotificationManagerCompat
@@ -115,5 +113,5 @@ class NotiUtil {
         fun removeNotification() {
             notificationManager.cancelAll()
         }
-    }
+
 }

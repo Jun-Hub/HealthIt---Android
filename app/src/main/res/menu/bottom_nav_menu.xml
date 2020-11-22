@@ -12,6 +12,11 @@
         android:title="@string/title_notes" />
 
     <item
+        android:id="@+id/navigation_inbody"
+        android:icon="@drawable/ic_body_24"
+        android:title="@string/title_weight" />
+
+    <item
         android:id="@+id/navigation_timer"
         android:icon="@drawable/ic_timer_black_24dp"
         android:title="@string/title_timer" />

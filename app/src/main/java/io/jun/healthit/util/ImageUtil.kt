@@ -20,9 +20,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class ImageUtil {
-
-    companion object {
+object ImageUtil {
 
         //촬영사진 썸네일이 아닌 풀사이즈로 가져오기
         @Throws(IOException::class)
@@ -124,7 +122,6 @@ class ImageUtil {
                 }
             }
         }
-    }
 
 }
 

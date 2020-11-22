@@ -43,7 +43,7 @@
         android:layout_height="22dp"
         android:layout_marginStart="44dp"
         android:contentDescription="@string/app_name"
-        android:background="@drawable/ic_delete_btn" />
+        android:background="@drawable/ic_cancel_24" />
 
     <ImageButton
         android:id="@+id/btn_play"

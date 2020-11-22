@@ -2,6 +2,7 @@ package io.jun.healthit.model
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import io.jun.healthit.model.data.Memo
 
 @Dao
 interface MemoDao {

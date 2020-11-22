@@ -15,7 +15,7 @@ import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
 import io.jun.healthit.R
 import io.jun.healthit.adapter.TipListAdapter
-import io.jun.healthit.model.Tip
+import io.jun.healthit.model.data.Tip
 
 class RoutineFragment : Fragment() {
 

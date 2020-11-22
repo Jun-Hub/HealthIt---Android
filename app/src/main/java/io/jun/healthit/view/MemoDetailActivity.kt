@@ -22,7 +22,7 @@ import com.gun0912.tedpermission.TedPermission
 import io.jun.healthit.R
 import io.jun.healthit.adapter.PhotoListAdapter
 import io.jun.healthit.adapter.RecordListAdapter
-import io.jun.healthit.model.Memo
+import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.ImageUtil
 import io.jun.healthit.viewmodel.MemoViewModel
@@ -41,7 +41,7 @@ class MemoDetailActivity : AppCompatActivity() {
     private lateinit var recordAdapter: RecordListAdapter
     private lateinit var memoViewModel: MemoViewModel
     private lateinit var memoActualLive: LiveData<Memo>
-    private lateinit var memo:Memo
+    private lateinit var memo: Memo
 
     private var memoId: Int? = null
     private var alreadyLoad = false //데이터가 변경됨에 따라 observer에서 계속 리스트가 add되는것을 방지하기위한 변수

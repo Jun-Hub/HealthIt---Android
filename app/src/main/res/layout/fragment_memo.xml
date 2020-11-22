@@ -33,8 +33,8 @@
         android:layout_below="@+id/adView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:handleHeight="40dp"
-        app:handleWidth="25dp"
+        app:handleHeight="30dp"
+        app:handleWidth="20dp"
         app:handleHasFixedSize="true"
         app:handleDrawable="@drawable/ic_scroll_bar"
         app:popupDrawable="@drawable/corner_shape_primary"
@@ -47,6 +47,43 @@
             />
     </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
 
+    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+        android:id="@+id/calendarView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/adView"
+        app:mcv_tileSize="50dp"
+        app:mcv_weekDayTextAppearance="@style/CalendarViewWeekColor"
+        app:mcv_dateTextAppearance="@style/CalendarViewTextColor"
+        app:mcv_headerTextAppearance="@style/CalendarViewTextColor"
+        app:mcv_selectionColor="@color/colorWater"
+        app:mcv_arrowColor="@android:color/darker_gray"
+        android:visibility="gone"
+        />
+
+    <ScrollView
+        android:id="@+id/scrollView_calendar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/calendarView"
+        android:visibility="gone">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardView_detail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:cardCornerRadius="20dp">
+
+            <include
+                android:id="@+id/memo_detail"
+                layout="@layout/item_memo"
+                android:layout_width="match_parent"
+                android:layout_height="118dp"
+                />
+        </androidx.cardview.widget.CardView>
+    </ScrollView>
+
     <com.leinardi.android.speeddial.SpeedDialOverlayLayout
         android:id="@+id/overlay"
         android:layout_width="match_parent"
@@ -54,7 +91,7 @@
         android:background="@color/colorOverlay"/>
 
     <com.leinardi.android.speeddial.SpeedDialView
-        android:id="@+id/add_btn"
+        android:id="@+id/add_memo_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"

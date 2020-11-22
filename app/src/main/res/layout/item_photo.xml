@@ -16,8 +16,7 @@
         android:layout_width="26dp"
         android:layout_height="26dp"
         android:layout_alignEnd="@id/imageView"
-        android:background="@drawable/ic_delete_btn"
+        android:background="@drawable/ic_cancel_24"
         android:contentDescription="@string/app_name"
         />
 </RelativeLayout>
-

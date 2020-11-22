@@ -8,7 +8,7 @@ import android.widget.ArrayAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import io.jun.healthit.R
-import io.jun.healthit.model.Tag
+import io.jun.healthit.model.data.Tag
 
 
 class SpinnerAdapter(context: Context, val list: ArrayList<Tag>)

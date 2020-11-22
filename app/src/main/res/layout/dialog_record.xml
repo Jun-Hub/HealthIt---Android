@@ -39,8 +39,8 @@
             android:id="@+id/editText_weight"
             android:layout_width="65dp"
             android:layout_height="40dp"
-            android:maxLength="3"
-            style="@style/RecordEditTextTheme"
+            android:maxLength="5"
+            style="@style/RecordWeightTextTheme"
             android:hint="@string/blank"
             android:autofillHints=""
             />

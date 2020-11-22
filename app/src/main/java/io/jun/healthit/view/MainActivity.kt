@@ -1,19 +1,23 @@
 package io.jun.healthit.view
 
-import android.content.pm.PackageInfo
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import io.jun.healthit.R
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
+
+    private val TAG = "MainActivity"
 
     companion object {
         var inKorea = true
@@ -25,11 +29,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val navView: BottomNavigationView = findViewById(R.id.nav_view)
-        navView.apply {
+        nav_view.apply {
             itemRippleColor = if(Build.VERSION.SDK_INT > 22) getColorStateList(R.color.color_state_list)
-                            else resources.getColorStateList(R.color.color_state_list)
-            background = if(Build.VERSION.SDK_INT > 22) getDrawable(R.drawable.bottom_nav)
+                            else AppCompatResources.getColorStateList(context, R.color.color_state_list)
+            background = if(Build.VERSION.SDK_INT > 22) ContextCompat.getDrawable(context, R.drawable.bottom_nav)
                             else resources.getDrawable(R.drawable.bottom_nav)
         }
 
@@ -40,16 +43,18 @@ class MainActivity : AppCompatActivity() {
             setOf(
                 R.id.navigation_routine,
                 R.id.navigation_memo,
+                R.id.navigation_inbody,
                 R.id.navigation_timer,
                 R.id.navigation_settings
             )
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
+        nav_view.setupWithNavController(navController)
 
-        val language = if(Build.VERSION.SDK_INT >= 24) {
+        val language =
+            if(Build.VERSION.SDK_INT >= 24)
             resources.configuration.locales.get(0).language
-        } else
+            else
             resources.configuration.locale.language
 
         inKorea = language == "ko"
@@ -69,8 +74,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getVersionInfo() {
         val info = packageManager.getPackageInfo(packageName, 0)
-        val version = info.versionName
-        Log.e("Asdasd", "" + version)
+        Log.e(TAG, "" + info.versionName)
     }
 
 }

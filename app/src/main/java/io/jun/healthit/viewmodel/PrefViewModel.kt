@@ -3,8 +3,8 @@ package io.jun.healthit.viewmodel
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.AndroidViewModel
-import io.jun.healthit.model.PrefRepository
-import io.jun.healthit.model.Record
+import io.jun.healthit.model.repository.PrefRepository
+import io.jun.healthit.model.data.Record
 
 class PrefViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -46,4 +46,9 @@ class PrefViewModel(application: Application) : AndroidViewModel(application) {
     fun getTemplateName(key: Int, context: Context) = repository.getTemplateName(key, context)
 
     fun setTemplateName(key: Int, name: String, context: Context) = repository.setTemplateName(key, name, context)
+
+
+    fun getViewMode(context: Context) = repository.getViewMode(context)
+
+    fun setViewMode(mode:String, context: Context) = repository.setViewMode(mode, context)
 }

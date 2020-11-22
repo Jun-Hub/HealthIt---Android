@@ -82,9 +82,9 @@
         android:id="@+id/delete_btn"
         android:layout_width="28dp"
         android:layout_height="28dp"
-        android:layout_margin="5dp"
+        android:layout_margin="6dp"
         android:layout_alignParentEnd="true"
-        android:background="@drawable/ic_delete_btn"
+        android:background="@drawable/ic_cancel_24"
         android:src="?android:attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/app_name"
         android:visibility="gone" />

@@ -4,6 +4,7 @@
     <string name="title_nutrition">NutritionFacts</string>
     <string name="title_tip">Tips</string>
     <string name="title_notes">Workout Logs</string>
+    <string name="title_weight">Body Weight</string>
     <string name="title_timer">Timer</string>
     <string name="blank">\u0020</string>
     <string name="text_full_body">Full Body</string>
@@ -93,7 +94,15 @@
     <string name="banner_ad_unit_id3">ca-app-pub-6263138384822549/7318812859</string>
     <string name="banner_ad_unit_id4">ca-app-pub-6263138384822549/4692649518</string>
     <string name="banner_ad_unit_id5">ca-app-pub-6263138384822549/4516555540</string>
+    <string name="banner_ad_unit_weight_fragment">ca-app-pub-6263138384822549/5454785310</string>
     <string name="banner_ad_unit_id_for_test">ca-app-pub-3940256099942544/6300978111</string>
+
+    <!-- Weight Fragment -->
+    <string name="text_body_weight">Body Weight</string>
+    <string name="text_skeletal_muscle">Skeletal Muscle Mass</string>
+    <string name="text_fat_percentage">Percent Body Fat</string>
+    <string name="text_kg">kg</string>
+    <string name="text_percent">%</string>
 
     <!-- menu_memo_detail -->
     <string name="menu_add_routine">Add to My Routine</string>

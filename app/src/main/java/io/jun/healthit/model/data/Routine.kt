@@ -1,4 +1,4 @@
-package io.jun.healthit.model
+package io.jun.healthit.model.data
 
 import com.chad.library.adapter.base.entity.MultiItemEntity
 import io.jun.healthit.adapter.ExpListAdapter

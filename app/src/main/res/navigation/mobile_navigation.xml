@@ -18,6 +18,13 @@
         tools:layout="@layout/fragment_memo" />
 
     <fragment
+       android:id="@+id/navigation_inbody"
+        android:name="io.jun.healthit.view.fragment.InbodyFragment"
+        android:label="@string/title_weight"
+        tools:layout="@layout/fragment_inbody"
+        />
+
+    <fragment
         android:id="@+id/navigation_timer"
         android:name="io.jun.healthit.view.fragment.TimerFragment"
         android:label="@string/title_timer"

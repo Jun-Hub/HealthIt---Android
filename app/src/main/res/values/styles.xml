@@ -89,6 +89,15 @@
         <item name="android:textSize">38sp</item>
     </style>
 
+    <style name="RecordWeightTextTheme" >
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:layout_marginEnd">20dp</item>
+        <item name="android:inputType">numberDecimal</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:textCursorDrawable">@drawable/cursor_orange</item>
+    </style>
+
     <style name="RecordEditTextTheme" >
         <item name="android:gravity">center</item>
         <item name="android:layout_gravity">center_vertical</item>
@@ -96,11 +105,29 @@
         <item name="android:inputType">numberSigned</item>
         <item name="android:digits">0123456789</item>
         <item name="android:background">@android:color/transparent</item>
+        <item name="android:textCursorDrawable">@drawable/cursor_orange</item>
     </style>
 
     <style name="RecordImgBtnTheme" >
         <item name="android:gravity">center_vertical</item>
         <item name="android:foreground">?android:attr/selectableItemBackground</item>
+    </style>
+
+    <style name="CalendarViewTextColor" parent="android:TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="CalendarViewWeekColor" parent="android:TextAppearance.DeviceDefault.Small">
+        <item name="android:textColor">@android:color/darker_gray</item>
+    </style>
+
+    <style name="WeightEditTextTheme" >
+        <item name="android:gravity">center</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:inputType">numberDecimal</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:backgroundTint">@android:color/white</item>
+        <item name="android:textCursorDrawable">@drawable/cursor_orange</item>
     </style>
 
 </resources>

@@ -1,6 +1,8 @@
-package io.jun.healthit.model
+package io.jun.healthit.model.data
 
-import androidx.room.*
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
 @Entity
 data class Memo (
