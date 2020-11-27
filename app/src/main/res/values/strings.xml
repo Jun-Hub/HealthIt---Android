@@ -95,12 +95,13 @@
     <string name="new_log">새 일지</string>
     <string name="open_my_routine">내 루틴 열기</string>
 
-    <!-- Weight Fragment -->
+    <!-- Inbody Fragment -->
     <string name="text_body_weight">체중</string>
     <string name="text_skeletal_muscle">골격근량</string>
     <string name="text_fat_percentage">체지방률</string>
     <string name="text_kg">kg</string>
     <string name="text_percent">%</string>
+    <string name="text_save_completed">저장완료</string>
 
     <!-- Timer Fragment -->
     <string name="min">m</string>

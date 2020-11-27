@@ -103,6 +103,7 @@
     <string name="text_fat_percentage">Percent Body Fat</string>
     <string name="text_kg">kg</string>
     <string name="text_percent">%</string>
+    <string name="text_save_completed">Save Completed</string>
 
     <!-- menu_memo_detail -->
     <string name="menu_add_routine">Add to My Routine</string>

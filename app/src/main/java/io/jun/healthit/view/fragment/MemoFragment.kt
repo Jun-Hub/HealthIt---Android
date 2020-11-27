@@ -68,13 +68,13 @@ class MemoFragment : Fragment() {
 
     private lateinit var selectedDate: String
 
-    private lateinit var noTagDecorator: NoTagDecorator
-    private lateinit var tagRedDecorator: TagRedDecorator
-    private lateinit var tagOrangeDecorator: TagOrangeDecorator
-    private lateinit var tagYellowDecorator: TagYellowDecorator
-    private lateinit var tagGreenDecorator: TagGreenDecorator
-    private lateinit var tagBlueDecorator: TagBlueDecorator
-    private lateinit var tagPurpleDecorator: TagPurpleDecorator
+    private lateinit var noTagDecorator: Decorator
+    private lateinit var tagRedDecorator: Decorator
+    private lateinit var tagOrangeDecorator: Decorator
+    private lateinit var tagYellowDecorator: Decorator
+    private lateinit var tagGreenDecorator: Decorator
+    private lateinit var tagBlueDecorator: Decorator
+    private lateinit var tagPurpleDecorator: Decorator
     private lateinit var pinDecorator: PinDecorator
 
     override fun onCreateView(
@@ -132,8 +132,7 @@ class MemoFragment : Fragment() {
 
     private fun initObserve(){
         //Observer 로 메모 전체 Livedata 가져오기
-        ViewModelProvider(this).get(MemoViewModel::class.java)
-            .allMemos.observe(requireActivity(), Observer { memos ->
+        memoViewModel.allMemos.observe(viewLifecycleOwner, Observer { memos ->
 
                 memoList = memos
 
@@ -156,7 +155,7 @@ class MemoFragment : Fragment() {
                 }
             })
 
-        editOn.observe(requireActivity(), { on ->
+        editOn.observe(viewLifecycleOwner, { on ->
             Log.d(TAG, "editOn observed $on")
             //TODO memo_detail 계속 null 에러뜸 ㅠ : 두번째 프래그먼트를 계속 터치했을
             memoDetail.delete_btn.visibility =
@@ -175,35 +174,37 @@ class MemoFragment : Fragment() {
         editOn.value = false
         //TODO delete_btn 에러나니까 옵저버들 제거해주기
         Log.d(TAG, "onPause called")
-        //editOn.removeObservers(requireActivity())
+        editOn.removeObservers(this)
     }
 
     private fun decorateForAllTags() {
         //일지 갱신할 때 마다 매번 데코레이트 오버랩 되니까, 전체 데코레이터 삭제해주고 시작
-        calendarView.removeDecorators()
-        calendarView.invalidateDecorators()
+        calendarView.apply {
+            removeDecorators()
+            invalidateDecorators()
 
-        calendarView.addDecorators(
-            TodayDecorator(),
-            noTagDecorator,
-            tagRedDecorator,
-            tagOrangeDecorator,
-            tagYellowDecorator,
-            tagGreenDecorator,
-            tagBlueDecorator,
-            tagPurpleDecorator,
-            pinDecorator
-        )
+            addDecorators(
+                TodayDecorator(),
+                noTagDecorator,
+                tagRedDecorator,
+                tagOrangeDecorator,
+                tagYellowDecorator,
+                tagGreenDecorator,
+                tagBlueDecorator,
+                tagPurpleDecorator,
+                pinDecorator
+            )
+        }
     }
 
     private fun initDecorators(memos: List<Memo>) {
-        noTagDecorator = NoTagDecorator(memos.filter { it.tag==0 })
-        tagRedDecorator = TagRedDecorator(memos.filter { it.tag==1 })
-        tagOrangeDecorator = TagOrangeDecorator(requireContext(), memos.filter { it.tag==2 })
-        tagYellowDecorator = TagYellowDecorator(memos.filter { it.tag==3 })
-        tagGreenDecorator = TagGreenDecorator(memos.filter { it.tag==4 })
-        tagBlueDecorator = TagBlueDecorator(memos.filter { it.tag==5 })
-        tagPurpleDecorator = TagPurpleDecorator(memos.filter { it.tag==6 })
+        noTagDecorator = Decorator(memos.filter { it.tag==0 }, TagColor.DEFAULT)
+        tagRedDecorator = Decorator(memos.filter { it.tag==1 }, TagColor.RED)
+        tagOrangeDecorator = Decorator(memos.filter { it.tag==2 }, TagColor.ORANGE)
+        tagYellowDecorator = Decorator(memos.filter { it.tag==3 }, TagColor.YELLOW)
+        tagGreenDecorator = Decorator(memos.filter { it.tag==4 }, TagColor.GREEN)
+        tagBlueDecorator = Decorator(memos.filter { it.tag==5 }, TagColor.BLUE)
+        tagPurpleDecorator = Decorator(memos.filter { it.tag==6 }, TagColor.PURPLE)
         pinDecorator = PinDecorator(requireContext(), memos.filter { it.pin==true })
 
         decorateForAllTags()

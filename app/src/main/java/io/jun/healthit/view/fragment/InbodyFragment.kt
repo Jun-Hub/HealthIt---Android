@@ -1,16 +1,17 @@
 package io.jun.healthit.view.fragment
 
+import android.util.Log
 import android.os.Bundle
 import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.lifecycle.ViewModelProvider
@@ -18,16 +19,21 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import io.jun.healthit.R
+import io.jun.healthit.databinding.FragmentInbodyBinding
+import io.jun.healthit.decorator.TextDecorator
+import io.jun.healthit.decorator.TodayDecorator
 import io.jun.healthit.model.data.Inbody
 import io.jun.healthit.util.EtcUtil
 import io.jun.healthit.viewmodel.InbodyViewModel
-import kotlinx.android.synthetic.main.fragment_inbody.*
 
 class InbodyFragment : Fragment() {
 
     private val TAG = "InbodyFragment"
 
     private lateinit var inbodyViewModel: InbodyViewModel
+
+    private var viewBinding: FragmentInbodyBinding? = null
+    private val binding get() = viewBinding!!
 
     private lateinit var inbodyList: List<Inbody>
     private lateinit var selectedDate: String
@@ -36,61 +42,62 @@ class InbodyFragment : Fragment() {
     private var isMuscleValid = false
     private var isPercentFatValid = false
 
+    private val textDecoratorList = mutableListOf<TextDecorator>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        Log.d(TAG, "onCreate")
         inbodyViewModel = ViewModelProvider(this).get(InbodyViewModel::class.java)
-        initObserve()
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_inbody, container, false)
+        Log.d(TAG, "onCreateView")
+        viewBinding = FragmentInbodyBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "onViewCreated")
 
         setAdView()
         setCalendarView()
         setClickListener()
         initTextWatcher()
+        initObserve()
     }
 
-    //TODO 다른 프래그먼트 갓다오면 onCreate 될때마다 중복 생성되는 것 같다. observer 제거 해줘야 할듯?
+    override fun onDestroyView() {
+        super.onDestroyView()
+        Log.d(TAG, "onDestroyView")
+        viewBinding = null
+    }
+
     private fun initObserve() {
-        ViewModelProvider(this).get(InbodyViewModel::class.java)
-            .allInbodys.observe(requireActivity(), { inbodies ->
+        inbodyViewModel.allInbodys.observe(viewLifecycleOwner, { inbodies ->
                 inbodyList = inbodies
 
-                inbodies.forEach {
-                    Log.d(TAG, it.date)
-                }
+                initDecorator(inbodies)
+                updateInbodyText()
             })
     }
 
     private fun setCalendarView() {
-        calendarView.selectedDate = CalendarDay.today()
-        updateSelectedDate(CalendarDay.today())
+        binding.apply {
+            calendarView.selectedDate = CalendarDay.today()
+            updateSelectedDate(CalendarDay.today())
 
-        calendarView.setOnDateChangedListener { _, date, selected ->
+            calendarView.setOnDateChangedListener { _, date, selected ->
 
-            if(selected) {
-                updateSelectedDate(date)
-                updateInbodyInfo()
+                if (selected) {
+                    updateSelectedDate(date)
+                    updateInbodyText()
+                }
             }
         }
-    }
-
-    private fun updateInbodyInfo() {
-        if(!::selectedDate.isInitialized) return
-        val selectedInbody = inbodyList.find { it.date == selectedDate } ?: return
-
-        editText_weight.text = floatToSpannable(selectedInbody.weight)
-        editText_muscle.text = floatToSpannable(selectedInbody.skeletalMuscle)
-        editText_percent_fat.text = floatToSpannable(selectedInbody.percentFat)
     }
 
     private fun updateSelectedDate(date: CalendarDay) {
@@ -98,47 +105,89 @@ class InbodyFragment : Fragment() {
         selectedDate = "${date.year}/${date.month+1}/${day}"
     }
 
+    private fun updateInbodyText() {
+        if(!::selectedDate.isInitialized) return
+
+        inbodyList.find { it.date == selectedDate }.let {
+            binding.apply {
+                editTextWeight.text = floatToSpannable(it?.weight)
+                editTextMuscle.text = floatToSpannable(it?.skeletalMuscle)
+                editTextPercentFat.text = floatToSpannable(it?.percentFat)
+            }
+        }
+    }
+    //TODO 탭에따른 체지방률, 골격근, 체중 보여주기
+    private fun initDecorator(inbodyList: List<Inbody>) {
+        textDecoratorList.clear()
+        context?.let { ctx ->
+            inbodyList.forEach {
+                textDecoratorList.add(TextDecorator(ctx, it))
+            }
+        }
+
+        decorateCalendar()
+    }
+
+    private fun decorateCalendar() {
+        binding.calendarView.apply {
+            removeDecorators()
+            invalidateDecorators()
+
+            addDecorator(TodayDecorator())
+            addDecorators(textDecoratorList)
+        }
+    }
+
     private fun setAdView() {
         MobileAds.initialize(requireContext())
         AdRequest.Builder().build().let {
-            adView.loadAd(it)
+            binding.adView.loadAd(it)
         }
     }
 
     private fun setClickListener() {
-        imageBtn_up_weight.setOnClickListener {
-            editText_weight.text = EtcUtil.makePlusFloat(editText_weight, 1f)
-        }
-        imageBtn_down_weight.setOnClickListener {
-            editText_weight.text = EtcUtil.makeMinusFloat(editText_weight, 1f)
-        }
-        imageBtn_up_muscle.setOnClickListener {
-            editText_muscle.text = EtcUtil.makePlusFloat(editText_muscle, 1f)
-        }
-        imageBtn_down_muscle.setOnClickListener {
-            editText_muscle.text = EtcUtil.makeMinusFloat(editText_muscle, 1f)
-        }
-        imageBtn_up_percent_fat.setOnClickListener {
-            editText_percent_fat.text = EtcUtil.makePlusFloat(editText_percent_fat, 1f)
-        }
-        imageBtn_down_percent_fat.setOnClickListener {
-            editText_percent_fat.text = EtcUtil.makeMinusFloat(editText_percent_fat, 1f)
-        }
+        binding.apply {
+            imageBtnUpWeight.setOnClickListener {
+                editTextWeight.text = EtcUtil.makePlusFloat(editTextWeight, 1f)
+            }
+            imageBtnDownWeight.setOnClickListener {
+                editTextWeight.text = EtcUtil.makeMinusFloat(editTextWeight, 1f)
+            }
+            imageBtnUpMuscle.setOnClickListener {
+                editTextMuscle.text = EtcUtil.makePlusFloat(editTextMuscle, 1f)
+            }
+            imageBtnDownMuscle.setOnClickListener {
+                editTextMuscle.text = EtcUtil.makeMinusFloat(editTextMuscle, 1f)
+            }
+            imageBtnUpPercentFat.setOnClickListener {
+                editTextPercentFat.text = EtcUtil.makePlusFloat(editTextPercentFat, 1f)
+            }
+            imageBtnDownPercentFat.setOnClickListener {
+                editTextPercentFat.text = EtcUtil.makeMinusFloat(editTextPercentFat, 1f)
+            }
 
-        btn_save.setOnClickListener {
-            //TODO 저장됬다는 커스텀 토스트 띄우고, 데코레이터도 만들기
-            inbodyViewModel.insert(Inbody(
-                selectedDate,
-                textToFloat(editText_weight),
-                textToFloat(editText_muscle),
-                textToFloat(editText_percent_fat)))
+            btnSave.setOnClickListener {
+                inbodyViewModel.insert(
+                    Inbody(
+                        selectedDate,
+                        textToFloat(editTextWeight),
+                        textToFloat(editTextMuscle),
+                        textToFloat(editTextPercentFat)
+                    )
+                )
+
+                Toast.makeText(context, getString(R.string.text_save_completed), Toast.LENGTH_SHORT)
+                    .show()
+            }
         }
     }
 
     private fun initTextWatcher() {
-        setTextWatcher(editText_weight, 0)
-        setTextWatcher(editText_muscle, 1)
-        setTextWatcher(editText_percent_fat, 2)
+        binding.apply {
+            setTextWatcher(editTextWeight, 0)
+            setTextWatcher(editTextMuscle, 1)
+            setTextWatcher(editTextPercentFat, 2)
+        }
     }
 
     private fun setTextWatcher(editText: EditText, identifier: Int) {
@@ -153,7 +202,7 @@ class InbodyFragment : Fragment() {
                         1 -> isMuscleValid = false
                         2 -> isPercentFatValid = false
                     }
-                    inActivateButton(btn_save)
+                    inActivateButton(binding.btnSave)
                 } else {
                     when(identifier) {
                         0 -> isWeightValid = !s.isNullOrEmpty()
@@ -184,9 +233,9 @@ class InbodyFragment : Fragment() {
 
     private fun checkValidState() {
         if(isWeightValid || isMuscleValid || isPercentFatValid)
-            activateButton(btn_save)
+            activateButton(binding.btnSave)
         else
-            inActivateButton(btn_save)
+            inActivateButton(binding.btnSave)
     }
 
     private fun textToFloat(editText: EditText) =

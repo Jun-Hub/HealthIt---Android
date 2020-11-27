@@ -56,19 +56,19 @@ class TimerFragment : Fragment() {
         //TimerService로부터 countDown 현황을 실시간으로 보여줄 LiveData 관찰
         val timerViewModel = ViewModelProvider(this).get(TimerViewModel::class.java)
 
-        timerViewModel.getLeftTime().observe(requireActivity(), Observer { leftTime ->
+        timerViewModel.getLeftTime().observe(viewLifecycleOwner, Observer { leftTime ->
             textViewCountdown.text = leftTime
         })
 
-        timerViewModel.getProgress().observe(requireActivity(), Observer { progress ->
+        timerViewModel.getProgress().observe(viewLifecycleOwner, Observer { progress ->
             progressCountdown.beerProgress = progress
         })
 
-        timerViewModel.getProgressMax().observe(requireActivity(), Observer { max ->
+        timerViewModel.getProgressMax().observe(viewLifecycleOwner, Observer { max ->
             progressCountdown.max = max
         })
 
-        timerViewModel.getTimerState().observe(requireActivity(), Observer { state ->
+        timerViewModel.getTimerState().observe(viewLifecycleOwner, Observer { state ->
             updateButtons(state)
 
             when(state) {

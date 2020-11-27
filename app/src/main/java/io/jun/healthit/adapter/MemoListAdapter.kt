@@ -120,6 +120,7 @@ class MemoListAdapter internal constructor(
         holder.memoPin.visibility = if(current.pin!!) View.VISIBLE
                                     else View.GONE
 
+        //TODO viewholder에 observe하면 memory lick을 만날 수 있다?
             //MainActivity 툴바의 편집 버튼(switch) 상태를 Livedata로 관찰
             memoViewModel.isEditMode().observe(fragment, Observer { editOn ->
                 if (editOn)
