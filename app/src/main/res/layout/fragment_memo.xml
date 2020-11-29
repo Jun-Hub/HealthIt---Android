@@ -47,41 +47,45 @@
             />
     </com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller>
 
-    <com.prolificinteractive.materialcalendarview.MaterialCalendarView
-        android:id="@+id/calendarView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/adView"
-        app:mcv_tileSize="50dp"
-        app:mcv_weekDayTextAppearance="@style/CalendarViewWeekColor"
-        app:mcv_dateTextAppearance="@style/CalendarViewTextColor"
-        app:mcv_headerTextAppearance="@style/CalendarViewTextColor"
-        app:mcv_selectionColor="@color/colorWater"
-        app:mcv_arrowColor="@android:color/darker_gray"
-        android:visibility="gone"
-        />
-
     <ScrollView
         android:id="@+id/scrollView_calendar"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/calendarView"
+        android:layout_below="@+id/adView"
         android:visibility="gone">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardView_detail"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:cardCornerRadius="20dp">
+            android:orientation="vertical">
 
-            <include
-                android:id="@+id/memo_detail"
-                layout="@layout/item_memo"
+            <com.prolificinteractive.materialcalendarview.MaterialCalendarView
+                android:id="@+id/calendarView"
                 android:layout_width="match_parent"
-                android:layout_height="118dp"
-                />
-        </androidx.cardview.widget.CardView>
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:mcv_arrowColor="@android:color/darker_gray"
+                app:mcv_dateTextAppearance="@style/CalendarViewTextColor"
+                app:mcv_headerTextAppearance="@style/CalendarViewTextColor"
+                app:mcv_selectionColor="@color/colorCalendarSelect"
+                app:mcv_tileSize="50dp"
+                app:mcv_weekDayTextAppearance="@style/CalendarViewWeekColor" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardView_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                app:cardCornerRadius="@dimen/card_corner_radius">
+
+                <include
+                    android:id="@+id/memo_detail"
+                    layout="@layout/item_memo"
+                    android:layout_width="match_parent"
+                    android:layout_height="118dp" />
+            </androidx.cardview.widget.CardView>
+
+        </LinearLayout>
     </ScrollView>
 
     <com.leinardi.android.speeddial.SpeedDialOverlayLayout

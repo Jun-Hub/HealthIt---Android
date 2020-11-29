@@ -34,5 +34,7 @@ class MemoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun getMemoById(id: Int) = repository.getMemoById(id)
 
+    fun isExist(date: String) = repository.isExist(date)
+
     fun isEditMode() = MemoFragment.editOn
 }

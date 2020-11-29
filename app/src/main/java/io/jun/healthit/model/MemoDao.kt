@@ -12,6 +12,9 @@ interface MemoDao {
     @Query("SELECT * FROM memo WHERE id IN (:memoId)")
     fun loadById(memoId: Int): LiveData<Memo>
 
+    @Query("SELECT * FROM memo WHERE date IN (:date)")
+    fun isExist(date: String): Boolean
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(memo: Memo)
 

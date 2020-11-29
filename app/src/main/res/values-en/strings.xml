@@ -58,6 +58,7 @@
     <string name="notice_max_photo">You can upload up to %1$d pictures.</string>
     <string name="notice_max_img_capacity">Can\'t open large size image more than %1$dMB.</string>
     <string name="notice_max_capacity">Total capacity of images is too large. \n Reduce the number of images!</string>
+    <string name="notice_conflict_date">A record already exists on that date.</string>
     <string name="no_title">No Title</string>
     <string name="create_date">Date:%1$s</string>
     <string name="notice_pin">The log is fixed and exposed to the top of the list.</string>
@@ -109,6 +110,16 @@
     <string name="menu_add_routine">Add to My Routine</string>
     <string name="menu_save_as_image">Save as Image</string>
     <string name="menu_delete">Delete</string>
+
+    <!-- DialogUtil -->
+    <string name="ok">OK</string>
+    <string name="cancel">CANCEL</string>
+    <string name="dont_save">DON\'T SAVE</string>
+    <string name="tag_name">Tag%1$d Name</string>
+    <string name="create_my_routine">Create My Routine</string>
+    <string name="create_log_with_routine">Create a New Log with My Routine</string>
+    <string name="routine_name_to_add">Name of The Routine to Add</string>
+    <string name="add_to_my_routine">Add to My Routine</string>
 
     <string-array name="alert_entries">
         <item>Silent</item>

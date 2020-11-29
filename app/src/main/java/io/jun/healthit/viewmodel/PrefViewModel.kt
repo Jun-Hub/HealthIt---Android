@@ -51,4 +51,8 @@ class PrefViewModel(application: Application) : AndroidViewModel(application) {
     fun getViewMode(context: Context) = repository.getViewMode(context)
 
     fun setViewMode(mode:String, context: Context) = repository.setViewMode(mode, context)
+
+    fun getInbodySpinner(context: Context) = repository.getInbodySpinner(context)
+
+    fun setInbodySpinner(position: Int, context: Context) = repository.setInbodySpinner(position, context)
 }

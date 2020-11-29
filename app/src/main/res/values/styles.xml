@@ -130,4 +130,10 @@
         <item name="android:textCursorDrawable">@drawable/cursor_orange</item>
     </style>
 
+    <style name="InbodyInfoTitleTheme">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:layout_gravity">center_vertical</item>
+    </style>
+
 </resources>

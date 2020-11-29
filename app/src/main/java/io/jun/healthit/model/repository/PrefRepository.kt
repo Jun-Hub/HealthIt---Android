@@ -11,6 +11,7 @@ import io.jun.healthit.model.data.Tag
 import io.jun.healthit.util.Setting
 import java.lang.reflect.Type
 
+//TODO Setting.IN_KOREA 그냥 getString으로 해주기
 class PrefRepository {
 
     private val previousTimerSetMinId = "timer.previous_timer_set_min"
@@ -157,18 +158,29 @@ class PrefRepository {
         editor.apply()
     }
 
-    private val viewModeId = "view.mode_id"
+    private val memoViewModeId = "view.mode_id"
 
     fun getViewMode(context: Context): String? {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
-        return preferences.getString(viewModeId, "LEFT")
+        return preferences.getString(memoViewModeId, "LEFT")
     }
 
     //TODO KTX 문법으로 바꾸기
     fun setViewMode(mode: String, context: Context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit {
-            putString(viewModeId, mode)
+            putString(memoViewModeId, mode)
         }
     }
 
+    private val inbodySpinnerId = "inbody.spinner_id"
+
+    fun getInbodySpinner(context: Context) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .getInt(inbodySpinnerId, 0)
+
+    fun setInbodySpinner(position:Int, context: Context) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit {
+            putInt(inbodySpinnerId, position)
+        }
+    }
 }

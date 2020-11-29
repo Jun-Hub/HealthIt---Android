@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.Spinner
@@ -29,7 +28,7 @@ import io.ghyeok.stickyswitch.widget.StickySwitch
 import io.ghyeok.stickyswitch.widget.StickySwitch.OnSelectedChangeListener
 import io.jun.healthit.R
 import io.jun.healthit.adapter.MemoListAdapter
-import io.jun.healthit.adapter.SpinnerAdapter
+import io.jun.healthit.adapter.TagSpinnerAdapter
 import io.jun.healthit.decorator.*
 import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.DialogUtil
@@ -46,7 +45,7 @@ import kotlinx.coroutines.launch
 
 //TODO 파이어베이스 애널리스틱 사용하기 https://salix97.tistory.com/139
 class MemoFragment : Fragment() {
-
+    //TODO test 광고 adUnitId 원래대로 재설정해주기
     //편집 버튼을 on 했는지 MemoListAdapter 에서 관찰하기 위한 livedata
     companion object {
         var editOn: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -150,16 +149,17 @@ class MemoFragment : Fragment() {
                     updateCalendarCardView()
                 }
                 else {
+                    //메모가 없어도 일단 TodayDecorator는 추가
+                    calendarView.addDecorator(TodayDecorator())
                     recyclerView.visibility = View.GONE
                     textView_no_memo.visibility = View.VISIBLE
                 }
             })
 
         editOn.observe(viewLifecycleOwner, { on ->
-            Log.d(TAG, "editOn observed $on")
-            //TODO memo_detail 계속 null 에러뜸 ㅠ : 두번째 프래그먼트를 계속 터치했을
             memoDetail.delete_btn.visibility =
-                if(on) View.VISIBLE else View.GONE
+                if(on) View.VISIBLE
+                else View.GONE
         })
     }
 
@@ -172,9 +172,6 @@ class MemoFragment : Fragment() {
         tagSpinner.setSelection(0)
         editSwitch.setDirection(StickySwitch.Direction.LEFT, isAnimate = false, shouldTriggerSelected = true)
         editOn.value = false
-        //TODO delete_btn 에러나니까 옵저버들 제거해주기
-        Log.d(TAG, "onPause called")
-        editOn.removeObservers(this)
     }
 
     private fun decorateForAllTags() {
@@ -217,25 +214,27 @@ class MemoFragment : Fragment() {
             return
         }
         //적용됬었던 데코레이터들 전부 클리어해주고,
-        calendarView.removeDecorators()
-        calendarView.invalidateDecorators()
+        calendarView.apply {
+            removeDecorators()
+            invalidateDecorators()
 
-        calendarView.addDecorators(
-            TodayDecorator(),
-            when(position) {
-                2 -> tagRedDecorator
-                3 -> tagOrangeDecorator
-                4 -> tagYellowDecorator
-                5 -> tagGreenDecorator
-                6 -> tagBlueDecorator
-                7 -> tagPurpleDecorator
-                else -> noTagDecorator
-            }
-        )
+            addDecorators(
+                TodayDecorator(),
+                when (position) {
+                    2 -> tagRedDecorator
+                    3 -> tagOrangeDecorator
+                    4 -> tagYellowDecorator
+                    5 -> tagGreenDecorator
+                    6 -> tagBlueDecorator
+                    7 -> tagPurpleDecorator
+                    else -> noTagDecorator
+                }
+            )
+        }
 
     }
 
-    private fun isInitAllTags(): Boolean =
+    private fun isInitAllDecorators(): Boolean =
         ::noTagDecorator.isInitialized &&
                 ::tagRedDecorator.isInitialized &&
                 ::tagOrangeDecorator.isInitialized &&
@@ -336,18 +335,13 @@ class MemoFragment : Fragment() {
         val sort = menu.findItem(R.id.action_sort)
         sort.setActionView(R.layout.layout_spinner)
         tagSpinner = sort.actionView.findViewById(R.id.tag_spinner)
-        tagSpinner.adapter = context?.let { SpinnerAdapter(it, prefViewModel.getTagSettings(it, true)) }
+        tagSpinner.adapter = context?.let { TagSpinnerAdapter(it, prefViewModel.getTagSettings(it, true)) }
 
         tagSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(
-                parent: AdapterView<*>?,
-                view: View?,
-                position: Int,
-                id: Long
-            ) {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 memoAdapter.changeMemoByTag(position)
 
-                if(isInitAllTags())
+                if(isInitAllDecorators())
                     decorateByTag(position)
             }
 

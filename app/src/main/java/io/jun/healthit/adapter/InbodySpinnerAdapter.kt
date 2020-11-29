@@ -4,15 +4,15 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ArrayAdapter
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import io.jun.healthit.R
-import io.jun.healthit.model.data.Tag
 
-
-class SpinnerAdapter(context: Context, val list: ArrayList<Tag>)
-    : ArrayAdapter<Tag>(context, 0, list) {
+class InbodySpinnerAdapter(context: Context, val list: List<String>)
+    : ArrayAdapter<String>(context, 0, list) {
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View? {
         return getView(position, convertView, parent)
@@ -29,17 +29,24 @@ class SpinnerAdapter(context: Context, val list: ArrayList<Tag>)
                 R.layout.item_tag_spinner, parent, false)
         }
 
-        val imageViewColor: ImageView = mConvertView!!.findViewById(R.id.imageView_color)
+        val imageView: ImageView = mConvertView!!.findViewById(R.id.imageView_color)
         val textViewName: TextView = mConvertView.findViewById(R.id.textView_name)
 
-        val currentItem: Tag? = getItem(position)
+        adjustView(imageView, textViewName)
 
-        if (currentItem != null) {
-            imageViewColor.setImageResource(currentItem.color)
-            textViewName.text = currentItem.name
+        getItem(position)?.let {
+            textViewName.text = it
         }
 
         return mConvertView
+    }
+
+    private fun adjustView(imageView: ImageView, textView: TextView) {
+        imageView.visibility = View.GONE
+        RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).run {
+            setMargins(25, 20, 0, 20)
+            textView.layoutParams = this
+        }
     }
 
 }

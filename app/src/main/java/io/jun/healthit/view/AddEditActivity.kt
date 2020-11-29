@@ -31,7 +31,7 @@ import com.bumptech.glide.request.transition.Transition
 import io.jun.healthit.R
 import io.jun.healthit.adapter.PhotoListAdapter
 import io.jun.healthit.adapter.RecordListAdapter
-import io.jun.healthit.adapter.SpinnerAdapter
+import io.jun.healthit.adapter.TagSpinnerAdapter
 import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.*
 import io.jun.healthit.viewmodel.MemoViewModel
@@ -47,6 +47,8 @@ import java.io.IOException
 import kotlin.properties.Delegates
 
 class AddEditActivity : AppCompatActivity(), AdapterEventListener {
+
+    private val TAG = "AddEditActivity"
 
     private lateinit var prefViewModel: PrefViewModel
     private lateinit var memoViewModel: MemoViewModel
@@ -279,7 +281,7 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
         //스피닝 아이템 선언 후 연결
         val tagSpinner: Spinner = item.actionView.findViewById(R.id.tag_spinner)
-        tagSpinner.adapter = SpinnerAdapter(this, prefViewModel.getTagSettings(this, false))
+        tagSpinner.adapter = TagSpinnerAdapter(this, prefViewModel.getTagSettings(this, false))
         if(!isNewMemo)
             tagSpinner.setSelection(intent.getIntExtra("tag", 0))
 
@@ -300,13 +302,13 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
             android.R.id.home -> {  //툴바의 뒤로가기 버튼
                 CoroutineScope(Dispatchers.Default).launch {
-
+                    val isConflict = isConflictDate()
                     addByteArray()
 
                     withContext(Dispatchers.Main) {
                         DialogUtil.saveMemoDialog(isNewMemo, this@AddEditActivity, layoutInflater, memoViewModel,
                             if(isNewMemo) null else memoId, titleToString(), contentToString(), recordAdapter.records ,byteArrayList,
-                            textView_date.text.toString(), tag, if(isNewMemo)false else pin)
+                            textView_date.text.toString(), tag, if(isNewMemo)false else pin, isConflict)
                     }
                 }
                 true
@@ -315,6 +317,10 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
             R.id.action_save -> {   //저장 버튼
 
                 CoroutineScope(Dispatchers.Default).launch {
+                    if(isConflictDate()) {
+                        withContext(Dispatchers.Main) { showConflicToast() }
+                        return@launch
+                    }
 
                     addByteArray()
 
@@ -346,15 +352,22 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
     override fun onBackPressed() {
 
         CoroutineScope(Dispatchers.Default).launch {
-
+            val isConflict = isConflictDate()
             addByteArray()
 
             withContext(Dispatchers.Main) {
                 DialogUtil.saveMemoDialog(isNewMemo, this@AddEditActivity, layoutInflater, memoViewModel,
                     if(isNewMemo) null else memoId, titleToString(), contentToString(), recordAdapter.records, byteArrayList,
-                    textView_date.text.toString(), tag, if(isNewMemo) false else pin)
+                    textView_date.text.toString(), tag, if(isNewMemo) false else pin, isConflict)
             }
         }
+    }
+
+    //해당 날짜에 이미 저장된 기록이 있나 체크
+    private fun isConflictDate() = memoViewModel.isExist(textView_date.text.toString())
+
+    private fun showConflicToast() {
+        Toast.makeText(this, getString(R.string.notice_conflict_date), Toast.LENGTH_LONG).show()
     }
 
     private fun titleToString() = if(EtcUtil.isAllBlank(editText_title.text.toString())) ""

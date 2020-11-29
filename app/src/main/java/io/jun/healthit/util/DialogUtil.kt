@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.text.SpannableStringBuilder
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.*
@@ -25,13 +26,15 @@ import io.jun.healthit.viewmodel.PrefViewModel
 
 object DialogUtil {
 
+    private val TAG = "DialogUtil"
+
         fun dateDialog(textDate:TextView, activity: Activity, layoutInflater: LayoutInflater) {
             val inflater = layoutInflater.inflate(R.layout.dialog_date, null as ViewGroup?)
 
             val datePicker = inflater.findViewById<DatePicker>(R.id.date_picker)
 
             AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar).setView(inflater)
-                .setPositiveButton(if (Setting.IN_KOREA) "확인" else "OK") { _, _ ->
+                .setPositiveButton(activity.getString(R.string.ok)) { _, _ ->
 
                     datePicker.also {
                         val month =
@@ -42,7 +45,7 @@ object DialogUtil {
                         textDate.text = "${it.year}/$month/$day"
                     }
                 }
-                .setNegativeButton(if (Setting.IN_KOREA) "취소" else "CANCEL") { _, _ ->
+                .setNegativeButton(activity.getString(R.string.cancel)) { _, _ ->
                 }
                 .show()
         }
@@ -59,7 +62,8 @@ object DialogUtil {
             byteArrayList: ArrayList<ByteArray>,
             date: String,
             tag: Int,
-            pin: Boolean
+            pin: Boolean,
+            isConflictDate: Boolean
         ) {
 
             //저장할 이미지 총 용량 계산
@@ -73,29 +77,25 @@ object DialogUtil {
                     android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar
                 )
                 .setView(inflater)
-                .setPositiveButton(if (Setting.IN_KOREA) "저장" else "SAVE") { _, _ ->
-                    if (totalSize > Setting.TOTAL_SIZE_LIMIT) {
-                        Toast.makeText(
-                            activity,
-                            if(Setting.IN_KOREA) "저장할 이미지의 총용량이 너무 큽니다. \n 이미지 개수를 줄여보세요!"
-                            else "Total capacity of images is too large. \n Reduce the number of images!",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    } else {    //TODO 이미 같은 날짜에 저장된 메모가 있으면 반려시키기
-                        if (forAdd)  //새로운 메모 추가
-                            memoViewModel.insert(
-                                Memo(0, title, content, records, byteArrayList, date, tag, pin)
-                            )
-                        else    //기존 메모 수정
-                            memoViewModel.update(
-                                Memo(id!!, title, content, records, byteArrayList, date, tag, pin)
-                            )
-                        activity.finish()
+                .setPositiveButton(activity.getString(R.string.ok)) { _, _ ->
+                    when {
+                        totalSize > Setting.TOTAL_SIZE_LIMIT ->
+                            Toast.makeText(activity, activity.getString(R.string.notice_max_capacity), Toast.LENGTH_LONG).show()
+
+                        isConflictDate -> Toast.makeText(activity, activity.getString(R.string.notice_conflict_date), Toast.LENGTH_LONG).show()
+
+                        else -> {
+                            if (forAdd)  //새로운 메모 추가
+                                memoViewModel.insert(Memo(0, title, content, records, byteArrayList, date, tag, pin))
+                            else    //기존 메모 수정
+                                memoViewModel.update(Memo(id!!, title, content, records, byteArrayList, date, tag, pin))
+                            activity.finish()
+                        }
                     }
                 }
-                .setNegativeButton(if (Setting.IN_KOREA) "취소" else "CANCEL") { _, _ ->
+                .setNegativeButton(activity.getString(R.string.cancel)) { _, _ ->
                 }
-                .setNeutralButton(if (Setting.IN_KOREA) "저장 안함" else "DON'T SAVE") { _, _ ->
+                .setNeutralButton(activity.getString(R.string.dont_save)) { _, _ ->
                     activity.finish()
                 }
                 .show()
@@ -111,14 +111,14 @@ object DialogUtil {
                     activity,
                     android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar
                 ).setView(inflater)
-                .setPositiveButton(if (Setting.IN_KOREA) "확인" else "OK") { _, _ ->
+                .setPositiveButton(activity.getString(R.string.ok)) { _, _ ->
                     //에러 방지하기 위해 LiveData가 활성중이라면 종료 후 디비 제거
                     if (liveData.hasObservers()) liveData.removeObservers(owner)
 
                     memoViewModel.delete(memo)
                     activity.finish()
                 }
-                .setNegativeButton(if (Setting.IN_KOREA) "취소" else "CANCEL") { _, _ ->
+                .setNegativeButton(activity.getString(R.string.cancel)) { _, _ ->
                 }
                 .show()
         }
@@ -185,7 +185,7 @@ object DialogUtil {
 
             val inflater = layoutInflater.inflate(R.layout.dialog_set_name, null as ViewGroup?)
             val titleText = inflater.findViewById<TextView>(R.id.textView_title)
-            titleText.text = if (Setting.IN_KOREA) "태그$index 이름" else "Tag$index Name"
+            titleText.text = String.format(fragment.getString(R.string.tag_name), index)
 
             inflater.findViewById<EditText>(R.id.editText).also { editText ->
 
@@ -195,11 +195,11 @@ object DialogUtil {
                         android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar
                     )
                         .setView(inflater)
-                        .setPositiveButton(if (Setting.IN_KOREA) "확인" else "OK") { _, _ ->
+                        .setPositiveButton(fragment.getString(R.string.ok)) { _, _ ->
                             prefViewModel.setTagSettings(it, index, editText.text.toString())
                             EtcUtil.closeKeyboard(it)
                         }
-                        .setNegativeButton(if (Setting.IN_KOREA) "취소" else "CANCEL") { _, _ ->
+                        .setNegativeButton(fragment.getString(R.string.cancel)) { _, _ ->
                             EtcUtil.closeKeyboard(it)
                         }
                         .show()
@@ -222,13 +222,12 @@ object DialogUtil {
                 fragment.context?.let { prefViewModel.getTemplateName(7, it) }
             )
 
-            val title = if(settingsMode) {
-                if (Setting.IN_KOREA) "내 루틴 만들기"
-                else "Create My Routine"
-            } else {
-                if (Setting.IN_KOREA) "내 루틴으로 새 일지 쓰기"
-                else "Create a New Log with My Routine"
-            }
+            val title =
+                if(settingsMode)
+                    fragment.getString(R.string.create_my_routine)
+                else
+                    fragment.getString(R.string.create_log_with_routine)
+
             val intent = if(settingsMode)
                             Intent(fragment.context, SetTemplateActivity::class.java)
                         else
@@ -267,14 +266,14 @@ object DialogUtil {
 
             AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar)
                 .setView(inflater)
-                .setPositiveButton(if(Setting.IN_KOREA)"저장" else "SAVE") { _, _ ->
+                .setPositiveButton(activity.getString(R.string.ok)) { _, _ ->
                     prefViewModel.setTemplateName(templateId, templateName, activity)
                     prefViewModel.setTemplate(templateId, adapter.records, activity)
                     activity.finish()
                 }
-                .setNegativeButton(if (Setting.IN_KOREA) "취소" else "CANCEL") { _, _ ->
+                .setNegativeButton(activity.getString(R.string.cancel)) { _, _ ->
                 }
-                .setNeutralButton(if (Setting.IN_KOREA) "저장 안함" else "DON'T SAVE") { _, _ ->
+                .setNeutralButton(activity.getString(R.string.dont_save)) { _, _ ->
                     activity.finish()
                 }
                 .show()
@@ -290,10 +289,10 @@ object DialogUtil {
 
             AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar)
                 .setView(inflater)
-                .setPositiveButton(if (Setting.IN_KOREA) "확인" else "OK") { _, _ ->
+                .setPositiveButton(activity.getString(R.string.ok)) { _, _ ->
                     templateNameDialog(activity, layoutInflater, records)
                 }
-                .setNegativeButton(if (Setting.IN_KOREA) "취소" else "CANCEL") { _, _ ->
+                .setNegativeButton(activity.getString(R.string.cancel)) { _, _ ->
                 }
                 .show()
         }
@@ -302,17 +301,17 @@ object DialogUtil {
 
             val inflater = layoutInflater.inflate(R.layout.dialog_set_name, null as ViewGroup?)
             val titleText = inflater.findViewById<TextView>(R.id.textView_title)
-            titleText.text = if (Setting.IN_KOREA) "추가할 루틴 이름" else "Name of The Routine to Add"
+            titleText.text = activity.getString(R.string.routine_name_to_add)
 
             inflater.findViewById<EditText>(R.id.editText).also { editText ->
 
                 AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar)
                     .setView(inflater)
-                    .setPositiveButton(if (Setting.IN_KOREA) "확인" else "OK") { _, _ ->
+                    .setPositiveButton(activity.getString(R.string.ok)) { _, _ ->
                         showDirectlyTemplateDialog(activity, editText.text.toString(), records)
                         EtcUtil.closeKeyboard(activity)
                     }
-                    .setNegativeButton(if (Setting.IN_KOREA) "취소" else "CANCEL") { _, _ ->
+                    .setNegativeButton(activity.getString(R.string.cancel)) { _, _ ->
                         EtcUtil.closeKeyboard(activity)
                     }
                     .show()
@@ -334,10 +333,8 @@ object DialogUtil {
                 prefViewModel.getTemplateName(7, activity)
             )
 
-            val title = if (Setting.IN_KOREA) "내 루틴에 추가하기" else "Add to My Routine"
-
             AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar)
-                .setTitle(title)
+                .setTitle(activity.getString(R.string.add_to_my_routine))
                 .setItems(templates) { _, which ->
                     when (which) {   //루틴 이름과 루틴템플릿 저장
                         0 -> {
@@ -402,15 +399,15 @@ object DialogUtil {
             name.setAdapter(ArrayAdapter(context,
                 android.R.layout.simple_list_item_1, Setting.WORK_OUT_LIST))
 
-            name.text = if(current.name == if(Setting.IN_KOREA)"(터치해서 수정)" else "(Touch to edit)") SpannableStringBuilder("")
-            else SpannableStringBuilder(current.name)
+            name.text =
+                if(current.name == context.getString(R.string.name_guide))
+                    SpannableStringBuilder("")
+                else
+                    SpannableStringBuilder(current.name)
 
             weight.text = SpannableStringBuilder(current.weight.toString())
-
             set.text = SpannableStringBuilder(current.set.toString())
-
             reps.text = SpannableStringBuilder(current.reps.toString())
-
 
             weightUpBtn.setOnClickListener {
                 weight.text = EtcUtil.makePlusFloat(weight, 5f)
@@ -434,7 +431,7 @@ object DialogUtil {
             }
 
             AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar).setView(inflater)
-                .setPositiveButton(if(Setting.IN_KOREA)"저장" else "SAVE") { _, _ ->
+                .setPositiveButton(context.getString(R.string.action_save)) { _, _ ->
                     val weightFloat = if(weight.text.toString()=="" || weight.text.toString()==".") 0f else weight.text.toString().toFloat()
                     val setInt = if(set.text.toString()=="") 0 else set.text.toString().toInt()
                     val repsInt = if(reps.text.toString()=="") 0 else reps.text.toString().toInt()
@@ -445,7 +442,7 @@ object DialogUtil {
                         repsInt)
                     )
                 }
-                .setNegativeButton(if(Setting.IN_KOREA)"취소" else "CANCEL") { _, _ ->
+                .setNegativeButton(context.getString(R.string.cancel)) { _, _ ->
                 }
                 .show()
         }

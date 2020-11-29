@@ -1,17 +1,12 @@
 package io.jun.healthit.view.fragment
 
-import android.util.Log
 import android.os.Bundle
 import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
+import android.view.*
+import android.widget.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.lifecycle.ViewModelProvider
@@ -19,17 +14,20 @@ import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.MobileAds
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import io.jun.healthit.R
+import io.jun.healthit.adapter.InbodySpinnerAdapter
 import io.jun.healthit.databinding.FragmentInbodyBinding
 import io.jun.healthit.decorator.TextDecorator
 import io.jun.healthit.decorator.TodayDecorator
 import io.jun.healthit.model.data.Inbody
 import io.jun.healthit.util.EtcUtil
 import io.jun.healthit.viewmodel.InbodyViewModel
+import io.jun.healthit.viewmodel.PrefViewModel
 
 class InbodyFragment : Fragment() {
 
     private val TAG = "InbodyFragment"
 
+    private lateinit var prefViewModel: PrefViewModel
     private lateinit var inbodyViewModel: InbodyViewModel
 
     private var viewBinding: FragmentInbodyBinding? = null
@@ -44,9 +42,11 @@ class InbodyFragment : Fragment() {
 
     private val textDecoratorList = mutableListOf<TextDecorator>()
 
+    private lateinit var inbodySpinner: Spinner
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.d(TAG, "onCreate")
+        prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
         inbodyViewModel = ViewModelProvider(this).get(InbodyViewModel::class.java)
     }
 
@@ -54,14 +54,13 @@ class InbodyFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d(TAG, "onCreateView")
+        setHasOptionsMenu(true)
         viewBinding = FragmentInbodyBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        Log.d(TAG, "onViewCreated")
 
         setAdView()
         setCalendarView()
@@ -72,17 +71,16 @@ class InbodyFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Log.d(TAG, "onDestroyView")
         viewBinding = null
     }
 
     private fun initObserve() {
         inbodyViewModel.allInbodys.observe(viewLifecycleOwner, { inbodies ->
-                inbodyList = inbodies
+            inbodyList = inbodies
 
-                initDecorator(inbodies)
-                updateInbodyText()
-            })
+            initDecorator(inbodies, inbodySpinner.selectedItemPosition)
+            updateInbodyText()
+        })
     }
 
     private fun setCalendarView() {
@@ -116,12 +114,12 @@ class InbodyFragment : Fragment() {
             }
         }
     }
-    //TODO 탭에따른 체지방률, 골격근, 체중 보여주기
-    private fun initDecorator(inbodyList: List<Inbody>) {
+
+    private fun initDecorator(inbodyList: List<Inbody>, flag: Int) {
         textDecoratorList.clear()
         context?.let { ctx ->
             inbodyList.forEach {
-                textDecoratorList.add(TextDecorator(ctx, it))
+                textDecoratorList.add(TextDecorator(ctx, it, flag))
             }
         }
 
@@ -176,8 +174,7 @@ class InbodyFragment : Fragment() {
                     )
                 )
 
-                Toast.makeText(context, getString(R.string.text_save_completed), Toast.LENGTH_SHORT)
-                    .show()
+                Toast.makeText(context, getString(R.string.text_save_completed), Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -190,21 +187,21 @@ class InbodyFragment : Fragment() {
         }
     }
 
-    private fun setTextWatcher(editText: EditText, identifier: Int) {
+    private fun setTextWatcher(editText: EditText, flag: Int) {
         editText.addTextChangedListener(object: TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
             }
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 if(s.toString().startsWith(".")) {
-                    when(identifier) {
+                    when(flag) {
                         0 -> isWeightValid = false
                         1 -> isMuscleValid = false
                         2 -> isPercentFatValid = false
                     }
                     inActivateButton(binding.btnSave)
                 } else {
-                    when(identifier) {
+                    when(flag) {
                         0 -> isWeightValid = !s.isNullOrEmpty()
                         1 -> isMuscleValid = !s.isNullOrEmpty()
                         2 -> isPercentFatValid = !s.isNullOrEmpty()
@@ -246,5 +243,40 @@ class InbodyFragment : Fragment() {
     private fun floatToSpannable(float: Float?) =
         if(float==null) SpannableStringBuilder("")
         else SpannableStringBuilder(float.toString())
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_inbody, menu)
+
+        initMemoSortSpinner(menu)
+    }
+
+    private fun initMemoSortSpinner(menu: Menu) {
+        //메모 정렬 스피너 셋팅
+        val sort = menu.findItem(R.id.action_sort)
+        sort.setActionView(R.layout.layout_spinner_inbody)
+        inbodySpinner = sort.actionView.findViewById(R.id.tag_spinner_inbody)
+
+        val spinnerList = listOf(
+            getString(R.string.text_body_weight),
+            getString(R.string.text_skeletal_muscle),
+            getString(R.string.text_fat_percentage))
+
+        context?.let {
+            inbodySpinner.adapter = InbodySpinnerAdapter(it, spinnerList)
+            inbodySpinner.setSelection(prefViewModel.getInbodySpinner(it))
+
+            inbodySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    if(::inbodyList.isInitialized) {
+                        initDecorator(inbodyList, position)
+                    }
+                    prefViewModel.setInbodySpinner(position, it)
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
+            }
+        }
+    }
 
 }

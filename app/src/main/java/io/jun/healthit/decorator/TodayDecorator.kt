@@ -19,9 +19,8 @@ class TodayDecorator: DayViewDecorator {
 
     override fun decorate(view: DayViewFacade?) {
         view?.apply {
-            addSpan(RelativeSizeSpan(1.3f))
             addSpan(StyleSpan(Typeface.BOLD))
-            addSpan(ForegroundColorSpan(Color.MAGENTA))
+            addSpan(ForegroundColorSpan(Color.parseColor("#F3B88F")))
         }
     }
 
