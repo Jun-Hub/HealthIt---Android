@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.AdapterView
 import android.widget.Spinner
@@ -19,8 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
+import com.google.android.gms.ads.*
 import com.leinardi.android.speeddial.SpeedDialActionItem
 import com.leinardi.android.speeddial.SpeedDialView
 import com.prolificinteractive.materialcalendarview.CalendarDay
@@ -42,22 +42,21 @@ import kotlinx.android.synthetic.main.item_memo.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlin.properties.Delegates
 
 //TODO 파이어베이스 애널리스틱 사용하기 https://salix97.tistory.com/139
 class MemoFragment : Fragment() {
-    //TODO test 광고 adUnitId 원래대로 재설정해주기
     //편집 버튼을 on 했는지 MemoListAdapter 에서 관찰하기 위한 livedata
     companion object {
         var editOn: MutableLiveData<Boolean> = MutableLiveData(false)
     }
     private val TAG = "MemoFragment"
 
+    private lateinit var interstitiailAd: InterstitialAd
     private lateinit var prefViewModel: PrefViewModel
     private lateinit var memoViewModel: MemoViewModel
 
     private lateinit var memoList: List<Memo>
-
-    private lateinit var memoDetail: View
 
     private lateinit var memoAdapter: MemoListAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
@@ -65,6 +64,7 @@ class MemoFragment : Fragment() {
     private lateinit var viewSwitch: StickySwitch
     private lateinit var editSwitch: StickySwitch
 
+    private var afterAdFlag by Delegates.notNull<Int>()
     private lateinit var selectedDate: String
 
     private lateinit var noTagDecorator: Decorator
@@ -84,11 +84,10 @@ class MemoFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_memo, container, false)
 
         setHasOptionsMenu(true)
+        setInterstitialAd()
 
         prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
         memoViewModel = ViewModelProvider(this).get(MemoViewModel::class.java)
-
-        memoDetail = root.findViewById(R.id.memo_detail)
 
         return root
     }
@@ -157,7 +156,7 @@ class MemoFragment : Fragment() {
             })
 
         editOn.observe(viewLifecycleOwner, { on ->
-            memoDetail.delete_btn.visibility =
+            memo_detail.delete_btn.visibility =
                 if(on) View.VISIBLE
                 else View.GONE
         })
@@ -425,42 +424,22 @@ class MemoFragment : Fragment() {
             addActionItem(
                 SpeedDialActionItem.Builder(R.id.new_memo, R.drawable.ic_new_memo)
                     .setFabBackgroundColor(
-                        ResourcesCompat.getColor(
-                            resources,
-                            R.color.colorSky,
-                            null
-                        )
-                    )
+                        ResourcesCompat.getColor(resources, R.color.colorSky, null))
                     .setLabel(getString(R.string.new_log))
                     .setLabelColor(Color.WHITE)
                     .setLabelBackgroundColor(
-                        ResourcesCompat.getColor(
-                            resources,
-                            R.color.colorSky,
-                            null
-                        )
-                    )
+                        ResourcesCompat.getColor(resources, R.color.colorSky, null))
                     .setLabelClickable(false)
                     .create()
             )
             addActionItem(
                 SpeedDialActionItem.Builder(R.id.open_template, R.drawable.ic_open_template)
                     .setFabBackgroundColor(
-                        ResourcesCompat.getColor(
-                            resources,
-                            R.color.colorLightOrange,
-                            null
-                        )
-                    )
+                        ResourcesCompat.getColor(resources, R.color.colorLightOrange, null))
                     .setLabel(getString(R.string.open_my_routine))
                     .setLabelColor(Color.WHITE)
                     .setLabelBackgroundColor(
-                        ResourcesCompat.getColor(
-                            resources,
-                            R.color.colorLightOrange,
-                            null
-                        )
-                    )
+                        ResourcesCompat.getColor(resources, R.color.colorLightOrange, null))
                     .setLabelClickable(false)
                     .create()
             )
@@ -469,17 +448,46 @@ class MemoFragment : Fragment() {
         add_memo_btn.setOnActionSelectedListener(SpeedDialView.OnActionSelectedListener { actionItem ->
             when (actionItem.id) {
                 R.id.new_memo -> {
-                    startActivity(Intent(this.context, AddEditActivity::class.java).putExtra("newMemo", true))
-                    add_memo_btn.close() // To close the Speed Dial with animation
+                    afterAdFlag = 0
+                    if(interstitiailAd.isLoaded) interstitiailAd.show()
+
                     return@OnActionSelectedListener true // false will close it without animation
                 }
                 R.id.open_template -> {
-                    DialogUtil.showTemplateDialog(this, false)
-                    add_memo_btn.close() // To close the Speed Dial with animation
+                    afterAdFlag = 1
+                    if(interstitiailAd.isLoaded) interstitiailAd.show()
+
                     return@OnActionSelectedListener true // false will close it without animation
                 }
             }
             false
         })
+    }
+
+    private fun setInterstitialAd() {
+        interstitiailAd = InterstitialAd(context)
+        interstitiailAd.apply {
+            adUnitId = "ca-app-pub-3940256099942544/1033173712" //TODO test 광고 adUnitId 원래대로 재설정해주기
+            loadAd(AdRequest.Builder().build())
+
+            adListener = object: AdListener() {
+                override fun onAdClosed() {
+                    if(!interstitiailAd.isLoaded && !interstitiailAd.isLoading)
+                        loadAd(AdRequest.Builder().build())
+
+                    executeAfterAd()
+                    //TODO 광고가 부담스러우신가요?
+                }
+            }
+        }
+    }
+
+    private fun executeAfterAd() {
+        when(afterAdFlag) {
+            0 -> { startActivity(Intent(this.context, AddEditActivity::class.java).putExtra("newMemo", true))
+                add_memo_btn.close() }
+            1 -> { DialogUtil.showTemplateDialog(this, false)
+                add_memo_btn.close() }
+        }
     }
 }

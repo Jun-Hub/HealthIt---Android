@@ -47,7 +47,7 @@ class PinDecorator(val context: Context, memos: List<Memo>): DayViewDecorator {
         ) {
 
             ContextCompat.getDrawable(context, R.drawable.ic_pin).let {
-                canvas.drawBitmap((it as BitmapDrawable).bitmap, null, Rect(40, -10, 80, 30), null)
+                canvas.drawBitmap((it as BitmapDrawable).bitmap, null, Rect(35, -15, 75, 25), null)
             }
         }
     }

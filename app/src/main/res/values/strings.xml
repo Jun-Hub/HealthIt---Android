@@ -187,6 +187,7 @@
     <string name="banner_ad_unit_id4">ca-app-pub-6263138384822549/4692649518</string>
     <string name="banner_ad_unit_id5">ca-app-pub-6263138384822549/4516555540</string>
     <string name="banner_ad_unit_weight_fragment">ca-app-pub-6263138384822549/5454785310</string>
+    <string name="interstitial_ad_unit_new_memo">ca-app-pub-6263138384822549/3767412519</string>
     <string name="banner_ad_unit_id_for_test">ca-app-pub-3940256099942544/6300978111</string>
 
 </resources>
