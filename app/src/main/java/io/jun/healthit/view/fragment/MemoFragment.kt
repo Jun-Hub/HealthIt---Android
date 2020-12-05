@@ -11,7 +11,6 @@ import android.widget.AdapterView
 import android.widget.Spinner
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -34,10 +33,12 @@ import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.EtcUtil
 import io.jun.healthit.view.AddEditActivity
+import io.jun.healthit.view.MainActivity
 import io.jun.healthit.view.MemoDetailActivity
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
 import kotlinx.android.synthetic.main.fragment_memo.*
+import kotlinx.android.synthetic.main.item_memo.*
 import kotlinx.android.synthetic.main.item_memo.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +46,7 @@ import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
 //TODO 파이어베이스 애널리스틱 사용하기 https://salix97.tistory.com/139
-class MemoFragment : Fragment() {
+class MemoFragment : BaseFragment(), View.OnClickListener {
     //편집 버튼을 on 했는지 MemoListAdapter 에서 관찰하기 위한 livedata
     companion object {
         var editOn: MutableLiveData<Boolean> = MutableLiveData(false)
@@ -57,6 +58,7 @@ class MemoFragment : Fragment() {
     private lateinit var memoViewModel: MemoViewModel
 
     private lateinit var memoList: List<Memo>
+    private var selectedMemo: Memo? = null
 
     private lateinit var memoAdapter: MemoListAdapter
     private lateinit var linearLayoutManager: LinearLayoutManager
@@ -95,12 +97,15 @@ class MemoFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        initAdView()
+        loadBannerAd(adView)
         setCalendarView()
         setMemoRecyclerView()
         initObserve()
 
         setNewMemoBtn()
+
+        delete_btn.setOnClickListener(this)
+        cardView_detail.setOnClickListener(this)
     }
 
     private fun setCalendarView() {
@@ -130,12 +135,13 @@ class MemoFragment : Fragment() {
 
     private fun initObserve(){
         //Observer 로 메모 전체 Livedata 가져오기
-        memoViewModel.allMemos.observe(viewLifecycleOwner, Observer { memos ->
+        memoViewModel.allMemos.observe(viewLifecycleOwner, { memos ->
 
                 memoList = memos
 
                 //저장된 메모가 하나도 없으면 리사이클러뷰 가리고 안내메시지 띄우기
                 if (memos.isNotEmpty()) {
+                    Log.d(TAG, "memo is not empty")
                     recyclerView.visibility = View.VISIBLE
                     textView_no_memo.visibility = View.GONE
 
@@ -148,10 +154,14 @@ class MemoFragment : Fragment() {
                     updateCalendarCardView()
                 }
                 else {
+                    Log.d(TAG, "memo is empty")
                     //메모가 없어도 일단 TodayDecorator는 추가
+                    clearDecorators()
                     calendarView.addDecorator(TodayDecorator())
+
                     recyclerView.visibility = View.GONE
                     textView_no_memo.visibility = View.VISIBLE
+                    cardView_detail.visibility = View.GONE
                 }
             })
 
@@ -173,12 +183,18 @@ class MemoFragment : Fragment() {
         editOn.value = false
     }
 
-    private fun decorateForAllTags() {
-        //일지 갱신할 때 마다 매번 데코레이트 오버랩 되니까, 전체 데코레이터 삭제해주고 시작
+    private fun clearDecorators() {
         calendarView.apply {
             removeDecorators()
             invalidateDecorators()
+        }
+    }
 
+    private fun decorateForAllTags() {
+        //일지 갱신할 때 마다 매번 데코레이트 오버랩 되니까, 전체 데코레이터 삭제해주고 시작
+        clearDecorators()
+
+        calendarView.apply {
             addDecorators(
                 TodayDecorator(),
                 noTagDecorator,
@@ -213,10 +229,9 @@ class MemoFragment : Fragment() {
             return
         }
         //적용됬었던 데코레이터들 전부 클리어해주고,
-        calendarView.apply {
-            removeDecorators()
-            invalidateDecorators()
+        clearDecorators()
 
+        calendarView.apply {
             addDecorators(
                 TodayDecorator(),
                 when (position) {
@@ -246,7 +261,7 @@ class MemoFragment : Fragment() {
     private fun updateCalendarCardView() {
         if(!::selectedDate.isInitialized) return
 
-        val selectedMemo = memoList.find { it.date ==  selectedDate }
+        selectedMemo = memoList.find { it.date ==  selectedDate }
 
         if(selectedMemo==null) {
             cardView_detail.visibility = View.GONE
@@ -254,27 +269,19 @@ class MemoFragment : Fragment() {
         else {
             cardView_detail.visibility = View.VISIBLE
 
-            val setAndVolume = selectedMemo.record?.let { EtcUtil.calculateSetAndVolume(it) }
+            val setAndVolume = selectedMemo!!.record?.let { EtcUtil.calculateSetAndVolume(it) }
 
-            memo_detail.textView_title.text = selectedMemo.title
-            memo_detail.textView_record.text = String.format(getString(R.string.memo_record), setAndVolume?.first, setAndVolume?.second)
-            memo_detail.textView_content.text = selectedMemo.content
-            memo_detail.textView_date.text = selectedMemo.date
-            selectedMemo.photo?.let { setImageThumbnail(it) }
-            selectedMemo.tag?.let { setTag(it) }
-            selectedMemo.pin?.let { memo_detail.imageView_pin.visibility =
-                if(it) View.VISIBLE else View.GONE }
-
-            memo_detail.delete_btn.setOnClickListener {
-                memoViewModel.delete(selectedMemo)
+            memo_detail.apply {
+                textView_title.text = selectedMemo!!.title
+                textView_record.text = String.format(getString(R.string.memo_record), setAndVolume?.first, setAndVolume?.second)
+                textView_content.text = selectedMemo!!.content
+                textView_date.text = selectedMemo!!.date
             }
-
-            cardView_detail.setOnClickListener {
-                val pinStatus = selectedMemo.pin //val 값으로 셋팅안해주면 원래 형태가 var이라 intent에 넣지 못함
-                startActivity(Intent(requireContext(), MemoDetailActivity::class.java).apply {
-                    putExtra("id", selectedMemo.id)
-                    putExtra("pin", pinStatus)    //pin 상태도 같이 넘겨야 다음 액티비티에서 초기화 null 에러가 안남
-                })
+            selectedMemo!!.run {
+                photo?.let { setImageThumbnail(it) }
+                tag?.let { setTag(it) }
+                pin?.let { memo_detail.imageView_pin.visibility =
+                    if(it) View.VISIBLE else View.GONE }
             }
         }
     }
@@ -373,7 +380,13 @@ class MemoFragment : Fragment() {
         viewSwitch.onSelectedChangeListener = object : OnSelectedChangeListener {
             override fun onSelectedChange(direction: StickySwitch.Direction, text: String) {
                 if(direction.name == "RIGHT") {
-                    showCalendarView()
+                    if ((activity as MainActivity).billingProcessor.isPurchased(context?.getString(R.string.sku_inapp))) {
+                        showCalendarView()
+                    }
+                    else {
+
+                    }
+
                 }
                 else {
                     showListView()
@@ -396,27 +409,25 @@ class MemoFragment : Fragment() {
         editSwitch.setRightIcon(R.drawable.ic_delete_release)
     }
 
-    private fun initAdView() {
-        MobileAds.initialize(requireContext())
-        val adRequest = AdRequest.Builder().build()
-        adView.loadAd(adRequest)
-    }
-
     private fun showCalendarView() {
         //TODO 메모가 하나도 없을 때도 고려해주기
         fast_scroller.visibility = View.GONE
         recyclerView.visibility = View.GONE
         calendarView.visibility = View.VISIBLE
-        cardView_detail.visibility = View.VISIBLE
         scrollView_calendar.visibility = View.VISIBLE
+        if(memoList.isNotEmpty()) {
+            cardView_detail.visibility = View.VISIBLE
+        }
     }
 
     private fun showListView() {
-        fast_scroller.visibility = View.VISIBLE
-        recyclerView.visibility = View.VISIBLE
         calendarView.visibility = View.GONE
         cardView_detail.visibility = View.GONE
         scrollView_calendar.visibility = View.GONE
+        if(memoList.isNotEmpty()) {
+            fast_scroller.visibility = View.VISIBLE
+            recyclerView.visibility = View.VISIBLE
+        }
     }
 
     private fun setNewMemoBtn() {
@@ -488,6 +499,22 @@ class MemoFragment : Fragment() {
                 add_memo_btn.close() }
             1 -> { DialogUtil.showTemplateDialog(this, false)
                 add_memo_btn.close() }
+        }
+    }
+
+    override fun onClick(v: View?) {
+        when(v?.id) {
+            R.id.delete_btn -> {
+                memoViewModel.delete(selectedMemo!!)
+            }
+
+            R.id.cardView_detail -> {
+                val pinStatus = selectedMemo!!.pin //val 값으로 셋팅안해주면 원래 형태가 var이라 intent에 넣지 못함
+                startActivity(Intent(requireContext(), MemoDetailActivity::class.java).apply {
+                    putExtra("id", selectedMemo!!.id)
+                    putExtra("pin", pinStatus)    //pin 상태도 같이 넘겨야 다음 액티비티에서 초기화 null 에러가 안남
+                })
+            }
         }
     }
 }

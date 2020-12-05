@@ -6,12 +6,9 @@ import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.view.*
 import android.widget.*
-import androidx.fragment.app.Fragment
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.MobileAds
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import io.jun.healthit.R
 import io.jun.healthit.adapter.InbodySpinnerAdapter
@@ -23,7 +20,7 @@ import io.jun.healthit.util.EtcUtil
 import io.jun.healthit.viewmodel.InbodyViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
 
-class InbodyFragment : Fragment() {
+class InbodyFragment : BaseFragment(), View.OnClickListener {
 
     private val TAG = "InbodyFragment"
 
@@ -62,9 +59,9 @@ class InbodyFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        setAdView()
-        setCalendarView()
+        loadBannerAd(binding.adView)
         setClickListener()
+        setCalendarView()
         initTextWatcher()
         initObserve()
     }
@@ -136,48 +133,6 @@ class InbodyFragment : Fragment() {
         }
     }
 
-    private fun setAdView() {
-        MobileAds.initialize(requireContext())
-        AdRequest.Builder().build().let {
-            binding.adView.loadAd(it)
-        }
-    }
-
-    private fun setClickListener() {
-        binding.apply {
-            imageBtnUpWeight.setOnClickListener {
-                editTextWeight.text = EtcUtil.makePlusFloat(editTextWeight, 1f)
-            }
-            imageBtnDownWeight.setOnClickListener {
-                editTextWeight.text = EtcUtil.makeMinusFloat(editTextWeight, 1f)
-            }
-            imageBtnUpMuscle.setOnClickListener {
-                editTextMuscle.text = EtcUtil.makePlusFloat(editTextMuscle, 1f)
-            }
-            imageBtnDownMuscle.setOnClickListener {
-                editTextMuscle.text = EtcUtil.makeMinusFloat(editTextMuscle, 1f)
-            }
-            imageBtnUpPercentFat.setOnClickListener {
-                editTextPercentFat.text = EtcUtil.makePlusFloat(editTextPercentFat, 1f)
-            }
-            imageBtnDownPercentFat.setOnClickListener {
-                editTextPercentFat.text = EtcUtil.makeMinusFloat(editTextPercentFat, 1f)
-            }
-
-            btnSave.setOnClickListener {
-                inbodyViewModel.insert(
-                    Inbody(
-                        selectedDate,
-                        textToFloat(editTextWeight),
-                        textToFloat(editTextMuscle),
-                        textToFloat(editTextPercentFat)
-                    )
-                )
-
-                Toast.makeText(context, getString(R.string.text_save_completed), Toast.LENGTH_SHORT).show()
-            }
-        }
-    }
 
     private fun initTextWatcher() {
         binding.apply {
@@ -274,6 +229,53 @@ class InbodyFragment : Fragment() {
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
+                }
+            }
+        }
+    }
+
+    private fun setClickListener() {
+        binding.apply {
+            imageBtnUpWeight.setOnClickListener(this@InbodyFragment)
+            imageBtnDownWeight.setOnClickListener(this@InbodyFragment)
+            imageBtnUpMuscle.setOnClickListener(this@InbodyFragment)
+            imageBtnDownMuscle.setOnClickListener(this@InbodyFragment)
+            imageBtnUpPercentFat.setOnClickListener(this@InbodyFragment)
+            imageBtnDownPercentFat.setOnClickListener(this@InbodyFragment)
+            btnSave.setOnClickListener(this@InbodyFragment)
+        }
+    }
+
+    override fun onClick(v: View?) {
+        binding.apply {
+            when (v?.id) {
+                R.id.imageBtn_up_weight -> {
+                    editTextWeight.text = EtcUtil.makePlusFloat(editTextWeight, 1f)
+                }
+                R.id.imageBtn_down_weight -> {
+                    editTextWeight.text = EtcUtil.makeMinusFloat(editTextWeight, 1f)
+                }
+                R.id.imageBtn_up_muscle -> {
+                    editTextMuscle.text = EtcUtil.makePlusFloat(editTextMuscle, 1f)
+                }
+                R.id.imageBtn_down_muscle -> {
+                    editTextMuscle.text = EtcUtil.makeMinusFloat(editTextMuscle, 1f)
+                }
+                R.id.imageBtn_up_percent_fat -> {
+                    editTextPercentFat.text = EtcUtil.makePlusFloat(editTextPercentFat, 1f)
+                }
+                R.id.imageBtn_down_percent_fat -> {
+                    editTextPercentFat.text = EtcUtil.makeMinusFloat(editTextPercentFat, 1f)
+                }
+
+                R.id.btn_save -> {
+                    inbodyViewModel.insert(Inbody(
+                            selectedDate,
+                            textToFloat(editTextWeight),
+                            textToFloat(editTextMuscle),
+                            textToFloat(editTextPercentFat)))
+
+                    Toast.makeText(context, getString(R.string.text_save_completed), Toast.LENGTH_SHORT).show()
                 }
             }
         }

@@ -11,8 +11,9 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.anjlab.android.iab.v3.BillingProcessor
 import io.jun.healthit.R
+import io.jun.healthit.billing.BillingManager
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -23,7 +24,8 @@ class MainActivity : AppCompatActivity() {
         var inKorea = true
     }
 
-    //뒤로가기 연속 클릭 대기 시간
+    val billingProcessor: BillingProcessor by lazy { BillingManager(this, null).billingProcessor }
+
     private var backWait:Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,9 +55,9 @@ class MainActivity : AppCompatActivity() {
 
         val language =
             if(Build.VERSION.SDK_INT >= 24)
-            resources.configuration.locales.get(0).language
+                resources.configuration.locales.get(0).language
             else
-            resources.configuration.locale.language
+                resources.configuration.locale.language
 
         inKorea = language == "ko"
 

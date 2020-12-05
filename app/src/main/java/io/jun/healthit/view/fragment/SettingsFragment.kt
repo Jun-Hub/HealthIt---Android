@@ -14,22 +14,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import io.jun.healthit.R
+import io.jun.healthit.databinding.FragmentSettingsBinding
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.Setting
 import io.jun.healthit.viewmodel.PrefViewModel
 
-class SettingsFragment : Fragment() {
+class SettingsFragment : BaseFragment(), View.OnClickListener {
 
     private lateinit var prefViewModel: PrefViewModel
+    
+    private var viewBinding: FragmentSettingsBinding? = null
+    private val binding get() = viewBinding!!
 
     private lateinit var mediaPlayer: MediaPlayer
     private var isPlayerInit = false
@@ -39,133 +39,36 @@ class SettingsFragment : Fragment() {
 
     private lateinit var switchFloating:Switch
 
-    private lateinit var prefAlertValue: TextView
-    private lateinit var prefRingValue: TextView
-    private lateinit var prefTag1Value: TextView
-    private lateinit var prefTag2Value: TextView
-    private lateinit var prefTag3Value: TextView
-    private lateinit var prefTag4Value: TextView
-    private lateinit var prefTag5Value: TextView
-    private lateinit var prefTag6Value: TextView
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
+        preferences = PreferenceManager.getDefaultSharedPreferences(context)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_settings, container, false)
+        viewBinding = FragmentSettingsBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        loadBannerAd(binding.adView)
 
-        MobileAds.initialize(context)
-        val mAdView: AdView = root.findViewById(R.id.adView)
-        val adRequest = AdRequest.Builder().build()
-        mAdView.loadAd(adRequest)
-
-        preferences = PreferenceManager.getDefaultSharedPreferences(context)
-
-        prefAlertValue = root.findViewById(R.id.pref_alert_value)
-        prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(requireContext()))
-
-        val prefAlert = root.findViewById<LinearLayout>(R.id.pref_alert)
-        prefAlert.setOnClickListener {
-            DialogUtil.showAlertDialog(this)
-        }
-
-        prefRingValue = root.findViewById(R.id.pref_ring_value)
-        prefRingValue.text = prefEntryConverter(prefViewModel.getRingSettings(requireContext()))
-
-        val prefRing = root.findViewById<LinearLayout>(R.id.pref_ring)
-        prefRing.setOnClickListener {
-            DialogUtil.showRingDialog(this)
-        }
-
-        switchFloating = root.findViewById(R.id.switch_floating)
-        switchFloating.isChecked = prefViewModel.getFloatingSettings(requireContext())
-        switchFloating.setOnCheckedChangeListener { _, isChecked ->
-            Permission(requireContext(), isChecked).checkAlertWindowPermission()
-        }
-        val prefFloating:RelativeLayout = root.findViewById(R.id.pref_floating)
-        prefFloating.setOnClickListener {
-            switchFloating.toggle()
-        }
-
-        val prefTemplate = root.findViewById<TextView>(R.id.pref_template)
-        prefTemplate.setOnClickListener {
-            DialogUtil.showTemplateDialog(this, true)
-        }
-
-
-        val prefTag1 = root.findViewById<LinearLayout>(R.id.pref_tag1)
-        prefTag1.setOnClickListener {
-            DialogUtil.showTagDialog(this, 1, layoutInflater)
-        }
-        prefTag1Value = root.findViewById(R.id.pref_tag1_value)
-        prefTag1Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 1)
-
-        val prefTag2 = root.findViewById<LinearLayout>(R.id.pref_tag2)
-        prefTag2.setOnClickListener {
-            DialogUtil.showTagDialog(this, 2,layoutInflater)
-        }
-        prefTag2Value = root.findViewById(R.id.pref_tag2_value)
-        prefTag2Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 2)
-
-        val prefTag3 = root.findViewById<LinearLayout>(R.id.pref_tag3)
-        prefTag3.setOnClickListener {
-            DialogUtil.showTagDialog(this, 3, layoutInflater)
-        }
-        prefTag3Value = root.findViewById(R.id.pref_tag3_value)
-        prefTag3Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 3)
-
-        val prefTag4 = root.findViewById<LinearLayout>(R.id.pref_tag4)
-        prefTag4.setOnClickListener {
-            DialogUtil.showTagDialog(this, 4, layoutInflater)
-        }
-        prefTag4Value = root.findViewById(R.id.pref_tag4_value)
-        prefTag4Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 4)
-
-        val prefTag5 = root.findViewById<LinearLayout>(R.id.pref_tag5)
-        prefTag5.setOnClickListener {
-            DialogUtil.showTagDialog(this, 5, layoutInflater)
-        }
-        prefTag5Value = root.findViewById(R.id.pref_tag5_value)
-        prefTag5Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 5)
-
-        val prefTag6 = root.findViewById<LinearLayout>(R.id.pref_tag6)
-        prefTag6.setOnClickListener {
-            DialogUtil.showTagDialog(this, 6, layoutInflater)
-        }
-        prefTag6Value = root.findViewById(R.id.pref_tag6_value)
-        prefTag6Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 6)
-
-
-        val sugBoard = root.findViewById<TextView>(R.id.suggestion_board)
-        sugBoard.setOnClickListener {
-            val uri = Uri.parse("https://healthit.modoo.at/?link=2proi1a4")
-            startActivity(Intent(Intent.ACTION_VIEW, uri))
-        }
-
-        val errorBoard = root.findViewById<TextView>(R.id.error_board)
-        errorBoard.setOnClickListener {
-            val uri = Uri.parse("https://healthit.modoo.at/?link=bwbyxw2q")
-            startActivity(Intent(Intent.ACTION_VIEW, uri))
-        }
-
-        val rateApp = root.findViewById<TextView>(R.id.rate_app)
-        rateApp.setOnClickListener {
-            openAppInPlayStore()
-        }
-
-        return root
+        setView()
     }
 
     private fun registerPrefChangeListener() {
         prefChangeListener = OnSharedPreferenceChangeListener {_, key ->
+            binding.let {
             when(key) {
-                "alert" -> prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(requireContext()))
+                "alert" -> it.prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(requireContext()))
                 "ring" -> {
                     val ring = prefViewModel.getRingSettings(requireContext())
-                    prefRingValue.text = prefEntryConverter(ring)
+                    it.prefRingValue.text = prefEntryConverter(ring)
 
                     mediaPlayer = when(ring) {
                         "light_weight_babe" -> MediaPlayer.create(this.context, R.raw.light_weight_babe)
@@ -181,12 +84,13 @@ class SettingsFragment : Fragment() {
                     mediaPlayer.start()
                     isPlayerInit = true
                 }
-                "tag1" -> prefTag1Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 1)
-                "tag2" -> prefTag2Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 2)
-                "tag3" -> prefTag3Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 3)
-                "tag4" -> prefTag4Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 4)
-                "tag5" -> prefTag5Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 5)
-                "tag6" -> prefTag6Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 6)
+                "tag1" -> it.prefTag1Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 1)
+                "tag2" -> it.prefTag2Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 2)
+                "tag3" -> it.prefTag3Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 3)
+                "tag4" -> it.prefTag4Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 4)
+                "tag5" -> it.prefTag5Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 5)
+                "tag6" -> it.prefTag6Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 6)
+            }
             }
         }
 
@@ -265,6 +169,64 @@ class SettingsFragment : Fragment() {
                 .setPermissions(Manifest.permission.SYSTEM_ALERT_WINDOW)
                 .check()
         }
+    }
+
+    private fun setView() {
+        binding.apply {
+            prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(requireContext()))
+            prefRingValue.text = prefEntryConverter(prefViewModel.getRingSettings(requireContext()))
+
+            switchFloating.isChecked = prefViewModel.getFloatingSettings(requireContext())
+            switchFloating.setOnCheckedChangeListener { _, isChecked ->
+                Permission(requireContext(), isChecked).checkAlertWindowPermission()
+            }
+
+            prefTag1Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 1)
+            prefTag2Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 2)
+            prefTag3Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 3)
+            prefTag4Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 4)
+            prefTag5Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 5)
+            prefTag6Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 6)
+
+            suggestionBoard.setOnClickListener(this@SettingsFragment)
+            errorBoard.setOnClickListener(this@SettingsFragment)
+            rateApp.setOnClickListener(this@SettingsFragment)
+            prefAlert.setOnClickListener(this@SettingsFragment)
+            prefRing.setOnClickListener(this@SettingsFragment)
+            prefFloating.setOnClickListener(this@SettingsFragment)
+            prefTemplate.setOnClickListener(this@SettingsFragment)
+            prefTag1.setOnClickListener(this@SettingsFragment)
+            prefTag2.setOnClickListener(this@SettingsFragment)
+            prefTag3.setOnClickListener(this@SettingsFragment)
+            prefTag4.setOnClickListener(this@SettingsFragment)
+            prefTag5.setOnClickListener(this@SettingsFragment)
+            prefTag6.setOnClickListener(this@SettingsFragment)
+        }
+    }
+
+    override fun onClick(v: View?) {
+            when (v?.id) {
+                R.id.suggestion_board -> {
+                    val uri = Uri.parse("https://healthit.modoo.at/?link=2proi1a4")
+                    startActivity(Intent(Intent.ACTION_VIEW, uri))
+                }
+                R.id.error_board -> {
+                    val uri = Uri.parse("https://healthit.modoo.at/?link=bwbyxw2q")
+                    startActivity(Intent(Intent.ACTION_VIEW, uri))
+                }
+                R.id.rate_app -> { openAppInPlayStore() }
+                R.id.pref_alert -> { DialogUtil.showAlertDialog(this@SettingsFragment) }
+                R.id.pref_ring -> { DialogUtil.showRingDialog(this@SettingsFragment) }
+                R.id.pref_floating -> { switchFloating.toggle() }
+                R.id.pref_template -> { DialogUtil.showTemplateDialog(this@SettingsFragment, true) }
+                R.id.pref_tag1 -> { DialogUtil.showTagDialog(this@SettingsFragment, 1, layoutInflater) }
+                R.id.pref_tag2 -> { DialogUtil.showTagDialog(this@SettingsFragment, 2, layoutInflater) }
+                R.id.pref_tag3 -> { DialogUtil.showTagDialog(this@SettingsFragment, 3, layoutInflater) }
+                R.id.pref_tag4 -> { DialogUtil.showTagDialog(this@SettingsFragment, 4, layoutInflater) }
+                R.id.pref_tag5 -> { DialogUtil.showTagDialog(this@SettingsFragment, 5, layoutInflater) }
+                R.id.pref_tag6 -> { DialogUtil.showTagDialog(this@SettingsFragment, 6, layoutInflater) }
+            }
+
     }
 }
 

@@ -1,23 +1,26 @@
 package io.jun.healthit.view.fragment
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.RecyclerView
 import com.cleveroad.fanlayoutmanager.FanLayoutManager
 import com.cleveroad.fanlayoutmanager.FanLayoutManagerSettings
 import com.cleveroad.fanlayoutmanager.callbacks.FanChildDrawingOrderCallback
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
 import io.jun.healthit.R
 import io.jun.healthit.adapter.TipListAdapter
 import io.jun.healthit.model.data.Tip
+import io.jun.healthit.view.BillingActivity
+import io.jun.healthit.view.MainActivity
+import kotlinx.android.synthetic.main.fragment_routine.*
 
-class RoutineFragment : Fragment() {
+class RoutineFragment : BaseFragment(), View.OnClickListener {
+
+    private val TAG = "RoutineFragment"
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -25,11 +28,6 @@ class RoutineFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_routine, container, false)
-
-        MobileAds.initialize(this.context)
-        val mAdView: AdView = root.findViewById(R.id.adView)
-        val adRequest = AdRequest.Builder().build()
-        mAdView.loadAd(adRequest)
 
         val recyclerView = root.findViewById<RecyclerView>(R.id.recyclerView)
 
@@ -69,6 +67,34 @@ class RoutineFragment : Fragment() {
         }
 
         return root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        Log.d(TAG, "onViewCreated $activity")
+
+        test.setOnClickListener(this)
+
+            if ((activity as MainActivity).billingProcessor.isPurchased(context?.getString(R.string.sku_inapp))) {
+                adView.visibility = View.GONE
+                Log.d(TAG, "inapp puchased")
+            }
+            else {
+                Log.d(TAG, "inapp not puchased")
+                adView.visibility = View.VISIBLE
+                loadBannerAd(adView)
+            }
+
+    }
+
+    override fun onClick(v: View?) {
+        when(v?.id) {
+            R.id.test -> {
+                Log.d(TAG, "test onClicked")
+                startActivity(Intent(requireContext(), BillingActivity::class.java))
+            }
+        }
     }
 
 }

@@ -1,18 +1,18 @@
 package io.jun.healthit.billing
 
+import android.app.Activity
 import android.content.Intent
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import com.anjlab.android.iab.v3.BillingProcessor
 import com.anjlab.android.iab.v3.BillingProcessor.IBillingHandler
 import com.anjlab.android.iab.v3.TransactionDetails
 import io.jun.healthit.R
 
 class BillingManager(
-    private val activity: AppCompatActivity,
-    private val billingCallback: BillingCallback) : IBillingHandler {
+    private val activity: Activity,
+    private val billingCallback: BillingCallback?) : IBillingHandler {
 
-    private var billingProcessor = BillingProcessor(
+    var billingProcessor = BillingProcessor(
         activity,
         activity.getString(R.string.google_play_license_key),
         this)
@@ -27,11 +27,6 @@ class BillingManager(
     AdLoader(context.mAdLoader): 구글 애드몹 광고를 보여주기 위해 제가 만든 클래스
     AppStorage: SharedPreference를 쓰기 쉽게 제가 만든 클래스 -> 간단하게 현재 구독 및 결제 상태를 저장하기 위해 사용
      */
-    interface BillingCallback {
-        // # 원하는 함수가있다면 추가, 필요없다면 제거하기
-        fun onPurchased(productId: String?) // # 구매가 정상적으로 완료되었을때 해당 제품 아이디를 넘겨줍니다.
-        fun onUpdatePrice(prices: Pair<Double?, Double?>?) // # 화면에 가격을 표시하고 싶으므로 가격 정보를 넘겨줍니다.
-    }
 
 
     /**
@@ -41,18 +36,20 @@ class BillingManager(
      */
     override fun onProductPurchased(productId: String, details: TransactionDetails?) {
         billingProcessor.loadOwnedPurchasesFromGoogle() // 구매정보 업데이트
-        billingCallback.onPurchased(productId)
+        billingCallback?.onPurchased(productId)
 
         onResume()
     }
 
     override fun onPurchaseHistoryRestored() {
         // # 구매 복원 호출시 이 함수가 실행됩니다.
+        showToast("onPurchaseHistoryRestored")
         onResume()
     }
 
     override fun onBillingError(errorCode: Int, error: Throwable?) {
         // # 결제 오류시 따로 토스트 메세지를 표시하고 싶으시면 여기에 하시면됩니다.
+        showToast("onBillingError")
     }
 
     /**
@@ -66,10 +63,10 @@ class BillingManager(
         
         // # SkuDetails.priceValue: ex) 1,000원일경우 => 1000.00
         val pricePair = Pair(details.priceValue, subDetails.priceValue)
-        billingCallback.onUpdatePrice(pricePair)
+        billingCallback?.onUpdatePrice(pricePair)
         
         billingProcessor.loadOwnedPurchasesFromGoogle() // 구매정보 업데이트
-        
+
         onResume()
     }
 
@@ -97,7 +94,7 @@ class BillingManager(
             if (!billingProcessor.isPurchased(activity.getString(R.string.sku_inapp)) &&
                 !billingProcessor.isSubscribed(activity.getString(R.string.sku_subs))) {
 
-                billingProcessor.subscribe(activity, activity.getString(R.string.sku_inapp))
+                billingProcessor.subscribe(activity, activity.getString(R.string.sku_subs))
             }
         }
     }
@@ -118,6 +115,10 @@ class BillingManager(
 
     fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
         return billingProcessor.handleActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun showToast(str: String) {
+        Toast.makeText(activity, str, Toast.LENGTH_SHORT).show()
     }
 
 }

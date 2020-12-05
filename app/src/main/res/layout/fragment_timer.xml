@@ -8,7 +8,7 @@
     tools:context=".view.fragment.TimerFragment">
 
     <uk.co.barbuzz.beerprogressview.BeerProgressView
-        android:id="@+id/beerProgressView"
+        android:id="@+id/progress_countdown"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:beerColor="#74ccf4"
@@ -110,7 +110,7 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         ads:adSize="SMART_BANNER"
-        ads:adUnitId="@string/banner_ad_unit_id4">
+        ads:adUnitId="@string/banner_ad_unit_id_for_test">
     </com.google.android.gms.ads.AdView>
 
 </RelativeLayout>

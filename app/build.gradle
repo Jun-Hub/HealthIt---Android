@@ -11,8 +11,8 @@ android {
         applicationId "io.jun.healthit"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 15
-        versionName "1.2.0"
+        versionCode 17
+        versionName "1.2.2_billing_test2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }

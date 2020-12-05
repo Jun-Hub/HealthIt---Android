@@ -14,7 +14,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         ads:adSize="SMART_BANNER"
-        ads:adUnitId="@string/banner_ad_unit_id3">
+        ads:adUnitId="@string/banner_ad_unit_id_for_test">
     </com.google.android.gms.ads.AdView>
 
     <TextView

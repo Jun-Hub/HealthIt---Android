@@ -4,11 +4,19 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryDark">
 
+    <Button
+        android:id="@+id/test"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:text="test"/>
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/adView"
+        android:layout_below="@+id/test"
         />
 
     <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
@@ -18,7 +26,7 @@
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         ads:adSize="SMART_BANNER"
-        ads:adUnitId="@string/banner_ad_unit_id1">
+        ads:adUnitId="@string/banner_ad_unit_id_for_test">
     </com.google.android.gms.ads.AdView>
 
 </RelativeLayout>
