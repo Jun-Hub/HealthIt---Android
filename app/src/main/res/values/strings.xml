@@ -102,12 +102,15 @@
     <string name="text_kg">kg</string>
     <string name="text_percent">%</string>
     <string name="text_save_completed">저장완료</string>
+    <string name="notice_preview">이 페이지는 미리보기 페이지입니다. \n 몸무게 기록 기능을 사용하시려면 Pro 버전으로 전환해주세요.</string>
+    <string name="get_free_trial">헬스잇 Pro 무료 체험하기</string>
 
     <!-- Timer Fragment -->
     <string name="min">m</string>
     <string name="sec">s</string>
 
     <!-- SettingsFragment -->
+    <string name="purchase_pro">헬스잇 Pro 버전 전환하기</string>
     <string name="suggestion_board">개발자에게 문의 및 건의</string>
     <string name="error_board">개발자에게 오류 알리기</string>
     <string name="rate_app">(๑˃̵ᴗ˂̵)و ♡ 앱 평가하기(부탁드립니다)</string>
@@ -179,6 +182,15 @@
     <string name="create_log_with_routine">내 루틴으로 새 일지 쓰기</string>
     <string name="routine_name_to_add">추가할 루틴 이름</string>
     <string name="add_to_my_routine">내 루틴에 추가하기</string>
+    <string name="not_now">지금 안 함</string>
+    <string name="restore_purchase">이전 구매 불러오기</string>
+    <string name="free_trial">무료 체험</string>
+    <string name="pro">Pro</string>
+    <string name="free_trial_10_day">7일 무료 체험하기</string>
+    <string name="all_ad_free">· 방해되는 모든 광고 제거.</string>
+    <string name="get_calendarView">· 운동일지 달력 형태로 보기 활성화.</string>
+    <string name="get_inbody_function">· 몸무게 및 근육, 지방 기록 기능 활성화.</string>
+    <string name="notice_subscribe">7일 무료 체험 후 월 3,900원의 요금이 청구됩니다.</string>
 
     <string name="google_play_license_key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAllyQvfc3zFWQQ9rQnJ1fvi3qbf6sH3w/XNCEoUddLVrEF77DbnKJ3cikVOknYvI4ry8ujEO7FJQ8bzLTJO5yilMOHHW3Vjl6uMl2YeA+ajzG42o2BGptiq2pSnl+xvii1qOKdTVSxDLiznItH1MjfkSQs9WfGTYv3rha1FHsSxlIpYJiBH/c8M1VVyGSttafvRPmbkXQp+2ELmYXyRgbytnieCa02MfZXRjWOFWy2SuBzHCx8C9Kk6kL0QBIJYDrQ8epXiuCE8H76JDK+c9Wz2chjOkjjEonv1ZwSUmxcwXUflc71/gaks/vdKhHnp+1aWh83fDpL7zw19vTdPJovwIDAQAB</string>
     <string name="sku_subs">subscribe_pro_1_month</string>
@@ -192,7 +204,5 @@
     <string name="banner_ad_unit_weight_fragment">ca-app-pub-6263138384822549/5454785310</string>
     <string name="interstitial_ad_unit_new_memo">ca-app-pub-6263138384822549/3767412519</string>
     <string name="banner_ad_unit_id_for_test">ca-app-pub-3940256099942544/6300978111</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

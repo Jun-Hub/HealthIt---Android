@@ -89,6 +89,7 @@
     <string name="memo_record">Total %1$d Sets, %2$d Volumes</string>
     <string name="name_guide">(Touch to edit)</string>
     <string name="notice_max_record">Up to %1$d can be created.</string>
+    <string name="purchase_pro">Purchase HealthIt Pro version</string>
 
     <string name="google_play_license_key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAllyQvfc3zFWQQ9rQnJ1fvi3qbf6sH3w/XNCEoUddLVrEF77DbnKJ3cikVOknYvI4ry8ujEO7FJQ8bzLTJO5yilMOHHW3Vjl6uMl2YeA+ajzG42o2BGptiq2pSnl+xvii1qOKdTVSxDLiznItH1MjfkSQs9WfGTYv3rha1FHsSxlIpYJiBH/c8M1VVyGSttafvRPmbkXQp+2ELmYXyRgbytnieCa02MfZXRjWOFWy2SuBzHCx8C9Kk6kL0QBIJYDrQ8epXiuCE8H76JDK+c9Wz2chjOkjjEonv1ZwSUmxcwXUflc71/gaks/vdKhHnp+1aWh83fDpL7zw19vTdPJovwIDAQAB</string>
     <string name="sku_subs">subscribe_pro_1_month</string>
@@ -110,6 +111,8 @@
     <string name="text_kg">kg</string>
     <string name="text_percent">%</string>
     <string name="text_save_completed">Save Completed</string>
+    <string name="notice_preview">This page is a preview page. \n Please switch to Pro version to use Weight Recording.</string>
+    <string name="get_free_trial">Get Free HealthIt Pro</string>
 
     <!-- menu_memo_detail -->
     <string name="menu_add_routine">Add to My Routine</string>
@@ -125,6 +128,15 @@
     <string name="create_log_with_routine">Create a New Log with My Routine</string>
     <string name="routine_name_to_add">Name of The Routine to Add</string>
     <string name="add_to_my_routine">Add to My Routine</string>
+    <string name="restore_purchase">Load Previous Purchase</string>
+    <string name="not_now">Not Now</string>
+    <string name="free_trial">Try It Free</string>
+    <string name="pro">Pro</string>
+    <string name="free_trial_10_day">Get 7 days of free pro version</string>
+    <string name="all_ad_free">· All ad-free with no interruptions.</string>
+    <string name="get_calendarView">· Get calendar view for workout logs.</string>
+    <string name="get_inbody_function">· Get body weight, muscle, fat recording.</string>
+    <string name="notice_subscribe">After a 7 days free trial, you will be charged approximately $3.49 per month.</string>
 
     <string-array name="alert_entries">
         <item>Silent</item>

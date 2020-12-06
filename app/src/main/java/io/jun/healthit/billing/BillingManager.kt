@@ -10,7 +10,7 @@ import io.jun.healthit.R
 
 class BillingManager(
     private val activity: Activity,
-    private val billingCallback: BillingCallback?) : IBillingHandler {
+    private val billingCallback: BillingCallback) : IBillingHandler {
 
     var billingProcessor = BillingProcessor(
         activity,
@@ -36,20 +36,17 @@ class BillingManager(
      */
     override fun onProductPurchased(productId: String, details: TransactionDetails?) {
         billingProcessor.loadOwnedPurchasesFromGoogle() // 구매정보 업데이트
-        billingCallback?.onPurchased(productId)
-
-        onResume()
+        billingCallback.onPurchased(productId)
     }
 
     override fun onPurchaseHistoryRestored() {
         // # 구매 복원 호출시 이 함수가 실행됩니다.
-        showToast("onPurchaseHistoryRestored")
-        onResume()
+        billingProcessor.loadOwnedPurchasesFromGoogle()
     }
 
     override fun onBillingError(errorCode: Int, error: Throwable?) {
         // # 결제 오류시 따로 토스트 메세지를 표시하고 싶으시면 여기에 하시면됩니다.
-        showToast("onBillingError")
+        billingCallback.onBillingError()
     }
 
     /**
@@ -63,11 +60,9 @@ class BillingManager(
         
         // # SkuDetails.priceValue: ex) 1,000원일경우 => 1000.00
         val pricePair = Pair(details.priceValue, subDetails.priceValue)
-        billingCallback?.onUpdatePrice(pricePair)
+        billingCallback.onUpdatePrice(pricePair)
         
         billingProcessor.loadOwnedPurchasesFromGoogle() // 구매정보 업데이트
-
-        onResume()
     }
 
     /**
@@ -99,7 +94,7 @@ class BillingManager(
         }
     }
 
-    fun onResume() {
+    private fun onResume() {
         // # SharedPreference에 구매 여부를 저장 해 두고, 그에 따라 광고를 바로 숨기거나 보여주는 코드입니다.
         billingProcessor.loadOwnedPurchasesFromGoogle()
         // # PRO 버전 구매를 했거나 구독을 했다면!
@@ -115,10 +110,6 @@ class BillingManager(
 
     fun handleActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
         return billingProcessor.handleActivityResult(requestCode, resultCode, data)
-    }
-
-    private fun showToast(str: String) {
-        Toast.makeText(activity, str, Toast.LENGTH_SHORT).show()
     }
 
 }

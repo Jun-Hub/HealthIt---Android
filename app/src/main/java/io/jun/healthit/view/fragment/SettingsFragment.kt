@@ -56,9 +56,24 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadBannerAd(binding.adView)
 
         setView()
+    }
+
+    override fun checkProVersion(isProVersion: Boolean) {
+        super.checkProVersion(isProVersion)
+        if(isProVersion) {
+            binding.apply {
+                buttonFreeTrial.visibility = View.GONE
+                adView.visibility = View.GONE
+            }
+            return
+        }
+
+        binding.run {
+            buttonFreeTrial.visibility = View.VISIBLE
+            loadBannerAd(adView)
+        }
     }
 
     private fun registerPrefChangeListener() {
@@ -188,6 +203,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
             prefTag5Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 5)
             prefTag6Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 6)
 
+            buttonFreeTrial.setOnClickListener(this@SettingsFragment)
             suggestionBoard.setOnClickListener(this@SettingsFragment)
             errorBoard.setOnClickListener(this@SettingsFragment)
             rateApp.setOnClickListener(this@SettingsFragment)
@@ -206,6 +222,12 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
 
     override fun onClick(v: View?) {
             when (v?.id) {
+                R.id.button_free_trial -> {
+                    DialogUtil.showPurchaseProDialog(requireContext(),
+                        { billingManager.subscribe() },
+                        { billingManager.onPurchaseHistoryRestored()}
+                    )
+                }
                 R.id.suggestion_board -> {
                     val uri = Uri.parse("https://healthit.modoo.at/?link=2proi1a4")
                     startActivity(Intent(Intent.ACTION_VIEW, uri))

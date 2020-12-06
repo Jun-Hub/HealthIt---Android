@@ -63,54 +63,55 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:layout_marginBottom="2dp"
-        android:layout_above="@+id/adView">
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true">
 
-        <ImageButton
-            android:id="@+id/btn_start"
-            android:background="@drawable/ic_play"
-            android:layout_marginStart="18dp"
-            android:layout_marginEnd="18dp"
-            android:layout_width="65dp"
-            android:layout_height="65dp"
-            android:src="?android:attr/selectableItemBackground"
-            android:contentDescription="@string/app_name"
-            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:gravity="center">
 
-        <ImageButton
-            android:id="@+id/btn_pause"
-            android:background="@drawable/ic_pause"
-            android:layout_marginStart="18dp"
-            android:layout_marginEnd="18dp"
-            android:layout_width="65dp"
-            android:layout_height="65dp"
-            android:src="?android:attr/selectableItemBackground"
-            android:contentDescription="@string/app_name"
-            />
+            <ImageButton
+                android:id="@+id/btn_start"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
+                android:layout_marginStart="18dp"
+                android:layout_marginEnd="18dp"
+                android:background="@drawable/ic_play"
+                android:contentDescription="@string/app_name"
+                android:src="?android:attr/selectableItemBackground" />
 
-        <ImageButton
-            android:id="@+id/btn_stop"
-            android:background="@drawable/ic_stop"
-            android:layout_marginStart="18dp"
-            android:layout_marginEnd="18dp"
-            android:layout_width="65dp"
-            android:layout_height="65dp"
-            android:src="?android:attr/selectableItemBackground"
-            android:contentDescription="@string/app_name"
-            />
+            <ImageButton
+                android:id="@+id/btn_pause"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
+                android:layout_marginStart="18dp"
+                android:layout_marginEnd="18dp"
+                android:background="@drawable/ic_pause"
+                android:contentDescription="@string/app_name"
+                android:src="?android:attr/selectableItemBackground" />
+
+            <ImageButton
+                android:id="@+id/btn_stop"
+                android:layout_width="65dp"
+                android:layout_height="65dp"
+                android:layout_marginStart="18dp"
+                android:layout_marginEnd="18dp"
+                android:background="@drawable/ic_stop"
+                android:contentDescription="@string/app_name"
+                android:src="?android:attr/selectableItemBackground" />
+
+        </LinearLayout>
+
+        <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            ads:adSize="SMART_BANNER"
+            ads:adUnitId="@string/banner_ad_unit_id_for_test"/>
 
     </LinearLayout>
-
-    <com.google.android.gms.ads.AdView
-        xmlns:ads="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/adView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        ads:adSize="SMART_BANNER"
-        ads:adUnitId="@string/banner_ad_unit_id_for_test">
-    </com.google.android.gms.ads.AdView>
 
 </RelativeLayout>

@@ -29,14 +29,12 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import io.jun.healthit.R
-import io.jun.healthit.adapter.PhotoListAdapter
-import io.jun.healthit.adapter.RecordListAdapter
-import io.jun.healthit.adapter.TagSpinnerAdapter
 import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.*
 import io.jun.healthit.viewmodel.MemoViewModel
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
+import io.jun.healthit.adapter.*
 import io.jun.healthit.viewmodel.PrefViewModel
 import kotlinx.android.synthetic.main.activity_add_edit.*
 import kotlinx.coroutines.CoroutineScope

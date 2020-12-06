@@ -1,5 +1,6 @@
 package io.jun.healthit.view
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -11,9 +12,8 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
-import com.anjlab.android.iab.v3.BillingProcessor
+import com.google.android.material.snackbar.Snackbar
 import io.jun.healthit.R
-import io.jun.healthit.billing.BillingManager
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
@@ -24,18 +24,20 @@ class MainActivity : AppCompatActivity() {
         var inKorea = true
     }
 
-    val billingProcessor: BillingProcessor by lazy { BillingManager(this, null).billingProcessor }
-
     private var backWait:Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         nav_view.apply {
-            itemRippleColor = if(Build.VERSION.SDK_INT > 22) getColorStateList(R.color.color_state_list)
-                            else AppCompatResources.getColorStateList(context, R.color.color_state_list)
-            background = if(Build.VERSION.SDK_INT > 22) ContextCompat.getDrawable(context, R.drawable.bottom_nav)
-                            else resources.getDrawable(R.drawable.bottom_nav)
+            itemRippleColor =
+                if (Build.VERSION.SDK_INT > 22) getColorStateList(R.color.color_state_list)
+                else AppCompatResources.getColorStateList(context, R.color.color_state_list)
+            background = if (Build.VERSION.SDK_INT > 22) ContextCompat.getDrawable(
+                context,
+                R.drawable.bottom_nav
+            )
+            else resources.getDrawable(R.drawable.bottom_nav)
         }
 
         val navController = findNavController(R.id.nav_host_fragment)
@@ -54,7 +56,7 @@ class MainActivity : AppCompatActivity() {
         nav_view.setupWithNavController(navController)
 
         val language =
-            if(Build.VERSION.SDK_INT >= 24)
+            if (Build.VERSION.SDK_INT >= 24)
                 resources.configuration.locales.get(0).language
             else
                 resources.configuration.locale.language
@@ -68,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         // 뒤로가기 버튼 클릭
         if(System.currentTimeMillis() - backWait >=2000 ) {
             backWait = System.currentTimeMillis()
-            Toast.makeText(this, getString(R.string.notice_exit), Toast.LENGTH_SHORT).show()
+            Snackbar.make(nav_view, getString(R.string.notice_exit), Snackbar.LENGTH_SHORT).show()
         } else {
             finish()
         }

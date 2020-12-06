@@ -1,6 +1,5 @@
 package io.jun.healthit.view.fragment
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -14,11 +13,10 @@ import com.cleveroad.fanlayoutmanager.callbacks.FanChildDrawingOrderCallback
 import io.jun.healthit.R
 import io.jun.healthit.adapter.TipListAdapter
 import io.jun.healthit.model.data.Tip
-import io.jun.healthit.view.BillingActivity
-import io.jun.healthit.view.MainActivity
 import kotlinx.android.synthetic.main.fragment_routine.*
+import kotlinx.android.synthetic.main.fragment_routine.adView
 
-class RoutineFragment : BaseFragment(), View.OnClickListener {
+class RoutineFragment : BaseFragment() {
 
     private val TAG = "RoutineFragment"
 
@@ -69,32 +67,14 @@ class RoutineFragment : BaseFragment(), View.OnClickListener {
         return root
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        Log.d(TAG, "onViewCreated $activity")
-
-        test.setOnClickListener(this)
-
-            if ((activity as MainActivity).billingProcessor.isPurchased(context?.getString(R.string.sku_inapp))) {
-                adView.visibility = View.GONE
-                Log.d(TAG, "inapp puchased")
-            }
-            else {
-                Log.d(TAG, "inapp not puchased")
-                adView.visibility = View.VISIBLE
-                loadBannerAd(adView)
-            }
-
-    }
-
-    override fun onClick(v: View?) {
-        when(v?.id) {
-            R.id.test -> {
-                Log.d(TAG, "test onClicked")
-                startActivity(Intent(requireContext(), BillingActivity::class.java))
-            }
+    override fun checkProVersion(isProVersion: Boolean) {
+        super.checkProVersion(isProVersion)
+        if(isProVersion) {
+            adView.visibility = View.GONE
+            return
         }
+
+        loadBannerAd(adView)
     }
 
 }

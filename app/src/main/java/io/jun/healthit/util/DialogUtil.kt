@@ -14,6 +14,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
+import com.orhanobut.dialogplus.DialogPlus
+import com.orhanobut.dialogplus.ViewHolder
 import io.jun.healthit.R
 import io.jun.healthit.adapter.RecordListAdapter
 import io.jun.healthit.model.data.Memo
@@ -446,5 +448,26 @@ object DialogUtil {
                 }
                 .show()
         }
+
+   fun showPurchaseProDialog(context: Context, subscribe: () -> Unit, restore: () -> Unit) {
+
+       DialogPlus.newDialog(context)
+           .setOnClickListener { dialog, view ->
+               when(view.id) {
+                   R.id.button_not_now -> dialog.dismiss()
+                   R.id.button_free_trial -> {
+                       dialog.dismiss()
+                       subscribe.invoke()
+                   }
+                   R.id.button_restore ->  restore.invoke()
+               }
+           }
+           .setContentHolder(ViewHolder(R.layout.dialog_pro_body))
+           .setHeader(R.layout.dialog_pro_header)
+           .setPadding(50, 20, 50, 50)
+           .setContentBackgroundResource(android.R.color.transparent)
+           .create()
+           .show()
+   }
 
 }

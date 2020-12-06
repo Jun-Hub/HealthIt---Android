@@ -9,6 +9,7 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.Snackbar
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import io.jun.healthit.R
 import io.jun.healthit.adapter.InbodySpinnerAdapter
@@ -16,6 +17,7 @@ import io.jun.healthit.databinding.FragmentInbodyBinding
 import io.jun.healthit.decorator.TextDecorator
 import io.jun.healthit.decorator.TodayDecorator
 import io.jun.healthit.model.data.Inbody
+import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.EtcUtil
 import io.jun.healthit.viewmodel.InbodyViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
@@ -59,11 +61,29 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        loadBannerAd(binding.adView)
         setClickListener()
         setCalendarView()
         initTextWatcher()
         initObserve()
+    }
+
+    override fun checkProVersion(isProVersion: Boolean) {
+        super.checkProVersion(isProVersion)
+
+        if(isProVersion) {
+           binding.apply {
+               textViewNoticePreview.visibility = View.GONE
+               textViewFreeTrial.visibility = View.GONE
+               adView.visibility = View.GONE
+           }
+            return
+        }
+
+        binding.run {
+            textViewNoticePreview.visibility = View.VISIBLE
+            textViewFreeTrial.visibility = View.VISIBLE
+            loadBannerAd(binding.adView)
+        }
     }
 
     override fun onDestroyView() {
@@ -236,6 +256,7 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
 
     private fun setClickListener() {
         binding.apply {
+            textViewFreeTrial.setOnClickListener(this@InbodyFragment)
             imageBtnUpWeight.setOnClickListener(this@InbodyFragment)
             imageBtnDownWeight.setOnClickListener(this@InbodyFragment)
             imageBtnUpMuscle.setOnClickListener(this@InbodyFragment)
@@ -249,6 +270,11 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
     override fun onClick(v: View?) {
         binding.apply {
             when (v?.id) {
+                R.id.textView_free_trial -> {
+                    DialogUtil.showPurchaseProDialog(requireContext(),
+                        { billingManager.subscribe() },
+                        { billingManager.onPurchaseHistoryRestored()})
+                }
                 R.id.imageBtn_up_weight -> {
                     editTextWeight.text = EtcUtil.makePlusFloat(editTextWeight, 1f)
                 }
@@ -269,13 +295,19 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
                 }
 
                 R.id.btn_save -> {
+                    if(!isProVersion) {
+                        DialogUtil.showPurchaseProDialog(requireContext(),
+                            { billingManager.subscribe() },
+                            { billingManager.onPurchaseHistoryRestored()})
+                        return
+                    }
                     inbodyViewModel.insert(Inbody(
                             selectedDate,
                             textToFloat(editTextWeight),
                             textToFloat(editTextMuscle),
                             textToFloat(editTextPercentFat)))
 
-                    Toast.makeText(context, getString(R.string.text_save_completed), Toast.LENGTH_SHORT).show()
+                    Snackbar.make(btnSave, getString(R.string.text_save_completed), Snackbar.LENGTH_SHORT).show()
                 }
             }
         }

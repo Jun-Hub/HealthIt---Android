@@ -12,7 +12,6 @@ import android.widget.Spinner
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,7 +32,6 @@ import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.EtcUtil
 import io.jun.healthit.view.AddEditActivity
-import io.jun.healthit.view.MainActivity
 import io.jun.healthit.view.MemoDetailActivity
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
@@ -86,7 +84,6 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         val root = inflater.inflate(R.layout.fragment_memo, container, false)
 
         setHasOptionsMenu(true)
-        setInterstitialAd()
 
         prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
         memoViewModel = ViewModelProvider(this).get(MemoViewModel::class.java)
@@ -97,7 +94,6 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        loadBannerAd(adView)
         setCalendarView()
         setMemoRecyclerView()
         initObserve()
@@ -106,6 +102,17 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
 
         delete_btn.setOnClickListener(this)
         cardView_detail.setOnClickListener(this)
+    }
+
+    override fun checkProVersion(isProVersion: Boolean) {
+        super.checkProVersion(isProVersion)
+        if(isProVersion) {
+            adView.visibility = View.GONE
+            return
+        }
+
+        loadBannerAd(adView)
+        setInterstitialAd()
     }
 
     private fun setCalendarView() {
@@ -366,33 +373,41 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         val savedViewMode: StickySwitch.Direction
         if(prefViewModel.getViewMode(requireContext())=="LEFT") {
             savedViewMode = StickySwitch.Direction.LEFT
-            showListView()
+            showListView(true)
         }
         else {
             savedViewMode = StickySwitch.Direction.RIGHT
-            showCalendarView()
+            showCalendarView(true)
         }
 
-        viewSwitch.setDirection(savedViewMode, isAnimate = false, shouldTriggerSelected = true)
-        viewSwitch.setLeftIcon(R.drawable.ic_list_bulleted_24)
-        viewSwitch.setRightIcon(R.drawable.ic_calendar_24)
+        viewSwitch.apply {
+            setDirection(savedViewMode, isAnimate = false, shouldTriggerSelected = true)
+            setLeftIcon(R.drawable.ic_list_bulleted_24)
+            setRightIcon(R.drawable.ic_calendar_24)
 
-        viewSwitch.onSelectedChangeListener = object : OnSelectedChangeListener {
-            override fun onSelectedChange(direction: StickySwitch.Direction, text: String) {
-                if(direction.name == "RIGHT") {
-                    if ((activity as MainActivity).billingProcessor.isPurchased(context?.getString(R.string.sku_inapp))) {
-                        showCalendarView()
+            onSelectedChangeListener = object : OnSelectedChangeListener {
+                override fun onSelectedChange(direction: StickySwitch.Direction, text: String) {
+                    if(direction.name == "RIGHT") {
+                        if (isProVersion) {
+                            Log.d(TAG, "pro purchased")
+                            showCalendarView(false)
+                        }
+                        else {
+                            Log.d(TAG, "pro not purchased")
+                            DialogUtil.showPurchaseProDialog(requireContext(),
+                                { billingManager.subscribe() },
+                                { billingManager.onPurchaseHistoryRestored()})
+                            viewSwitch.setDirection(StickySwitch.Direction.LEFT, isAnimate = true, shouldTriggerSelected = true)
+                        }
+
                     }
                     else {
-
+                        showListView(false)
                     }
-
-                }
-                else {
-                    showListView()
                 }
             }
         }
+
     }
 
     private fun initEditModeSwitch(menu: Menu) {
@@ -409,24 +424,32 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         editSwitch.setRightIcon(R.drawable.ic_delete_release)
     }
 
-    private fun showCalendarView() {
-        //TODO 메모가 하나도 없을 때도 고려해주기
+    private fun showCalendarView(isInit: Boolean) {
+        textView_no_memo.visibility = View.GONE
         fast_scroller.visibility = View.GONE
         recyclerView.visibility = View.GONE
         calendarView.visibility = View.VISIBLE
         scrollView_calendar.visibility = View.VISIBLE
-        if(memoList.isNotEmpty()) {
+        if(isInit)
             cardView_detail.visibility = View.VISIBLE
-        }
+        else if(memoList.isNotEmpty())
+            cardView_detail.visibility = View.VISIBLE
     }
 
-    private fun showListView() {
+    private fun showListView(isInit: Boolean) {
         calendarView.visibility = View.GONE
         cardView_detail.visibility = View.GONE
         scrollView_calendar.visibility = View.GONE
-        if(memoList.isNotEmpty()) {
+        if(isInit) {
             fast_scroller.visibility = View.VISIBLE
             recyclerView.visibility = View.VISIBLE
+        }
+        else if(memoList.isNotEmpty()) {
+            fast_scroller.visibility = View.VISIBLE
+            recyclerView.visibility = View.VISIBLE
+        }
+        else {
+            textView_no_memo.visibility = View.VISIBLE
         }
     }
 
@@ -460,14 +483,18 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
             when (actionItem.id) {
                 R.id.new_memo -> {
                     afterAdFlag = 0
-                    if(interstitiailAd.isLoaded) interstitiailAd.show()
+                    if(!isProVersion && interstitiailAd.isLoaded) interstitiailAd.show()
+                    else startActivity(Intent(this.context, AddEditActivity::class.java).putExtra("newMemo", true))
 
+                    add_memo_btn.close()
                     return@OnActionSelectedListener true // false will close it without animation
                 }
                 R.id.open_template -> {
                     afterAdFlag = 1
-                    if(interstitiailAd.isLoaded) interstitiailAd.show()
+                    if(!isProVersion && interstitiailAd.isLoaded) interstitiailAd.show()
+                    else DialogUtil.showTemplateDialog(this, false)
 
+                    add_memo_btn.close()
                     return@OnActionSelectedListener true // false will close it without animation
                 }
             }
@@ -495,10 +522,8 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
 
     private fun executeAfterAd() {
         when(afterAdFlag) {
-            0 -> { startActivity(Intent(this.context, AddEditActivity::class.java).putExtra("newMemo", true))
-                add_memo_btn.close() }
-            1 -> { DialogUtil.showTemplateDialog(this, false)
-                add_memo_btn.close() }
+            0 -> startActivity(Intent(this.context, AddEditActivity::class.java).putExtra("newMemo", true))
+            1 -> DialogUtil.showTemplateDialog(this, false)
         }
     }
 

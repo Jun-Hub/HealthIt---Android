@@ -1,4 +1,4 @@
-package io.jun.healthit.util
+package io.jun.healthit.adapter
 
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper

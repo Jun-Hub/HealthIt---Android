@@ -7,11 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import io.jun.healthit.R
 import io.jun.healthit.adapter.ExpListAdapter
 import io.jun.healthit.util.Setting
-import com.google.android.gms.ads.AdRequest
-import com.google.android.gms.ads.AdView
-import com.google.android.gms.ads.MobileAds
 import kotlinx.android.synthetic.main.activity_routine.*
-
 
 class RoutineActivity : AppCompatActivity() {
 
@@ -28,11 +24,6 @@ class RoutineActivity : AppCompatActivity() {
             title = null
         }
 
-        MobileAds.initialize(this)
-        val mAdView: AdView = findViewById(R.id.adView)
-        val adRequest = AdRequest.Builder().build()
-        mAdView.loadAd(adRequest)
-
         when(intent.getStringExtra("tipType")) {
             "full_body" -> adapter = ExpListAdapter(Setting.fullBodyRoutineList)
             "2day_split" -> adapter = ExpListAdapter(Setting.split2dayRoutineList)
@@ -48,12 +39,10 @@ class RoutineActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
         return when (item.itemId) {
             android.R.id.home -> {  //툴바의 뒤로가기 버튼
                 finish()

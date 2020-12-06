@@ -2,7 +2,6 @@ package io.jun.healthit.adapter
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -14,9 +13,7 @@ import android.widget.Toast
 import androidx.recyclerview.widget.RecyclerView
 import io.jun.healthit.R
 import io.jun.healthit.model.data.Record
-import io.jun.healthit.util.AdapterEventListener
 import io.jun.healthit.util.DialogUtil
-import io.jun.healthit.util.ItemTouchHelperAdapter
 import io.jun.healthit.util.Setting
 import java.util.*
 import kotlin.collections.ArrayList

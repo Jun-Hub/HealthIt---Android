@@ -12,7 +12,9 @@ import io.jun.healthit.databinding.FragmentTimerBinding
 import io.jun.healthit.service.TimerService
 import io.jun.healthit.viewmodel.PrefViewModel
 import io.jun.healthit.viewmodel.TimerViewModel
+import kotlinx.android.synthetic.main.fragment_memo.*
 import kotlinx.android.synthetic.main.fragment_timer.*
+import kotlinx.android.synthetic.main.fragment_timer.adView
 
 class TimerFragment : BaseFragment(), View.OnClickListener {
 
@@ -44,7 +46,6 @@ class TimerFragment : BaseFragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        loadBannerAd(binding.adView)
         initNumberPicker()
 
         btn_start.setOnClickListener(this)
@@ -87,6 +88,16 @@ class TimerFragment : BaseFragment(), View.OnClickListener {
                 }
             })
         }
+    }
+
+    override fun checkProVersion(isProVersion: Boolean) {
+        super.checkProVersion(isProVersion)
+        if(isProVersion) {
+            adView.visibility = View.GONE
+            return
+        }
+
+        loadBannerAd(adView)
     }
 
     override fun onStop() {

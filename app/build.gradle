@@ -110,4 +110,6 @@ dependencies {
     implementation 'uk.co.barbuzz:beerprogressview:0.0.6'
     //https://github.com/Cleveroad/FanLayoutManager
     implementation 'com.cleveroad:fan-layout-manager:1.0.5'
+    //https://github.com/orhanobut/dialogplus
+    implementation 'com.orhanobut:dialogplus:1.11@aar'
 }
