@@ -50,10 +50,10 @@ class TextDecorator(val context: Context, val inbody: Inbody, val flag: Int): Da
             if(string != "null") {
                 canvas.drawText(string,
                     65f,
-                    80f,
+                    85f,
                     Paint().apply {
                         textAlign = Paint.Align.CENTER
-                        textSize = 33f
+                        textSize = 36f
                         style = Paint.Style.FILL_AND_STROKE
                         color = ContextCompat.getColor(context, R.color.colorSky)
                     })

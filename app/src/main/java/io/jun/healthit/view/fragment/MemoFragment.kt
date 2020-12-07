@@ -32,6 +32,7 @@ import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.EtcUtil
 import io.jun.healthit.view.AddEditActivity
+import io.jun.healthit.view.MainActivity
 import io.jun.healthit.view.MemoDetailActivity
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
@@ -144,33 +145,33 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         //Observer 로 메모 전체 Livedata 가져오기
         memoViewModel.allMemos.observe(viewLifecycleOwner, { memos ->
 
-                memoList = memos
+            memoList = memos
 
-                //저장된 메모가 하나도 없으면 리사이클러뷰 가리고 안내메시지 띄우기
-                if (memos.isNotEmpty()) {
-                    Log.d(TAG, "memo is not empty")
-                    recyclerView.visibility = View.VISIBLE
-                    textView_no_memo.visibility = View.GONE
+            //저장된 메모가 하나도 없으면 리사이클러뷰 가리고 안내메시지 띄우기
+            if (memos.isNotEmpty()) {
+                Log.d(TAG, "memo is not empty")
+                recyclerView.visibility = View.VISIBLE
+                textView_no_memo.visibility = View.GONE
 
-                    //메모 작성 시간순으로 배열 후 pin 메모가 맨 위로 가게끔 정렬
-                    memoAdapter.setMemos(memos.sortedByDescending { it.date }.sortedByDescending { it.pin })
-                    //메모 추가시 스크롤 맨 위로 올리기
-                    linearLayoutManager.scrollToPosition(0)
+                //메모 작성 시간순으로 배열 후 pin 메모가 맨 위로 가게끔 정렬
+                memoAdapter.setMemos(memos.sortedByDescending { it.date }.sortedByDescending { it.pin })
+                //메모 추가시 스크롤 맨 위로 올리기
+                linearLayoutManager.scrollToPosition(0)
 
-                    initDecorators(memos)
-                    updateCalendarCardView()
-                }
-                else {
-                    Log.d(TAG, "memo is empty")
-                    //메모가 없어도 일단 TodayDecorator는 추가
-                    clearDecorators()
-                    calendarView.addDecorator(TodayDecorator())
+                initDecorators(memos)
+                updateCalendarCardView()
+            }
+            else {
+                Log.d(TAG, "memo is empty")
+                //메모가 없어도 일단 TodayDecorator는 추가
+                clearDecorators()
+                calendarView.addDecorator(TodayDecorator())
 
-                    recyclerView.visibility = View.GONE
-                    textView_no_memo.visibility = View.VISIBLE
-                    cardView_detail.visibility = View.GONE
-                }
-            })
+                recyclerView.visibility = View.GONE
+                textView_no_memo.visibility = View.VISIBLE
+                cardView_detail.visibility = View.GONE
+            }
+        })
 
         editOn.observe(viewLifecycleOwner, { on ->
             memo_detail.delete_btn.visibility =
@@ -387,21 +388,19 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
 
             onSelectedChangeListener = object : OnSelectedChangeListener {
                 override fun onSelectedChange(direction: StickySwitch.Direction, text: String) {
-                    if(direction.name == "RIGHT") {
-                        if (isProVersion) {
-                            Log.d(TAG, "pro purchased")
+                    if(direction.name == "RIGHT") { //달력뷰
+                        if ((activity as MainActivity).isProVersion) {  // subscribe pro
                             showCalendarView(false)
                         }
-                        else {
-                            Log.d(TAG, "pro not purchased")
+                        else {  // not subscribe pro version
                             DialogUtil.showPurchaseProDialog(requireContext(),
-                                { billingManager.subscribe() },
-                                { billingManager.onPurchaseHistoryRestored()})
+                                { (activity as MainActivity).billingManager.subscribe() },
+                                { (activity as MainActivity).billingManager.onPurchaseHistoryRestored()})
                             viewSwitch.setDirection(StickySwitch.Direction.LEFT, isAnimate = true, shouldTriggerSelected = true)
                         }
 
                     }
-                    else {
+                    else {  //리스트뷰
                         showListView(false)
                     }
                 }
@@ -483,7 +482,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
             when (actionItem.id) {
                 R.id.new_memo -> {
                     afterAdFlag = 0
-                    if(!isProVersion && interstitiailAd.isLoaded) interstitiailAd.show()
+                    if(!(activity as MainActivity).isProVersion && interstitiailAd.isLoaded) interstitiailAd.show()
                     else startActivity(Intent(this.context, AddEditActivity::class.java).putExtra("newMemo", true))
 
                     add_memo_btn.close()
@@ -491,7 +490,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
                 }
                 R.id.open_template -> {
                     afterAdFlag = 1
-                    if(!isProVersion && interstitiailAd.isLoaded) interstitiailAd.show()
+                    if(!(activity as MainActivity).isProVersion && interstitiailAd.isLoaded) interstitiailAd.show()
                     else DialogUtil.showTemplateDialog(this, false)
 
                     add_memo_btn.close()

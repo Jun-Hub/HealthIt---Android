@@ -13,7 +13,6 @@ import com.cleveroad.fanlayoutmanager.callbacks.FanChildDrawingOrderCallback
 import io.jun.healthit.R
 import io.jun.healthit.adapter.TipListAdapter
 import io.jun.healthit.model.data.Tip
-import kotlinx.android.synthetic.main.fragment_routine.*
 import kotlinx.android.synthetic.main.fragment_routine.adView
 
 class RoutineFragment : BaseFragment() {

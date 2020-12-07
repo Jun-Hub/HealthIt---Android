@@ -32,9 +32,9 @@
                 android:text="@string/purchase_pro"
                 android:textColor="@color/colorSexyBlue"
                 android:textStyle="bold"
-                android:textSize="16sp"
-                android:layout_margin="20dp"
-                android:padding="15dp"
+                android:textSize="14sp"
+                android:layout_margin="25dp"
+                android:padding="18dp"
                 android:background="@drawable/corner_shape_primary" />
 
             <TextView

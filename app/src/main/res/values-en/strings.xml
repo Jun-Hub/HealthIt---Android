@@ -90,10 +90,28 @@
     <string name="name_guide">(Touch to edit)</string>
     <string name="notice_max_record">Up to %1$d can be created.</string>
     <string name="purchase_pro">Purchase HealthIt Pro version</string>
+    <string name="subscribe_success">Thank U for Subscribe.</string>
+    <string name="billing_error">Purchase Failed.</string>
+
+    <string name="silent">silent</string>
+    <string name="vibrate">vibrate</string>
+    <string name="ring">ring</string>
+    <string name="vibrate_and_ring">vibrate_and_ring</string>
+    <string name="light_weight_babe">light_weight_babe</string>
+    <string name="ring1">ring1</string>
+    <string name="ring2">ring2</string>
+    <string name="ring3">ring3</string>
+    <string name="ring4">ring4</string>
+    <string name="ring5">ring5</string>
+    <string name="ring6">ring6</string>
+    <string name="ring7">ring7</string>
+
+    <!-- PrefRepository -->
+    <string name="pref_vibrate_and_ring">Vibrate and Ring</string>
+    <string name="pref_light_weight_babe">Light Weight Bebe</string>
 
     <string name="google_play_license_key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAllyQvfc3zFWQQ9rQnJ1fvi3qbf6sH3w/XNCEoUddLVrEF77DbnKJ3cikVOknYvI4ry8ujEO7FJQ8bzLTJO5yilMOHHW3Vjl6uMl2YeA+ajzG42o2BGptiq2pSnl+xvii1qOKdTVSxDLiznItH1MjfkSQs9WfGTYv3rha1FHsSxlIpYJiBH/c8M1VVyGSttafvRPmbkXQp+2ELmYXyRgbytnieCa02MfZXRjWOFWy2SuBzHCx8C9Kk6kL0QBIJYDrQ8epXiuCE8H76JDK+c9Wz2chjOkjjEonv1ZwSUmxcwXUflc71/gaks/vdKhHnp+1aWh83fDpL7zw19vTdPJovwIDAQAB</string>
     <string name="sku_subs">subscribe_pro_1_month</string>
-    <string name="sku_inapp">inapp_test</string>
     <string name="admob_app_id">ca-app-pub-6263138384822549~7206516262</string>
     <string name="banner_ad_unit_id1">ca-app-pub-6263138384822549/1954189581</string>
     <string name="banner_ad_unit_id2">ca-app-pub-6263138384822549/2641201248</string>

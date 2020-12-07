@@ -4,8 +4,10 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.SpannableStringBuilder
 import android.text.TextWatcher
+import android.util.Log
 import android.view.*
 import android.widget.*
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.lifecycle.ViewModelProvider
@@ -19,6 +21,7 @@ import io.jun.healthit.decorator.TodayDecorator
 import io.jun.healthit.model.data.Inbody
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.EtcUtil
+import io.jun.healthit.view.MainActivity
 import io.jun.healthit.viewmodel.InbodyViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
 
@@ -69,7 +72,7 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
 
     override fun checkProVersion(isProVersion: Boolean) {
         super.checkProVersion(isProVersion)
-
+        Log.d(TAG, "checkProVersion")
         if(isProVersion) {
            binding.apply {
                textViewNoticePreview.visibility = View.GONE
@@ -272,8 +275,8 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
             when (v?.id) {
                 R.id.textView_free_trial -> {
                     DialogUtil.showPurchaseProDialog(requireContext(),
-                        { billingManager.subscribe() },
-                        { billingManager.onPurchaseHistoryRestored()})
+                        { (activity as MainActivity).billingManager.subscribe() },
+                        { (activity as MainActivity).billingManager.onPurchaseHistoryRestored()})
                 }
                 R.id.imageBtn_up_weight -> {
                     editTextWeight.text = EtcUtil.makePlusFloat(editTextWeight, 1f)
@@ -295,10 +298,10 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
                 }
 
                 R.id.btn_save -> {
-                    if(!isProVersion) {
+                    if(!(activity as MainActivity).isProVersion) {
                         DialogUtil.showPurchaseProDialog(requireContext(),
-                            { billingManager.subscribe() },
-                            { billingManager.onPurchaseHistoryRestored()})
+                            { (activity as MainActivity).billingManager.subscribe() },
+                            { (activity as MainActivity).billingManager.onPurchaseHistoryRestored()})
                         return
                     }
                     inbodyViewModel.insert(Inbody(
@@ -307,7 +310,7 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
                             textToFloat(editTextMuscle),
                             textToFloat(editTextPercentFat)))
 
-                    Snackbar.make(btnSave, getString(R.string.text_save_completed), Snackbar.LENGTH_SHORT).show()
+                    Snackbar.make(calendarView, getString(R.string.text_save_completed), 500).show()
                 }
             }
         }

@@ -10,6 +10,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,11 +22,12 @@ import com.gun0912.tedpermission.TedPermission
 import io.jun.healthit.R
 import io.jun.healthit.databinding.FragmentSettingsBinding
 import io.jun.healthit.util.DialogUtil
-import io.jun.healthit.util.Setting
+import io.jun.healthit.view.MainActivity
 import io.jun.healthit.viewmodel.PrefViewModel
 
 class SettingsFragment : BaseFragment(), View.OnClickListener {
 
+    private val TAG = "SettingsFragment"
     private lateinit var prefViewModel: PrefViewModel
     
     private var viewBinding: FragmentSettingsBinding? = null
@@ -37,7 +39,6 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
     private lateinit var preferences: SharedPreferences
     private lateinit var prefChangeListener: OnSharedPreferenceChangeListener
 
-    private lateinit var switchFloating:Switch
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,7 +57,6 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         setView()
     }
 
@@ -77,60 +77,58 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun registerPrefChangeListener() {
+        getString(R.string.admob_app_id)
         prefChangeListener = OnSharedPreferenceChangeListener {_, key ->
             binding.let {
-            when(key) {
-                "alert" -> it.prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(requireContext()))
-                "ring" -> {
-                    val ring = prefViewModel.getRingSettings(requireContext())
-                    it.prefRingValue.text = prefEntryConverter(ring)
+                when(key) {
+                    "alert" -> it.prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(requireContext()))
+                    "ring" -> {
+                        val ring = prefViewModel.getRingSettings(requireContext())
+                        it.prefRingValue.text = prefEntryConverter(ring)
 
-                    mediaPlayer = when(ring) {
-                        "light_weight_babe" -> MediaPlayer.create(this.context, R.raw.light_weight_babe)
-                        "ring1" -> MediaPlayer.create(context, R.raw.ring1)
-                        "ring2" -> MediaPlayer.create(context, R.raw.ring2)
-                        "ring3" -> MediaPlayer.create(context, R.raw.ring3)
-                        "ring4" -> MediaPlayer.create(context, R.raw.ring4)
-                        "ring5" -> MediaPlayer.create(context, R.raw.ring5)
-                        "ring6" -> MediaPlayer.create(context, R.raw.ring6)
-                        else -> MediaPlayer.create(context, R.raw.ring7)
+                        mediaPlayer = when(ring) {
+                            "light_weight_babe" -> MediaPlayer.create(this.context, R.raw.light_weight_babe)
+                            "ring1" -> MediaPlayer.create(context, R.raw.ring1)
+                            "ring2" -> MediaPlayer.create(context, R.raw.ring2)
+                            "ring3" -> MediaPlayer.create(context, R.raw.ring3)
+                            "ring4" -> MediaPlayer.create(context, R.raw.ring4)
+                            "ring5" -> MediaPlayer.create(context, R.raw.ring5)
+                            "ring6" -> MediaPlayer.create(context, R.raw.ring6)
+                            else -> MediaPlayer.create(context, R.raw.ring7)
+                        }
+
+                        mediaPlayer.start()
+                        isPlayerInit = true
                     }
-
-                    mediaPlayer.start()
-                    isPlayerInit = true
+                    "tag1" -> it.prefTag1Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 1)
+                    "tag2" -> it.prefTag2Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 2)
+                    "tag3" -> it.prefTag3Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 3)
+                    "tag4" -> it.prefTag4Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 4)
+                    "tag5" -> it.prefTag5Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 5)
+                    "tag6" -> it.prefTag6Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 6)
                 }
-                "tag1" -> it.prefTag1Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 1)
-                "tag2" -> it.prefTag2Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 2)
-                "tag3" -> it.prefTag3Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 3)
-                "tag4" -> it.prefTag4Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 4)
-                "tag5" -> it.prefTag5Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 5)
-                "tag6" -> it.prefTag6Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 6)
-            }
             }
         }
 
         preferences.registerOnSharedPreferenceChangeListener(prefChangeListener)
     }
 
-    private fun prefEntryConverter(prefValue: String): String {
-        if(Setting.IN_KOREA) {
-            return when (prefValue) {
-                "silent" -> "무음"
-                "vibrate" -> "진동"
-                "ring" -> "알림음"
-                "vibrate_and_ring" -> "진동과 알림음"
-                "light_weight_babe" -> "Light weight babe"
-                "ring1" -> "알림음1"
-                "ring2" -> "알림음2"
-                "ring3" -> "알림음3"
-                "ring4" -> "알림음4"
-                "ring5" -> "알림음5"
-                "ring6" -> "알림음6"
-                else -> "알림음7"
-            }
-        } else
-            return prefValue
-    }
+    private fun prefEntryConverter(prefValue: String) =
+        when (prefValue) {
+            "silent" -> getString(R.string.silent)
+            "vibrate" -> getString(R.string.vibrate)
+            "ring" -> getString(R.string.ring)
+            "vibrate_and_ring" -> getString(R.string.vibrate_and_ring)
+            "light_weight_babe" -> getString(R.string.light_weight_babe)
+            "ring1" -> getString(R.string.ring1)
+            "ring2" -> getString(R.string.ring2)
+            "ring3" -> getString(R.string.ring3)
+            "ring4" -> getString(R.string.ring4)
+            "ring5" -> getString(R.string.ring5)
+            "ring6" -> getString(R.string.ring6)
+            else -> getString(R.string.ring7)
+        }
+
 
     private fun openAppInPlayStore() {
         val uri = Uri.parse("market://details?id=" + context?.packageName)
@@ -173,7 +171,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
             }
             override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {  //permission 거부 상태라면
                 Toast.makeText(requireContext(), getString(R.string.deny_overlay), Toast.LENGTH_LONG).show()
-                switchFloating.isChecked = false
+                binding.switchFloating.isChecked = false
             }
         }
         fun checkAlertWindowPermission() {
@@ -224,8 +222,8 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
             when (v?.id) {
                 R.id.button_free_trial -> {
                     DialogUtil.showPurchaseProDialog(requireContext(),
-                        { billingManager.subscribe() },
-                        { billingManager.onPurchaseHistoryRestored()}
+                        { (activity as MainActivity).billingManager.subscribe() },
+                        { (activity as MainActivity).billingManager.onPurchaseHistoryRestored()}
                     )
                 }
                 R.id.suggestion_board -> {
@@ -239,7 +237,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
                 R.id.rate_app -> { openAppInPlayStore() }
                 R.id.pref_alert -> { DialogUtil.showAlertDialog(this@SettingsFragment) }
                 R.id.pref_ring -> { DialogUtil.showRingDialog(this@SettingsFragment) }
-                R.id.pref_floating -> { switchFloating.toggle() }
+                R.id.pref_floating -> { binding.switchFloating.toggle() }
                 R.id.pref_template -> { DialogUtil.showTemplateDialog(this@SettingsFragment, true) }
                 R.id.pref_tag1 -> { DialogUtil.showTagDialog(this@SettingsFragment, 1, layoutInflater) }
                 R.id.pref_tag2 -> { DialogUtil.showTagDialog(this@SettingsFragment, 2, layoutInflater) }
@@ -248,7 +246,6 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
                 R.id.pref_tag5 -> { DialogUtil.showTagDialog(this@SettingsFragment, 5, layoutInflater) }
                 R.id.pref_tag6 -> { DialogUtil.showTagDialog(this@SettingsFragment, 6, layoutInflater) }
             }
-
     }
 }
 

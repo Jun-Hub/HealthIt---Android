@@ -2,6 +2,7 @@ package io.jun.healthit.billing
 
 import android.app.Activity
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import com.anjlab.android.iab.v3.BillingProcessor
 import com.anjlab.android.iab.v3.BillingProcessor.IBillingHandler
@@ -12,21 +13,14 @@ class BillingManager(
     private val activity: Activity,
     private val billingCallback: BillingCallback) : IBillingHandler {
 
+    private val TAG = "BillingManager"
+
     var billingProcessor = BillingProcessor(
         activity,
         activity.getString(R.string.google_play_license_key),
         this)
 
     init { billingProcessor.initialize() }
-
-    /*
-    - 변수 및 커스텀 클래스 참조
-    Setting.GP_LICENSE_KEY: 구글 플레이 라이센스 키 (비밀!)
-    Setting.SKU: 광고제거용 PRO 버전 (관리되는 제품)
-    Setting.SUBSCRIBE_SKU: 1개월 광고제거 (구독 상품)
-    AdLoader(context.mAdLoader): 구글 애드몹 광고를 보여주기 위해 제가 만든 클래스
-    AppStorage: SharedPreference를 쓰기 쉽게 제가 만든 클래스 -> 간단하게 현재 구독 및 결제 상태를 저장하기 위해 사용
-     */
 
 
     /**
@@ -35,6 +29,7 @@ class BillingManager(
      * @param details 거래 정보
      */
     override fun onProductPurchased(productId: String, details: TransactionDetails?) {
+        Log.d(TAG, "onProductPurchased: $productId")
         billingProcessor.loadOwnedPurchasesFromGoogle() // 구매정보 업데이트
         billingCallback.onPurchased(productId)
     }
@@ -47,20 +42,18 @@ class BillingManager(
     override fun onBillingError(errorCode: Int, error: Throwable?) {
         // # 결제 오류시 따로 토스트 메세지를 표시하고 싶으시면 여기에 하시면됩니다.
         billingCallback.onBillingError()
+        Log.d(TAG, "onBillingError")
     }
 
     /**
      * BillingProcessor 초기화 완료시
      */
     override fun onBillingInitialized() {
-        val details =
-            billingProcessor.getPurchaseListingDetails(activity.getString(R.string.sku_inapp)) // PRO 버전 정보
         val subDetails =
             billingProcessor.getSubscriptionListingDetails(activity.getString(R.string.sku_subs)) // 1개월 구독 정보
         
         // # SkuDetails.priceValue: ex) 1,000원일경우 => 1000.00
-        val pricePair = Pair(details.priceValue, subDetails.priceValue)
-        billingCallback.onUpdatePrice(pricePair)
+        billingCallback.onUpdatePrice(subDetails.priceValue)
         
         billingProcessor.loadOwnedPurchasesFromGoogle() // 구매정보 업데이트
     }
@@ -68,7 +61,7 @@ class BillingManager(
     /**
      * 인앱 상품 구매하기
      */
-    fun purchase() {
+    /*fun purchase() {
         if (billingProcessor.isInitialized) {
             if (billingProcessor.isSubscribed(activity.getString(R.string.sku_subs))) {
                 Toast.makeText(activity,
@@ -78,19 +71,16 @@ class BillingManager(
                 billingProcessor.purchase(activity, activity.getString(R.string.sku_inapp))
             }
         }
-    }
+    }*/
 
     /**
      * 구독하기
      */
     fun subscribe() {
-        if (billingProcessor.isInitialized) {
-            // # 저는 PRO 버전도 같이 팔고있기 때문에 중복 구입 방지를 위해 구매여부 체크를 해두었습니다.
-            if (!billingProcessor.isPurchased(activity.getString(R.string.sku_inapp)) &&
-                !billingProcessor.isSubscribed(activity.getString(R.string.sku_subs))) {
-
-                billingProcessor.subscribe(activity, activity.getString(R.string.sku_subs))
-            }
+        if (billingProcessor.isInitialized &&
+            !billingProcessor.isSubscribed(activity.getString(R.string.sku_subs))
+        ) {
+            billingProcessor.subscribe(activity, activity.getString(R.string.sku_subs))
         }
     }
 

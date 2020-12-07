@@ -381,8 +381,7 @@ object DialogUtil {
 
 
         fun editRecordDialog(adapter: RecordListAdapter, context: Context,
-                             layoutInflater: LayoutInflater, index:Int, current: Record
-        ) {
+                             layoutInflater: LayoutInflater, index:Int, current: Record) {
 
             val inflater = layoutInflater.inflate(R.layout.dialog_record, null as ViewGroup?)
 
@@ -464,7 +463,7 @@ object DialogUtil {
            }
            .setContentHolder(ViewHolder(R.layout.dialog_pro_body))
            .setHeader(R.layout.dialog_pro_header)
-           .setPadding(50, 20, 50, 50)
+           .setPadding(50, 50, 50, 50)
            .setContentBackgroundResource(android.R.color.transparent)
            .create()
            .show()
