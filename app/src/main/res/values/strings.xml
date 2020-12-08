@@ -178,6 +178,16 @@
     <!-- PrefRepository -->
     <string name="pref_vibrate_and_ring">vibrate_and_ring</string>
     <string name="pref_light_weight_babe">light_weight_babe</string>
+    <string name="view_all">전체보기</string>
+    <string name="red">빨간색</string>
+    <string name="orange">주황색</string>
+    <string name="yellow">노란색</string>
+    <string name="green">초록색</string>
+    <string name="blue">파란색</string>
+    <string name="purple">보라색</string>
+    <string name="no_tag">태그없음</string>
+    <string name="touch_to_edit">(터치해서 수정)</string>
+    <string name="basic_routine_name">루틴%1$d (설정되어 있지 않음)</string>
 
     <!-- MemoListAdapter -->
     <string name="memo_record">총 %1$d세트, %2$d볼륨</string>

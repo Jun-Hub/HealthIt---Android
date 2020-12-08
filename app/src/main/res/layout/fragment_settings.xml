@@ -34,7 +34,7 @@
                 android:textStyle="bold"
                 android:textSize="14sp"
                 android:layout_margin="25dp"
-                android:padding="18dp"
+                android:padding="17dp"
                 android:background="@drawable/corner_shape_primary" />
 
             <TextView

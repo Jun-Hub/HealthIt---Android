@@ -15,6 +15,8 @@ import com.google.android.material.snackbar.Snackbar
 import io.jun.healthit.R
 import io.jun.healthit.billing.BillingCallback
 import io.jun.healthit.billing.BillingManager
+import io.jun.healthit.update.UpdateManager
+import io.jun.healthit.util.Setting
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.properties.Delegates
 
@@ -22,13 +24,10 @@ class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
 
-    companion object {
-        var inKorea = true
-    }
-
     lateinit var billingManager: BillingManager
     var isProVersion by Delegates.notNull<Boolean>()
 
+    private val updateManager: UpdateManager by lazy { UpdateManager(this) }
     private var backWait:Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -38,11 +37,7 @@ class MainActivity : AppCompatActivity() {
             itemRippleColor =
                 if (Build.VERSION.SDK_INT > 22) getColorStateList(R.color.color_state_list)
                 else AppCompatResources.getColorStateList(context, R.color.color_state_list)
-            background = if (Build.VERSION.SDK_INT > 22) ContextCompat.getDrawable(
-                context,
-                R.drawable.bottom_nav
-            )
-            else resources.getDrawable(R.drawable.bottom_nav)
+            background = ContextCompat.getDrawable(context, R.drawable.bottom_nav)
         }
 
         val navController = findNavController(R.id.nav_host_fragment)
@@ -60,19 +55,12 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         nav_view.setupWithNavController(navController)
 
-        val language =
-            if (Build.VERSION.SDK_INT >= 24)
-                resources.configuration.locales.get(0).language
-            else
-                resources.configuration.locale.language
-
-        inKorea = language == "ko"
-
-        getVersionInfo()
         initBillingManager()
+        updateManager.checkUpdate()
     }
 
     private fun initBillingManager() {
+
         billingManager = BillingManager(this, object : BillingCallback {
             override fun onPurchased(productId: String?) {
                 if (productId == getString(R.string.sku_subs))
@@ -91,8 +79,15 @@ class MainActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
+
         billingManager.handleActivityResult(requestCode, resultCode, data)
-        Log.d(TAG, "$requestCode // $resultCode")
+
+        if (requestCode == Setting.UPDATE_REQUEST_CODE) {
+            if (resultCode != RESULT_OK) {
+                Log.e(TAG, "Update flow failed! Result code: $resultCode")
+                updateManager.checkUpdate()
+            }
+        }
     }
 
     override fun onBackPressed() {
@@ -103,11 +98,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             finish()
         }
-    }
-
-    private fun getVersionInfo() {
-        val info = packageManager.getPackageInfo(packageName, 0)
-        Log.e(TAG, "" + info.versionName)
     }
 
     override fun onDestroy() {

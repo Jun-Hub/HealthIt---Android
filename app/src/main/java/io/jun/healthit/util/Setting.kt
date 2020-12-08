@@ -3,12 +3,10 @@ package io.jun.healthit.util
 import com.chad.library.adapter.base.entity.MultiItemEntity
 import io.jun.healthit.model.data.ParentRoutine
 import io.jun.healthit.model.data.Routine
-import io.jun.healthit.view.MainActivity
 
 //공통으로 사용되는 상수값들 설정
 object Setting {
 
-        val IN_KOREA = MainActivity.inKorea
         const val GALLERY_REQUEST_CODE = 0
         const val TAKE_PHOTO_REQUEST_CODE = 1
         const val TOTAL_SIZE_LIMIT = 1160000
@@ -20,6 +18,7 @@ object Setting {
 
         const val DECORATOR_RADIUS = 11f
 
+        const val UPDATE_REQUEST_CODE = 2020
 
         val WORK_OUT_LIST = arrayOf("스쿼트", "런지", "덤벨 런지", "워킹 런지", "덤벨 스쿼트",
             "레그 익스텐션", "레그컬", "레그프레스", "파워 레그프레스", "머신 스쿼트", "핵스쿼트", "스텝업",  "프론트 스쿼트", "카프레이즈",   //이상 하체운동

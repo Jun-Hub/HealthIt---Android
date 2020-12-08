@@ -11,7 +11,6 @@ import io.jun.healthit.model.data.Tag
 import io.jun.healthit.util.Setting
 import java.lang.reflect.Type
 
-//TODO Setting.IN_KOREA 그냥 getString으로 해주기
 class PrefRepository {
 
     private val previousTimerSetMinId = "timer.previous_timer_set_min"
@@ -38,7 +37,7 @@ class PrefRepository {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         return preferences.getString(
             "alert",
-            if (Setting.IN_KOREA) "vibrate_and_ring" else "Vibrate and Ring"
+            context.getString(R.string.pref_vibrate_and_ring)
         )!!
     }
 
@@ -52,7 +51,7 @@ class PrefRepository {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         return preferences.getString(
             "ring",
-            if (Setting.IN_KOREA) "light_weight_babe" else "Light Weight Babe"
+            context.getString(R.string.pref_light_weight_babe)
         )!!
     }
 
@@ -75,21 +74,21 @@ class PrefRepository {
     fun getTagSettings(context: Context, forSort: Boolean): ArrayList<Tag> {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
-        val tag1 = preferences.getString("tag1", if (Setting.IN_KOREA) "빨간색" else "Red")
-        val tag2 = preferences.getString("tag2", if (Setting.IN_KOREA) "주황색" else "Orange")
-        val tag3 = preferences.getString("tag3", if (Setting.IN_KOREA) "노란색" else "Yellow")
-        val tag4 = preferences.getString("tag4", if (Setting.IN_KOREA) "초록색" else "Green")
-        val tag5 = preferences.getString("tag5", if (Setting.IN_KOREA) "파란색" else "Blue")
-        val tag6 = preferences.getString("tag6", if (Setting.IN_KOREA) "보라색" else "Purple")
+        val tag1 = preferences.getString("tag1", context.getString(R.string.red))
+        val tag2 = preferences.getString("tag2", context.getString(R.string.orange))
+        val tag3 = preferences.getString("tag3", context.getString(R.string.yellow))
+        val tag4 = preferences.getString("tag4", context.getString(R.string.green))
+        val tag5 = preferences.getString("tag5", context.getString(R.string.blue))
+        val tag6 = preferences.getString("tag6", context.getString(R.string.purple))
 
         val tagList = ArrayList<Tag>()
         if (forSort) tagList.add(
             Tag(
                 R.drawable.transparent,
-                if (Setting.IN_KOREA) "전체보기" else "All"
+                context.getString(R.string.view_all)
             )
         )
-        tagList.add(Tag(R.drawable.transparent, if (Setting.IN_KOREA) "태그없음" else "No Tag"))
+        tagList.add(Tag(R.drawable.transparent, context.getString(R.string.view_all)))
         tag1?.let { Tag(R.drawable.ic_circle_red, it) }?.let { tagList.add(it) }
         tag2?.let { Tag(R.drawable.ic_circle_orange, it) }?.let { tagList.add(it) }
         tag3?.let { Tag(R.drawable.ic_circle_yellow, it) }?.let { tagList.add(it) }
@@ -104,12 +103,12 @@ class PrefRepository {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
 
         return when (index) {
-            1 -> preferences.getString("tag1", if (Setting.IN_KOREA) "빨간색" else "Red")
-            2 -> preferences.getString("tag2", if (Setting.IN_KOREA) "주황색" else "Orange")
-            3 -> preferences.getString("tag3", if (Setting.IN_KOREA) "노란색" else "Yellow")
-            4 -> preferences.getString("tag4", if (Setting.IN_KOREA) "초록색" else "Green")
-            5 -> preferences.getString("tag5", if (Setting.IN_KOREA) "파란색" else "Blue")
-            else -> preferences.getString("tag6", if (Setting.IN_KOREA) "보라색" else "Purple")
+            1 -> preferences.getString("tag1", context.getString(R.string.red))
+            2 -> preferences.getString("tag2", context.getString(R.string.orange))
+            3 -> preferences.getString("tag3", context.getString(R.string.yellow))
+            4 -> preferences.getString("tag4", context.getString(R.string.green))
+            5 -> preferences.getString("tag5", context.getString(R.string.blue))
+            else -> preferences.getString("tag6", context.getString(R.string.purple))
         }
     }
 
@@ -124,7 +123,7 @@ class PrefRepository {
 
     fun getTemplate(key: Int, context: Context): List<Record> {
         //defValue가 json 형태가 아니면 error를 일으키므로 defValue를 만들어줌
-        val record = Record(if (Setting.IN_KOREA) "(터치해서 수정)" else ("(Touch to edit)"), 40f, 5, 10)
+        val record = Record(context.getString(R.string.touch_to_edit), 40f, 5, 10)
         val defJsonValue = Gson().toJson(listOf(record))
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
@@ -148,7 +147,7 @@ class PrefRepository {
         val preferences = PreferenceManager.getDefaultSharedPreferences(context)
         return preferences.getString(
             templateName + key,
-            if (Setting.IN_KOREA) "루틴$key (설정되어 있지 않음)" else "Routine$key (Not set yet)"
+            String.format(context.getString(R.string.basic_routine_name), key)
         )
     }
 
@@ -165,7 +164,6 @@ class PrefRepository {
         return preferences.getString(memoViewModeId, "LEFT")
     }
 
-    //TODO KTX 문법으로 바꾸기
     fun setViewMode(mode: String, context: Context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit {
             putString(memoViewModeId, mode)

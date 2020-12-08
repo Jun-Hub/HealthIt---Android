@@ -65,6 +65,7 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
     private var isNewMemo by Delegates.notNull<Boolean>()
     private var tag by Delegates.notNull<Int>()
     private var pin by Delegates.notNull<Boolean>()
+    private lateinit var dateOfOriginMemo: String
 
     private val byteArrayList = ArrayList<ByteArray>()
 
@@ -94,7 +95,9 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
                 editText_content.setText(memo.content)
                 for (i in memo.record!!.indices)
                     recordAdapter.addRecord(memo.record[i])
-                textView_date.text = memo.date
+                memo.date?.let {
+                    textView_date.text = it
+                    dateOfOriginMemo = it }
                 tag = memo.tag!!
                 pin = memo.pin!!
 
@@ -362,7 +365,12 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
     }
 
     //해당 날짜에 이미 저장된 기록이 있나 체크
-    private fun isConflictDate() = memoViewModel.isExist(textView_date.text.toString())
+    private fun isConflictDate(): Boolean {
+        val selectedDate = textView_date.text.toString()
+        if(!isNewMemo && dateOfOriginMemo==selectedDate) return false   //편집하고 있는 메모의 원래 날짜와 같다면 return false
+
+        return memoViewModel.isExist(selectedDate)
+    }
 
     private fun showConflicToast() {
         Toast.makeText(this, getString(R.string.notice_conflict_date), Toast.LENGTH_LONG).show()

@@ -109,6 +109,16 @@
     <!-- PrefRepository -->
     <string name="pref_vibrate_and_ring">Vibrate and Ring</string>
     <string name="pref_light_weight_babe">Light Weight Bebe</string>
+    <string name="view_all">All</string>
+    <string name="red">Red</string>
+    <string name="orange">Orange</string>
+    <string name="yellow">Yellow</string>
+    <string name="green">Green</string>
+    <string name="blue">Blue</string>
+    <string name="purple">Purple</string>
+    <string name="no_tag">No Tag</string>
+    <string name="touch_to_edit">(Touch to edit)</string>
+    <string name="basic_routine_name">Routine%1$d (Not set yet)</string>
 
     <string name="google_play_license_key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAllyQvfc3zFWQQ9rQnJ1fvi3qbf6sH3w/XNCEoUddLVrEF77DbnKJ3cikVOknYvI4ry8ujEO7FJQ8bzLTJO5yilMOHHW3Vjl6uMl2YeA+ajzG42o2BGptiq2pSnl+xvii1qOKdTVSxDLiznItH1MjfkSQs9WfGTYv3rha1FHsSxlIpYJiBH/c8M1VVyGSttafvRPmbkXQp+2ELmYXyRgbytnieCa02MfZXRjWOFWy2SuBzHCx8C9Kk6kL0QBIJYDrQ8epXiuCE8H76JDK+c9Wz2chjOkjjEonv1ZwSUmxcwXUflc71/gaks/vdKhHnp+1aWh83fDpL7zw19vTdPJovwIDAQAB</string>
     <string name="sku_subs">subscribe_pro_1_month</string>
