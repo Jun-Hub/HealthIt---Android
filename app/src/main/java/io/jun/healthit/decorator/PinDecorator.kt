@@ -12,13 +12,13 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator
 import com.prolificinteractive.materialcalendarview.DayViewFacade
 import io.jun.healthit.R
 import io.jun.healthit.model.data.Memo
-import io.jun.healthit.util.EtcUtil
+import io.jun.healthit.util.stringToDate
 
 class PinDecorator(val context: Context, memos: List<Memo>): DayViewDecorator {
 
     private val dates = memos.map {
         it.date?.let { strDate ->
-            CalendarDay.from(EtcUtil.stringToDate(strDate))
+            CalendarDay.from(stringToDate(strDate))
         }
     }
 

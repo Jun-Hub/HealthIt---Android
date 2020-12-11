@@ -44,7 +44,7 @@ class InbodySpinnerAdapter(context: Context, val list: List<String>)
     private fun adjustView(imageView: ImageView, textView: TextView) {
         imageView.visibility = View.GONE
         RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).run {
-            setMargins(25, 20, 0, 20)
+            setMargins(25, 20, 0, 15)
             textView.layoutParams = this
         }
     }

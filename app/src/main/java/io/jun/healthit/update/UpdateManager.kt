@@ -17,7 +17,7 @@ class UpdateManager(val activity: Activity) {
 
     fun checkUpdate() {
         Log.d(TAG, "checkUpdate: ${appUpdateInfoTask}")
-    // Checks that the platform will allow the specified type of update.
+        // Checks that the platform will allow the specified type of update.
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
             Log.d(TAG, " : ${appUpdateInfo.updateAvailability()}")
             if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
@@ -38,7 +38,7 @@ class UpdateManager(val activity: Activity) {
         appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
             appUpdateInfo.clientVersionStalenessDays()?.let {
                 if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-                    && it >= 3
+                    && it >= Setting.DAYS_FOR_FLEXIBLE_UPDATE
                     && appUpdateInfo.isUpdateTypeAllowed(AppUpdateType.FLEXIBLE)
                 ) {
                     appUpdateManager.startUpdateFlowForResult(
@@ -49,10 +49,6 @@ class UpdateManager(val activity: Activity) {
                 }
             }
         }
-    }
-
-    private fun requestFlexibleUpdate() {
-
     }
 
 }

@@ -92,6 +92,7 @@
     <string name="purchase_pro">Purchase HealthIt Pro version</string>
     <string name="subscribe_success">Thank U for Subscribe.</string>
     <string name="billing_error">Purchase Failed.</string>
+    <string name="notice_network_connection">Internet connection is not available. \n The Pro version may not work.</string>
 
     <string name="silent">silent</string>
     <string name="vibrate">vibrate</string>

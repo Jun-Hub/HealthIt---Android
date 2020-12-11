@@ -16,8 +16,8 @@ open class BaseFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        Log.d(TAG, "checkProVersion at onViewCreated ${(activity as MainActivity).isProVersion}")
         checkProVersion((activity as MainActivity).isProVersion)
-        Log.d(TAG, "checkProVersion at onViewCreated")
     }
 
     fun loadBannerAd(adView: AdView) {
@@ -29,8 +29,6 @@ open class BaseFragment : Fragment() {
     }
 
     @CallSuper
-    open fun checkProVersion(isProVersion: Boolean) {
-        Log.d(TAG, "checkProVersion")
-    }
+    open fun checkProVersion(isProVersion: Boolean) {}
 
 }

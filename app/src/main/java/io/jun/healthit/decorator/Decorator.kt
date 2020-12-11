@@ -9,14 +9,14 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator
 import com.prolificinteractive.materialcalendarview.DayViewFacade
 import com.prolificinteractive.materialcalendarview.spans.DotSpan
 import io.jun.healthit.model.data.Memo
-import io.jun.healthit.util.EtcUtil
 import io.jun.healthit.util.Setting
+import io.jun.healthit.util.stringToDate
 
 class Decorator(memos: List<Memo>, val color: TagColor): DayViewDecorator {
 
     //String 타입인 날짜를 Date 타입으로 바꿔준 후, 다시 CalendarDay 타입으로 바꿔서 맵핑
     private val dates = memos.map { it.date?.let { strDate ->
-        CalendarDay.from(EtcUtil.stringToDate(strDate))
+        CalendarDay.from(stringToDate(strDate))
     }}
 
     override fun shouldDecorate(day: CalendarDay): Boolean {

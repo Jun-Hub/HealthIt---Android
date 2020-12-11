@@ -17,15 +17,15 @@ import io.jun.healthit.billing.BillingCallback
 import io.jun.healthit.billing.BillingManager
 import io.jun.healthit.update.UpdateManager
 import io.jun.healthit.util.Setting
+import io.jun.healthit.util.isInternetConnected
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlin.properties.Delegates
 
 class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
 
     lateinit var billingManager: BillingManager
-    var isProVersion by Delegates.notNull<Boolean>()
+    var isProVersion = false
 
     private val updateManager: UpdateManager by lazy { UpdateManager(this) }
     private var backWait:Long = 0
@@ -33,6 +33,18 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        if(isInternetConnected(applicationContext)) {
+            initBillingManager()
+        } else {
+            Snackbar.make(nav_view, getString(R.string.notice_network_connection), Snackbar.LENGTH_LONG).show()
+        }
+
+        updateManager.run {
+            checkUpdate()
+            checkUpdateStaleness()
+        }
+
         nav_view.apply {
             itemRippleColor =
                 if (Build.VERSION.SDK_INT > 22) getColorStateList(R.color.color_state_list)
@@ -54,9 +66,6 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         nav_view.setupWithNavController(navController)
-
-        initBillingManager()
-        updateManager.checkUpdate()
     }
 
     private fun initBillingManager() {
@@ -75,6 +84,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         isProVersion = billingManager.billingProcessor.isSubscribed(getString(R.string.sku_subs))
+        Log.d(TAG, "initBillingManager proversion : $isProVersion")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -85,14 +95,14 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == Setting.UPDATE_REQUEST_CODE) {
             if (resultCode != RESULT_OK) {
                 Log.e(TAG, "Update flow failed! Result code: $resultCode")
-                updateManager.checkUpdate()
+                //updateManager.checkUpdate()
             }
         }
     }
 
     override fun onBackPressed() {
         // 뒤로가기 버튼 클릭
-        if(System.currentTimeMillis() - backWait >=2000 ) {
+        if(System.currentTimeMillis() - backWait >= 2000) {
             backWait = System.currentTimeMillis()
             Snackbar.make(nav_view, getString(R.string.notice_exit), 600).show()
         } else {

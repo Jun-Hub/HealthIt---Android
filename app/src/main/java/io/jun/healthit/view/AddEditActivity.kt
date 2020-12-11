@@ -116,7 +116,7 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
             })
         } else {
             //오늘 날짜로 설정
-            textView_date.text = EtcUtil.getCurrentDate()
+            textView_date.text = getCurrentDate()
         }
 
         //템플릿으로 열기로 넘어왔다면
@@ -376,10 +376,10 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
         Toast.makeText(this, getString(R.string.notice_conflict_date), Toast.LENGTH_LONG).show()
     }
 
-    private fun titleToString() = if(EtcUtil.isAllBlank(editText_title.text.toString())) ""
+    private fun titleToString() = if(isAllBlank(editText_title.text.toString())) ""
     else editText_title.text.toString()
 
-    private fun contentToString() = if(EtcUtil.isAllBlank(editText_content.text.toString())) ""
+    private fun contentToString() = if(isAllBlank(editText_content.text.toString())) ""
     else editText_content.text.toString()
 
     private fun addByteArray() {

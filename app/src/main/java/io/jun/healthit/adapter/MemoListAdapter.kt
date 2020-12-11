@@ -21,7 +21,7 @@ import io.jun.healthit.view.MemoDetailActivity
 import io.jun.healthit.view.fragment.MemoFragment
 import io.jun.healthit.viewmodel.MemoViewModel
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
-import io.jun.healthit.util.EtcUtil
+import io.jun.healthit.util.calculateSetAndVolume
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -80,7 +80,7 @@ class MemoListAdapter internal constructor(
                 }
             }
 
-        val setAndVolume = current.record?.let { EtcUtil.calculateSetAndVolume(it) }
+        val setAndVolume = current.record?.let { calculateSetAndVolume(it) }
         holder.memoRecord.text = String.format(fragment.getString(R.string.memo_record), setAndVolume?.first, setAndVolume?.second)
 
             holder.memoDate.text = current.date

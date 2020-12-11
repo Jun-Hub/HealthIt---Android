@@ -7,7 +7,6 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.*
 import android.widget.*
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
 import androidx.lifecycle.ViewModelProvider
@@ -20,7 +19,8 @@ import io.jun.healthit.decorator.TextDecorator
 import io.jun.healthit.decorator.TodayDecorator
 import io.jun.healthit.model.data.Inbody
 import io.jun.healthit.util.DialogUtil
-import io.jun.healthit.util.EtcUtil
+import io.jun.healthit.util.makeMinusFloat
+import io.jun.healthit.util.makePlusFloat
 import io.jun.healthit.view.MainActivity
 import io.jun.healthit.viewmodel.InbodyViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
@@ -279,22 +279,22 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
                         { (activity as MainActivity).billingManager.onPurchaseHistoryRestored()})
                 }
                 R.id.imageBtn_up_weight -> {
-                    editTextWeight.text = EtcUtil.makePlusFloat(editTextWeight, 1f)
+                    editTextWeight.text = makePlusFloat(editTextWeight, 1f)
                 }
                 R.id.imageBtn_down_weight -> {
-                    editTextWeight.text = EtcUtil.makeMinusFloat(editTextWeight, 1f)
+                    editTextWeight.text = makeMinusFloat(editTextWeight, 1f)
                 }
                 R.id.imageBtn_up_muscle -> {
-                    editTextMuscle.text = EtcUtil.makePlusFloat(editTextMuscle, 1f)
+                    editTextMuscle.text = makePlusFloat(editTextMuscle, 1f)
                 }
                 R.id.imageBtn_down_muscle -> {
-                    editTextMuscle.text = EtcUtil.makeMinusFloat(editTextMuscle, 1f)
+                    editTextMuscle.text = makeMinusFloat(editTextMuscle, 1f)
                 }
                 R.id.imageBtn_up_percent_fat -> {
-                    editTextPercentFat.text = EtcUtil.makePlusFloat(editTextPercentFat, 1f)
+                    editTextPercentFat.text = makePlusFloat(editTextPercentFat, 1f)
                 }
                 R.id.imageBtn_down_percent_fat -> {
-                    editTextPercentFat.text = EtcUtil.makeMinusFloat(editTextPercentFat, 1f)
+                    editTextPercentFat.text = makeMinusFloat(editTextPercentFat, 1f)
                 }
 
                 R.id.btn_save -> {

@@ -11,12 +11,12 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator
 import com.prolificinteractive.materialcalendarview.DayViewFacade
 import io.jun.healthit.R
 import io.jun.healthit.model.data.Inbody
-import io.jun.healthit.util.EtcUtil
 import io.jun.healthit.util.Setting
+import io.jun.healthit.util.stringToDate
 
 class TextDecorator(val context: Context, val inbody: Inbody, val flag: Int): DayViewDecorator {
 
-    private val date = CalendarDay.from(EtcUtil.stringToDate(inbody.date))
+    private val date = CalendarDay.from(stringToDate(inbody.date))
 
     override fun shouldDecorate(day: CalendarDay): Boolean {
         return date == day

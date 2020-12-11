@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.Snackbar
 import com.orhanobut.dialogplus.DialogPlus
 import com.orhanobut.dialogplus.ViewHolder
 import io.jun.healthit.R
@@ -25,6 +26,7 @@ import io.jun.healthit.view.AddEditActivity
 import io.jun.healthit.view.SetTemplateActivity
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
+import kotlinx.android.synthetic.main.activity_main.*
 
 object DialogUtil {
 
@@ -199,15 +201,15 @@ object DialogUtil {
                         .setView(inflater)
                         .setPositiveButton(fragment.getString(R.string.ok)) { _, _ ->
                             prefViewModel.setTagSettings(it, index, editText.text.toString())
-                            EtcUtil.closeKeyboard(it)
+                            closeKeyboard(it)
                         }
                         .setNegativeButton(fragment.getString(R.string.cancel)) { _, _ ->
-                            EtcUtil.closeKeyboard(it)
+                            closeKeyboard(it)
                         }
                         .show()
                 }
             }
-            fragment.context?.let { EtcUtil.showKeyboard(it) }
+            fragment.context?.let { showKeyboard(it) }
         }
 
         fun showTemplateDialog(fragment: Fragment, settingsMode: Boolean) {
@@ -311,14 +313,14 @@ object DialogUtil {
                     .setView(inflater)
                     .setPositiveButton(activity.getString(R.string.ok)) { _, _ ->
                         showDirectlyTemplateDialog(activity, editText.text.toString(), records)
-                        EtcUtil.closeKeyboard(activity)
+                        closeKeyboard(activity)
                     }
                     .setNegativeButton(activity.getString(R.string.cancel)) { _, _ ->
-                        EtcUtil.closeKeyboard(activity)
+                        closeKeyboard(activity)
                     }
                     .show()
             }
-            EtcUtil.showKeyboard(activity)
+            showKeyboard(activity)
         }
 
         private fun showDirectlyTemplateDialog(activity: AppCompatActivity, name: String, records: List<Record>) {
@@ -411,24 +413,24 @@ object DialogUtil {
             reps.text = SpannableStringBuilder(current.reps.toString())
 
             weightUpBtn.setOnClickListener {
-                weight.text = EtcUtil.makePlusFloat(weight, 5f)
+                weight.text = makePlusFloat(weight, 5f)
             }
             weightDownBtn.setOnClickListener {
-                weight.text = EtcUtil.makeMinusFloat(weight, 5f)
+                weight.text = makeMinusFloat(weight, 5f)
             }
 
             setUpBtn.setOnClickListener {
-                set.text = EtcUtil.makePlus(set, 1)
+                set.text = makePlus(set, 1)
             }
             setDownBtn.setOnClickListener {
-                set.text = EtcUtil.makeMinus(set, 1)
+                set.text = makeMinus(set, 1)
             }
 
             repsUpBtn.setOnClickListener {
-                reps.text = EtcUtil.makePlus(reps, 1)
+                reps.text = makePlus(reps, 1)
             }
             repsDownBtn.setOnClickListener {
-                reps.text = EtcUtil.makeMinus(reps, 1)
+                reps.text = makeMinus(reps, 1)
             }
 
             AlertDialog.Builder(context, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar).setView(inflater)
@@ -449,6 +451,7 @@ object DialogUtil {
         }
 
    fun showPurchaseProDialog(context: Context, subscribe: () -> Unit, restore: () -> Unit) {
+       if(!isInternetConnected(context)) return
 
        DialogPlus.newDialog(context)
            .setOnClickListener { dialog, view ->

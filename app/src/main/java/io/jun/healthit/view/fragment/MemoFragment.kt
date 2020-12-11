@@ -30,7 +30,7 @@ import io.jun.healthit.adapter.TagSpinnerAdapter
 import io.jun.healthit.decorator.*
 import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.DialogUtil
-import io.jun.healthit.util.EtcUtil
+import io.jun.healthit.util.calculateSetAndVolume
 import io.jun.healthit.view.AddEditActivity
 import io.jun.healthit.view.MainActivity
 import io.jun.healthit.view.MemoDetailActivity
@@ -43,8 +43,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
-
-//TODO 파이어베이스 애널리스틱 사용하기 https://salix97.tistory.com/139
+//TODO 난독화 해제 파일!!
 class MemoFragment : BaseFragment(), View.OnClickListener {
     //편집 버튼을 on 했는지 MemoListAdapter 에서 관찰하기 위한 livedata
     companion object {
@@ -277,7 +276,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         else {
             cardView_detail.visibility = View.VISIBLE
 
-            val setAndVolume = selectedMemo!!.record?.let { EtcUtil.calculateSetAndVolume(it) }
+            val setAndVolume = selectedMemo!!.record?.let { calculateSetAndVolume(it) }
 
             memo_detail.apply {
                 textView_title.text = selectedMemo!!.title
@@ -393,6 +392,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
                             showCalendarView(false)
                         }
                         else {  // not subscribe pro version
+
                             DialogUtil.showPurchaseProDialog(requireContext(),
                                 { (activity as MainActivity).billingManager.subscribe() },
                                 { (activity as MainActivity).billingManager.onPurchaseHistoryRestored()})
