@@ -10,6 +10,7 @@ import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import io.jun.healthit.R
 import io.jun.healthit.model.data.Record
@@ -62,9 +63,9 @@ class RecordListAdapter(val context: Context, private val canBeEdited: Boolean, 
 
         //같은 이름의 운동이면 경계선 없애기
         if(position<itemCount-1 && current.name == records[position+1].name)
-            holder.recordLayout.background = context.getDrawable(R.drawable.border_side_record)
+            holder.recordLayout.background = ContextCompat.getDrawable(context, R.drawable.border_side_record)
         else
-            holder.recordLayout.background = context.getDrawable(R.drawable.border_bottom_record)
+            holder.recordLayout.background = ContextCompat.getDrawable(context, R.drawable.border_bottom_record)
 
         holder.recordWeight.text = getWeightString(current.weight.toString())
         holder.recordSet.text = current.set.toString()

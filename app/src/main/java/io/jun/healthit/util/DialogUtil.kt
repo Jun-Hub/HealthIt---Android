@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.text.SpannableStringBuilder
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.*
@@ -14,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import com.orhanobut.dialogplus.DialogPlus
 import com.orhanobut.dialogplus.ViewHolder
@@ -26,7 +28,6 @@ import io.jun.healthit.view.AddEditActivity
 import io.jun.healthit.view.SetTemplateActivity
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
-import kotlinx.android.synthetic.main.activity_main.*
 
 object DialogUtil {
 
@@ -471,5 +472,26 @@ object DialogUtil {
            .create()
            .show()
    }
+
+    fun showUseTipDialog(context: Context, layoutInflater: LayoutInflater, viewModel: PrefViewModel) {
+        val inflater = layoutInflater.inflate(R.layout.dialog_tip_body, null as ViewGroup?)
+        val imageViewGif: ImageView = inflater.findViewById(R.id.imageView_tip)
+        Glide.with(context).load(R.raw.tip_edit_record).into(imageViewGif)
+
+        DialogPlus.newDialog(context)
+            .setOnClickListener { dialog, view ->
+                if(view.id == R.id.button_ok) {
+                    viewModel.setTipChecking(Setting.RECORD_EDIT_TIP_FLAG, true, context)
+                    dialog.dismiss()
+                }
+            }
+            .setContentHolder(ViewHolder(inflater))
+            .setFooter(R.layout.dialog_tip_footer)
+            .setGravity(Gravity.TOP)
+            .setPadding(50,50,50,50)
+            .setContentBackgroundResource(android.R.color.transparent)
+            .create()
+            .show()
+    }
 
 }

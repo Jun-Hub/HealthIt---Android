@@ -92,7 +92,7 @@
     <string name="notice_exit">뒤로가기를 한번 더 누르면 종료됩니다.</string>
     <string name="subscribe_success">구독해주셔서 감사합니다.</string>
     <string name="billing_error">구매가 정상적으로 이루어지지 않았습니다.</string>
-    <string name="notice_network_connection">인터넷이 연결되지 않았습니다. \n Pro 버전이 작동하지 않을 수 있습니다.</string>
+    <string name="notice_network_connection">인터넷이 연결되지 않았습니다. \n 앱이 정상적으로 작동하지 않을 수 있습니다.</string>
 
     <!-- Memo Fragment -->
     <string name="new_log">새 일지</string>
@@ -220,6 +220,7 @@
     <string name="get_calendarView">· 운동일지 달력 형태로 보기 활성화.</string>
     <string name="get_inbody_function">· 몸무게 및 근육, 지방 기록 기능 활성화.</string>
     <string name="notice_subscribe">7일 무료 체험 후 월 3,900원의 요금이 청구됩니다.</string>
+    <string name="tip_use">사용 팁</string>
 
     <string name="google_play_license_key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAllyQvfc3zFWQQ9rQnJ1fvi3qbf6sH3w/XNCEoUddLVrEF77DbnKJ3cikVOknYvI4ry8ujEO7FJQ8bzLTJO5yilMOHHW3Vjl6uMl2YeA+ajzG42o2BGptiq2pSnl+xvii1qOKdTVSxDLiznItH1MjfkSQs9WfGTYv3rha1FHsSxlIpYJiBH/c8M1VVyGSttafvRPmbkXQp+2ELmYXyRgbytnieCa02MfZXRjWOFWy2SuBzHCx8C9Kk6kL0QBIJYDrQ8epXiuCE8H76JDK+c9Wz2chjOkjjEonv1ZwSUmxcwXUflc71/gaks/vdKhHnp+1aWh83fDpL7zw19vTdPJovwIDAQAB</string>
     <string name="sku_subs">subscribe_pro_1_month</string>

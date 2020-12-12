@@ -26,7 +26,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/recyclerView"
-        android:layout_below="@+id/adView"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         />
 

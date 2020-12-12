@@ -37,7 +37,9 @@ class MainActivity : AppCompatActivity() {
         if(isInternetConnected(applicationContext)) {
             initBillingManager()
         } else {
-            Snackbar.make(nav_view, getString(R.string.notice_network_connection), Snackbar.LENGTH_LONG).show()
+            Snackbar.make(nav_view, getString(R.string.notice_network_connection), Snackbar.LENGTH_INDEFINITE)
+                .setAction(getString(R.string.ok)) { }
+                .show()
         }
 
         updateManager.run {

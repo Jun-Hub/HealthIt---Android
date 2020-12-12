@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -17,6 +18,7 @@ import android.widget.AdapterView
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
@@ -85,12 +87,17 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
         prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
         memoViewModel = ViewModelProvider(this).get(MemoViewModel::class.java)
 
+        prefViewModel.let {
+            if (!it.getTipChecking(Setting.RECORD_EDIT_TIP_FLAG, this))
+                DialogUtil.showUseTipDialog(this, layoutInflater, it)
+        }
+
         setRecyclerView()
 
         if(!isNewMemo) {
             //편집할 메모 LiveData로 가져오기
             memoActualLive = memoViewModel.getMemoById(memoId!!)
-            memoActualLive.observe(this@AddEditActivity, Observer { memo ->
+            memoActualLive.observe(this@AddEditActivity, { memo ->
                 editText_title.setText(memo.title)
                 editText_content.setText(memo.content)
                 for (i in memo.record!!.indices)
@@ -103,14 +110,12 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
                 CoroutineScope(Dispatchers.IO).launch {
                     //DB에서 불러온 byteArray를 Bitmap으로 변환 및 리사이클러뷰에 저장
-                    for (i in memo.photo!!.indices) {
-                        val bitmap = BitmapFactory.decodeByteArray(
-                            memo.photo[i],
-                            0,
-                            memo.photo[i].size,
-                            BitmapFactory.Options()
-                        )
-                        withContext(Dispatchers.Main) { photoAdapter.addPhoto(bitmap) }
+                    memo.photo?.forEach {
+                        val bitmap =
+                            BitmapFactory.decodeByteArray(it, 0, it.size, BitmapFactory.Options())
+                        withContext(Dispatchers.Main) {
+                            photoAdapter.addPhoto(bitmap)
+                        }
                     }
                 }
             })
@@ -151,7 +156,7 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
         //리사이클러뷰의 아이템간 구분선
         val itemDecoration = DividerItemDecoration(this, 0).apply {
-            this@AddEditActivity.getDrawable(R.drawable.divider_photo)?.let { setDrawable(it) }
+            ContextCompat.getDrawable(this@AddEditActivity, R.drawable.divider_photo)?.let { setDrawable(it) }
         }
 
         recyclerView_record.apply {
@@ -161,7 +166,7 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
         recyclerView_photo.apply {
             adapter = photoAdapter
-            layoutManager = layoutManager
+            layoutManager = LinearLayoutManager(this@AddEditActivity, LinearLayoutManager.HORIZONTAL, false)
             addItemDecoration(itemDecoration)
         }
 

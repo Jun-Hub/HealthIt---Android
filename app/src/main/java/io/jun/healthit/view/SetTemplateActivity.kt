@@ -6,20 +6,29 @@ import android.text.SpannableStringBuilder
 import android.view.Menu
 import android.view.MenuItem
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import io.jun.healthit.R
+import io.jun.healthit.adapter.AdapterEventListener
+import io.jun.healthit.adapter.ItemTouchHelperCallback
 import io.jun.healthit.adapter.RecordListAdapter
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.viewmodel.PrefViewModel
+import kotlinx.android.synthetic.main.activity_add_edit.*
 import kotlinx.android.synthetic.main.activity_set_template.*
+import kotlinx.android.synthetic.main.activity_set_template.btn_add_record
+import kotlinx.android.synthetic.main.activity_set_template.recyclerView_record
+import kotlinx.android.synthetic.main.activity_set_template.toolbar
 import kotlin.properties.Delegates
 
-class SetTemplateActivity : AppCompatActivity() {
+class SetTemplateActivity : AppCompatActivity(), AdapterEventListener {
 
     private lateinit var prefViewModel: PrefViewModel
 
     private var templateId by Delegates.notNull<Int>()
     private lateinit var recordAdapter: RecordListAdapter
+    private lateinit var itemTouchHelper: ItemTouchHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +54,12 @@ class SetTemplateActivity : AppCompatActivity() {
             adapter = recordAdapter
             layoutManager = layoutManagerRecord
         }
+        //adapter의 eventlistener를 이 액티비티로 초기화
+        recordAdapter.setOnAdapterEventListener(this)
+        //아이템 터치 헬퍼 연결
+        val callback = ItemTouchHelperCallback(recordAdapter)
+        itemTouchHelper = ItemTouchHelper(callback)
+        itemTouchHelper.attachToRecyclerView(recyclerView_record)
 
         for(i in records.indices) {
             recordAdapter.addRecord(records[i])
@@ -54,6 +69,11 @@ class SetTemplateActivity : AppCompatActivity() {
             recordAdapter.addRecordDefault()
             layoutManagerRecord.scrollToPosition(recordAdapter.itemCount-1)
         }
+    }
+
+    //RecordAdapter의 viewHolder를 itemTouchHelper에 연결
+    override fun onDragStarted(viewHolder: RecyclerView.ViewHolder) {
+        itemTouchHelper.startDrag(viewHolder)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

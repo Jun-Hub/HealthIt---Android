@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#000000</color>
-    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorPrimary">#07090F</color>
+    <color name="colorPrimaryDark">#07090F</color>
     <color name="colorAccent">#9200F8</color>
     <color name="colorAccentTransparent">#999200F8</color>
     <color name="colorWesternPurple">#CC1AD9</color>
@@ -13,9 +13,15 @@
     <color name="colorSky">#67B3F8</color>
     <color name="colorWater">#8B74CCF4</color>
     <color name="colorOverlay">#9A2D2D2D</color>
+    <color name="tipOverlay">#DB212020</color>
     <color name="colorPopOut">#202126</color>
     <color name="colorDivider">#474747</color>
     <color name="colorFloatingBackground">#CCFFFFFF</color>
     <color name="colorCalendarSelect">#7CD0D0D0</color>
     <color name="colorCardView">#1C1C1E</color>
+    <color name="colorTextGrey">#99989C</color>
+    <color name="backgroundGrey">#F1F3F4</color>
+
+    <color name="githubDarkStart">#07090F</color>
+    <color name="githubDarkEnd">#0C121C</color>
 </resources>

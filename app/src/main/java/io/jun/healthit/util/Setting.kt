@@ -21,6 +21,8 @@ object Setting {
         const val UPDATE_REQUEST_CODE = 2020
         const val DAYS_FOR_FLEXIBLE_UPDATE = 3
 
+        const val RECORD_EDIT_TIP_FLAG = 0
+
         val WORK_OUT_LIST = arrayOf("스쿼트", "런지", "덤벨 런지", "워킹 런지", "덤벨 스쿼트",
             "레그 익스텐션", "레그컬", "레그프레스", "파워 레그프레스", "머신 스쿼트", "핵스쿼트", "스텝업",  "프론트 스쿼트", "카프레이즈",   //이상 하체운동
             "푸쉬업", "벤치프레스", "인클라인 벤치프레스", "디클라인 벤치프레스", "뎀벨 벤치프레스",

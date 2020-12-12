@@ -55,4 +55,8 @@ class PrefViewModel(application: Application) : AndroidViewModel(application) {
     fun getInbodySpinner(context: Context) = repository.getInbodySpinner(context)
 
     fun setInbodySpinner(position: Int, context: Context) = repository.setInbodySpinner(position, context)
+
+
+    fun getTipChecking(key: Int, context: Context) = repository.getTipChecking(key, context)
+    fun setTipChecking(key: Int, isChecked: Boolean, context: Context) = repository.setTipChecking(key, isChecked, context)
 }

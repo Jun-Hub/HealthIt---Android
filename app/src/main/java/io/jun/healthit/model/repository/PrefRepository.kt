@@ -88,7 +88,7 @@ class PrefRepository {
                 context.getString(R.string.view_all)
             )
         )
-        tagList.add(Tag(R.drawable.transparent, context.getString(R.string.view_all)))
+        tagList.add(Tag(R.drawable.transparent, context.getString(R.string.no_tag)))
         tag1?.let { Tag(R.drawable.ic_circle_red, it) }?.let { tagList.add(it) }
         tag2?.let { Tag(R.drawable.ic_circle_orange, it) }?.let { tagList.add(it) }
         tag3?.let { Tag(R.drawable.ic_circle_yellow, it) }?.let { tagList.add(it) }
@@ -179,6 +179,18 @@ class PrefRepository {
     fun setInbodySpinner(position:Int, context: Context) {
         PreferenceManager.getDefaultSharedPreferences(context).edit {
             putInt(inbodySpinnerId, position)
+        }
+    }
+
+    private val tipCheckingId = "tip.checking_id"
+
+    fun getTipChecking(key: Int, context: Context) =
+        PreferenceManager.getDefaultSharedPreferences(context)
+            .getBoolean(tipCheckingId + key, false)
+
+    fun setTipChecking(key: Int, isChecked: Boolean, context: Context) {
+        PreferenceManager.getDefaultSharedPreferences(context).edit {
+            putBoolean(tipCheckingId + key, isChecked)
         }
     }
 }

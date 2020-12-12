@@ -92,7 +92,7 @@
     <string name="purchase_pro">Purchase HealthIt Pro version</string>
     <string name="subscribe_success">Thank U for Subscribe.</string>
     <string name="billing_error">Purchase Failed.</string>
-    <string name="notice_network_connection">Internet connection is not available. \n The Pro version may not work.</string>
+    <string name="notice_network_connection">Internet connection is not available. \n App may not work properly.</string>
 
     <string name="silent">silent</string>
     <string name="vibrate">vibrate</string>
@@ -166,6 +166,7 @@
     <string name="get_calendarView">· Get calendar view for workout logs.</string>
     <string name="get_inbody_function">· Get body weight, muscle, fat recording.</string>
     <string name="notice_subscribe">After a 7 days free trial, you will be charged approximately $3.49 per month.</string>
+    <string name="tip_use">Tip for Use</string>
 
     <string-array name="alert_entries">
         <item>Silent</item>

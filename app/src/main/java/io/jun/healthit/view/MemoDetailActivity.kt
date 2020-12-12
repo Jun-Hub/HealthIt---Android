@@ -11,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -61,8 +62,8 @@ class MemoDetailActivity : AppCompatActivity() {
 
         memoViewModel = ViewModelProvider(this).get(MemoViewModel::class.java)
         val photoAdapter = PhotoListAdapter(this, false)
-        val itemDecoration = DividerItemDecoration(this@MemoDetailActivity, 0).apply {
-            this@MemoDetailActivity.getDrawable(R.drawable.divider_photo)?.let { setDrawable(it) } //아이템간 구분선
+        val itemDecoration = DividerItemDecoration(this, 0).apply {
+            ContextCompat.getDrawable(this@MemoDetailActivity, R.drawable.divider_photo)?.let { setDrawable(it) } //아이템간 구분선
         }
 
         val layoutManagerRecord = LinearLayoutManager(this)
@@ -80,7 +81,7 @@ class MemoDetailActivity : AppCompatActivity() {
         }
 
         memoActualLive = memoViewModel.getMemoById(memoId!!)
-        memoActualLive.observe(this@MemoDetailActivity, Observer { memo ->
+        memoActualLive.observe(this@MemoDetailActivity, { memo ->
 
             this.memo = memo
 
@@ -132,9 +133,9 @@ class MemoDetailActivity : AppCompatActivity() {
 
                     CoroutineScope(Dispatchers.IO).launch {
                         //bitmap으로 디코딩 후 리사이클러뷰에 추가
-                        for (i in memo.photo.indices) {
+                        memo.photo.forEach {
                             val bitmap =
-                                BitmapFactory.decodeByteArray(memo.photo[i], 0, memo.photo[i].size, BitmapFactory.Options())
+                                BitmapFactory.decodeByteArray(it, 0, it.size, BitmapFactory.Options())
                             withContext(Dispatchers.Main) {
                                 photoAdapter.addPhoto(bitmap)
                             }

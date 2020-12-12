@@ -83,8 +83,11 @@ class MemoListAdapter internal constructor(
         val setAndVolume = current.record?.let { calculateSetAndVolume(it) }
         holder.memoRecord.text = String.format(fragment.getString(R.string.memo_record), setAndVolume?.first, setAndVolume?.second)
 
-            holder.memoDate.text = current.date
+        holder.memoDate.text = current.date
 
+        if(current.tag==0) holder.memoTag.visibility = View.GONE
+        else {
+            holder.memoTag.visibility = View.VISIBLE
             holder.memoTag.setImageResource(
                 when (current.tag) {
                     1 -> R.drawable.ic_circle_red
@@ -93,9 +96,9 @@ class MemoListAdapter internal constructor(
                     4 -> R.drawable.ic_circle_green
                     5 -> R.drawable.ic_circle_blue
                     6 -> R.drawable.ic_circle_purple
-                    else -> R.drawable.transparent
-                }
-            )
+                    else -> R.drawable.circle_default
+                })
+        }
 
             if (current.photo!!.isNotEmpty()) {
                 CoroutineScope(Dispatchers.Default).launch {
