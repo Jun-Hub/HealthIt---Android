@@ -6,13 +6,15 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.text.Editable
 import android.text.SpannableStringBuilder
+import android.util.TypedValue
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import io.jun.healthit.model.data.Record
 import java.text.SimpleDateFormat
 import java.util.*
 
-    fun getCurrentDate() = "${SimpleDateFormat("yyyy", Locale.KOREA).format(Date())}/" +
+
+fun getCurrentDate() = "${SimpleDateFormat("yyyy", Locale.KOREA).format(Date())}/" +
             "${SimpleDateFormat("MM", Locale.KOREA).format(Date())}/" +
             SimpleDateFormat("dd", Locale.KOREA).format(Date())
 
@@ -44,7 +46,7 @@ import java.util.*
 
     fun stringToDate(str: String): Date? = SimpleDateFormat("yyyy/MM/dd", Locale.KOREA).parse(str)
 
-    fun calculateSetAndVolume(record:List<Record>): Pair<Int, Int> {
+    fun calculateSetAndVolume(record: List<Record>): Pair<Int, Int> {
         var setEA = 0
         for(i in record.indices) {
             setEA += record[i].set
@@ -61,35 +63,38 @@ import java.util.*
     fun makePlus(editText: EditText, plusValue: Int) : Editable {
 
         return SpannableStringBuilder(
-            if(editText.text.toString() == "") plusValue.toString()
-            else (editText.text.toString().toInt()+plusValue).toString()
+            if (editText.text.toString() == "") plusValue.toString()
+            else (editText.text.toString().toInt() + plusValue).toString()
         )
     }
 
     fun makePlusFloat(editText: EditText, plusValue: Float) : Editable {
 
         return SpannableStringBuilder(
-            if(editText.text.toString() == "" || editText.text.toString() == ".") plusValue.toString()
-            else (editText.text.toString().toFloat()+plusValue).toString()
+            if (editText.text.toString() == "" || editText.text.toString() == ".") plusValue.toString()
+            else (editText.text.toString().toFloat() + plusValue).toString()
         )
     }
 
     fun makeMinus(editText: EditText, minusValue: Int) : Editable {
         return SpannableStringBuilder(
-            if(editText.text.toString() == "" || editText.text.toString().toInt() <= minusValue)
-                if(minusValue == 1) "1"
+            if (editText.text.toString() == "" || editText.text.toString().toInt() <= minusValue)
+                if (minusValue == 1) "1"
                 else "0"
-            else (editText.text.toString().toInt()-minusValue).toString())
+            else (editText.text.toString().toInt() - minusValue).toString()
+        )
     }
 
     fun makeMinusFloat(editText: EditText, minusValue: Float) : Editable {
         return SpannableStringBuilder(
-            if(editText.text.toString() == "" ||
+            if (editText.text.toString() == "" ||
                 editText.text.toString() == "." ||
-                editText.text.toString().toFloat() <= minusValue)
-                if(minusValue == 1f) "1"
+                editText.text.toString().toFloat() <= minusValue
+            )
+                if (minusValue == 1f) "1"
                 else "0"
-            else (editText.text.toString().toFloat()-minusValue).toString())
+            else (editText.text.toString().toFloat() - minusValue).toString()
+        )
     }
 
     fun isInternetConnected(context: Context): Boolean {
@@ -122,3 +127,8 @@ import java.util.*
 
         return result
     }
+
+fun dpToPixels(context: Context, dpValue: Float): Float {
+    val metrics = context.resources.displayMetrics
+    return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dpValue, metrics)
+}

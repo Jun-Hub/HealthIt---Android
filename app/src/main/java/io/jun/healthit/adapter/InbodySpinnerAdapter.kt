@@ -26,13 +26,11 @@ class InbodySpinnerAdapter(context: Context, val list: List<String>)
         var mConvertView = convertView
         if (mConvertView == null) {
             mConvertView = LayoutInflater.from(context).inflate(
-                R.layout.item_tag_spinner, parent, false)
+                R.layout.item_inbody_spinner, parent, false)
         }
 
-        val imageView: ImageView = mConvertView!!.findViewById(R.id.imageView_color)
-        val textViewName: TextView = mConvertView.findViewById(R.id.textView_name)
+        val textViewName: TextView = mConvertView!!.findViewById(R.id.textView_name)
 
-        adjustView(imageView, textViewName)
 
         getItem(position)?.let {
             textViewName.text = it
@@ -41,12 +39,12 @@ class InbodySpinnerAdapter(context: Context, val list: List<String>)
         return mConvertView
     }
 
-    private fun adjustView(imageView: ImageView, textView: TextView) {
+    /*private fun adjustView(imageView: ImageView, textView: TextView) {
         imageView.visibility = View.GONE
         RelativeLayout.LayoutParams(WRAP_CONTENT, WRAP_CONTENT).run {
             setMargins(25, 20, 0, 15)
             textView.layoutParams = this
         }
-    }
+    }*/
 
 }

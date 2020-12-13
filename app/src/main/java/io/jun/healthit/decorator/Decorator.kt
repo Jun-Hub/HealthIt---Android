@@ -1,5 +1,6 @@
 package io.jun.healthit.decorator
 
+import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
@@ -10,9 +11,10 @@ import com.prolificinteractive.materialcalendarview.DayViewFacade
 import com.prolificinteractive.materialcalendarview.spans.DotSpan
 import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.Setting
+import io.jun.healthit.util.dpToPixels
 import io.jun.healthit.util.stringToDate
 
-class Decorator(memos: List<Memo>, val color: TagColor): DayViewDecorator {
+class Decorator(val context: Context, memos: List<Memo>, val color: TagColor): DayViewDecorator {
 
     //String 타입인 날짜를 Date 타입으로 바꿔준 후, 다시 CalendarDay 타입으로 바꿔서 맵핑
     private val dates = memos.map { it.date?.let { strDate ->
@@ -27,7 +29,7 @@ class Decorator(memos: List<Memo>, val color: TagColor): DayViewDecorator {
         view.addSpan(CustomDotSpan(Color.parseColor(color.hex)))
     }
 
-    class CustomDotSpan : LineBackgroundSpan {
+    inner class CustomDotSpan : LineBackgroundSpan {
         private val radius: Float
         private var colors = IntArray(1)
 
@@ -61,7 +63,7 @@ class Decorator(memos: List<Memo>, val color: TagColor): DayViewDecorator {
                 if (colors[i] != 0) {
                     paint.color = colors[i]
                 }
-                canvas.drawCircle(((left + right) / 2 - leftMost).toFloat(), bottom + radius, radius, paint)
+                canvas.drawCircle(((left + right) / 2 - leftMost).toFloat(), bottom + radius, dpToPixels(context, radius), paint)
                 paint.color = oldColor
                 leftMost += 24
             }

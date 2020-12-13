@@ -16,7 +16,7 @@ object Setting {
         const val MAX_RECORD = 50
         const val MAX_SET = 20
 
-        const val DECORATOR_RADIUS = 11f
+        const val DECORATOR_RADIUS = 4f
 
         const val UPDATE_REQUEST_CODE = 2020
         const val DAYS_FOR_FLEXIBLE_UPDATE = 3

@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.text.style.LineBackgroundSpan
 import androidx.core.content.ContextCompat
@@ -12,6 +13,7 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator
 import com.prolificinteractive.materialcalendarview.DayViewFacade
 import io.jun.healthit.R
 import io.jun.healthit.model.data.Memo
+import io.jun.healthit.util.dpToPixels
 import io.jun.healthit.util.stringToDate
 
 class PinDecorator(val context: Context, memos: List<Memo>): DayViewDecorator {
@@ -47,7 +49,12 @@ class PinDecorator(val context: Context, memos: List<Memo>): DayViewDecorator {
         ) {
 
             ContextCompat.getDrawable(context, R.drawable.ic_pin).let {
-                canvas.drawBitmap((it as BitmapDrawable).bitmap, null, Rect(35, -15, 75, 25), null)
+                canvas.drawBitmap((it as BitmapDrawable).bitmap, null,
+                    RectF(dpToPixels(context, 13f),
+                        dpToPixels(context, -7f),
+                        dpToPixels(context, 28f),
+                        dpToPixels(context, 8f)),
+                    null)
             }
         }
     }

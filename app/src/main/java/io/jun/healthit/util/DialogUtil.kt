@@ -190,25 +190,20 @@ object DialogUtil {
 
             val inflater = layoutInflater.inflate(R.layout.dialog_set_name, null as ViewGroup?)
             val titleText = inflater.findViewById<TextView>(R.id.textView_title)
+            val editText = inflater.findViewById<EditText>(R.id.editText)
             titleText.text = String.format(fragment.getString(R.string.tag_name), index)
 
-            inflater.findViewById<EditText>(R.id.editText).also { editText ->
-
-                fragment.context?.let {
-                    AlertDialog.Builder(
-                        it,
-                        android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar
-                    )
-                        .setView(inflater)
-                        .setPositiveButton(fragment.getString(R.string.ok)) { _, _ ->
-                            prefViewModel.setTagSettings(it, index, editText.text.toString())
-                            closeKeyboard(it)
-                        }
-                        .setNegativeButton(fragment.getString(R.string.cancel)) { _, _ ->
-                            closeKeyboard(it)
-                        }
-                        .show()
-                }
+            fragment.context?.let {
+                AlertDialog.Builder(it, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar)
+                    .setView(inflater)
+                    .setPositiveButton(fragment.getString(R.string.ok)) { _, _ ->
+                        prefViewModel.setTagSettings(it, index, editText.text.toString())
+                        closeKeyboard(it)
+                    }
+                    .setNegativeButton(fragment.getString(R.string.cancel)) { _, _ ->
+                        closeKeyboard(it)
+                    }
+                    .show()
             }
             fragment.context?.let { showKeyboard(it) }
         }
@@ -306,21 +301,19 @@ object DialogUtil {
 
             val inflater = layoutInflater.inflate(R.layout.dialog_set_name, null as ViewGroup?)
             val titleText = inflater.findViewById<TextView>(R.id.textView_title)
+            val editText = inflater.findViewById<EditText>(R.id.editText)
             titleText.text = activity.getString(R.string.routine_name_to_add)
 
-            inflater.findViewById<EditText>(R.id.editText).also { editText ->
-
-                AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar)
-                    .setView(inflater)
-                    .setPositiveButton(activity.getString(R.string.ok)) { _, _ ->
-                        showDirectlyTemplateDialog(activity, editText.text.toString(), records)
-                        closeKeyboard(activity)
-                    }
-                    .setNegativeButton(activity.getString(R.string.cancel)) { _, _ ->
-                        closeKeyboard(activity)
-                    }
-                    .show()
-            }
+            AlertDialog.Builder(activity, android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar)
+                .setView(inflater)
+                .setPositiveButton(activity.getString(R.string.ok)) { _, _ ->
+                    showDirectlyTemplateDialog(activity, editText.text.toString(), records)
+                    closeKeyboard(activity)
+                }
+                .setNegativeButton(activity.getString(R.string.cancel)) { _, _ ->
+                    closeKeyboard(activity)
+                }
+                .show()
             showKeyboard(activity)
         }
 

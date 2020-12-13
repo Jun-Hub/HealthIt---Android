@@ -101,7 +101,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         setNewMemoBtn()
 
         delete_btn.setOnClickListener(this)
-        cardView_detail.setOnClickListener(this)
+        memo_detail.setOnClickListener(this)
     }
 
     override fun checkProVersion(isProVersion: Boolean) {
@@ -168,7 +168,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
 
                 recyclerView.visibility = View.GONE
                 textView_no_memo.visibility = View.VISIBLE
-                cardView_detail.visibility = View.GONE
+                memo_detail.visibility = View.GONE
             }
         })
 
@@ -217,13 +217,15 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun initDecorators(memos: List<Memo>) {
-        noTagDecorator = Decorator(memos.filter { it.tag==0 }, TagColor.DEFAULT)
-        tagRedDecorator = Decorator(memos.filter { it.tag==1 }, TagColor.RED)
-        tagOrangeDecorator = Decorator(memos.filter { it.tag==2 }, TagColor.ORANGE)
-        tagYellowDecorator = Decorator(memos.filter { it.tag==3 }, TagColor.YELLOW)
-        tagGreenDecorator = Decorator(memos.filter { it.tag==4 }, TagColor.GREEN)
-        tagBlueDecorator = Decorator(memos.filter { it.tag==5 }, TagColor.BLUE)
-        tagPurpleDecorator = Decorator(memos.filter { it.tag==6 }, TagColor.PURPLE)
+        context?.let { ctx ->
+            noTagDecorator = Decorator(ctx, memos.filter { it.tag == 0 }, TagColor.DEFAULT)
+            tagRedDecorator = Decorator(ctx, memos.filter { it.tag == 1 }, TagColor.RED)
+            tagOrangeDecorator = Decorator(ctx, memos.filter { it.tag == 2 }, TagColor.ORANGE)
+            tagYellowDecorator = Decorator(ctx, memos.filter { it.tag == 3 }, TagColor.YELLOW)
+            tagGreenDecorator = Decorator(ctx, memos.filter { it.tag == 4 }, TagColor.GREEN)
+            tagBlueDecorator = Decorator(ctx, memos.filter { it.tag == 5 }, TagColor.BLUE)
+            tagPurpleDecorator = Decorator(ctx, memos.filter { it.tag == 6 }, TagColor.PURPLE)
+        }
         pinDecorator = PinDecorator(requireContext(), memos.filter { it.pin==true })
 
         decorateForAllTags()
@@ -271,10 +273,10 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         selectedMemo = memoList.find { it.date ==  selectedDate }
 
         if(selectedMemo==null) {
-            cardView_detail.visibility = View.GONE
+            memo_detail.visibility = View.GONE
         }
         else {
-            cardView_detail.visibility = View.VISIBLE
+            memo_detail.visibility = View.VISIBLE
 
             val setAndVolume = selectedMemo!!.record?.let { calculateSetAndVolume(it) }
 
@@ -321,17 +323,24 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun setTag(tag: Int) {
-        memo_detail.imageView_tag.setImageResource(
-            when (tag) {
-                1 -> R.drawable.ic_circle_red
-                2 -> R.drawable.ic_circle_orange
-                3 -> R.drawable.ic_circle_yellow
-                4 -> R.drawable.ic_circle_green
-                5 -> R.drawable.ic_circle_blue
-                6 -> R.drawable.ic_circle_purple
-                else -> R.drawable.transparent
-            }
-        )
+        if(tag==0) {
+            memo_detail.imageView_tag.visibility = View.GONE
+            return
+        }
+        memo_detail.imageView_tag.apply {
+            visibility = View.VISIBLE
+            setImageResource(
+                when (tag) {
+                    1 -> R.drawable.ic_circle_red
+                    2 -> R.drawable.ic_circle_orange
+                    3 -> R.drawable.ic_circle_yellow
+                    4 -> R.drawable.ic_circle_green
+                    5 -> R.drawable.ic_circle_blue
+                    6 -> R.drawable.ic_circle_purple
+                    else -> R.drawable.circle_default
+                }
+            )
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -430,14 +439,14 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         calendarView.visibility = View.VISIBLE
         scrollView_calendar.visibility = View.VISIBLE
         if(isInit)
-            cardView_detail.visibility = View.VISIBLE
+            memo_detail.visibility = View.VISIBLE
         else if(memoList.isNotEmpty())
-            cardView_detail.visibility = View.VISIBLE
+            memo_detail.visibility = View.VISIBLE
     }
 
     private fun showListView(isInit: Boolean) {
         calendarView.visibility = View.GONE
-        cardView_detail.visibility = View.GONE
+        memo_detail.visibility = View.GONE
         scrollView_calendar.visibility = View.GONE
         if(isInit) {
             fast_scroller.visibility = View.VISIBLE
@@ -532,7 +541,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
                 memoViewModel.delete(selectedMemo!!)
             }
 
-            R.id.cardView_detail -> {
+            R.id.memo_detail -> {
                 val pinStatus = selectedMemo!!.pin //val 값으로 셋팅안해주면 원래 형태가 var이라 intent에 넣지 못함
                 startActivity(Intent(requireContext(), MemoDetailActivity::class.java).apply {
                     putExtra("id", selectedMemo!!.id)

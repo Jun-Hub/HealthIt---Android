@@ -71,19 +71,12 @@
                 app:mcv_tileSize="50dp"
                 app:mcv_weekDayTextAppearance="@style/CalendarViewWeekColor" />
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/cardView_detail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <include
+                android:id="@+id/memo_detail"
+                layout="@layout/item_memo"
                 android:visibility="gone"
-                app:cardCornerRadius="@dimen/card_corner_radius">
-
-                <include
-                    android:id="@+id/memo_detail"
-                    layout="@layout/item_memo"
-                    android:layout_width="match_parent"
-                    android:layout_height="118dp" />
-            </androidx.cardview.widget.CardView>
+                android:layout_width="match_parent"
+                android:layout_height="100dp" />
 
         </LinearLayout>
     </ScrollView>

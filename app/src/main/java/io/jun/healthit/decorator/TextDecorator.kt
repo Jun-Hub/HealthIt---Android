@@ -12,6 +12,7 @@ import com.prolificinteractive.materialcalendarview.DayViewFacade
 import io.jun.healthit.R
 import io.jun.healthit.model.data.Inbody
 import io.jun.healthit.util.Setting
+import io.jun.healthit.util.dpToPixels
 import io.jun.healthit.util.stringToDate
 
 class TextDecorator(val context: Context, val inbody: Inbody, val flag: Int): DayViewDecorator {
@@ -49,18 +50,18 @@ class TextDecorator(val context: Context, val inbody: Inbody, val flag: Int): Da
 
             if(string != "null") {
                 canvas.drawText(string,
-                    65f,
-                    85f,
+                    dpToPixels(context, 25f),
+                    dpToPixels(context, 30f),
                     Paint().apply {
                         textAlign = Paint.Align.CENTER
-                        textSize = 36f
+                        textSize = dpToPixels(context, 14f)
                         style = Paint.Style.FILL_AND_STROKE
                         color = ContextCompat.getColor(context, R.color.colorSky)
                     })
             }
             else {  //선택된 보기 스피너 중 해당 데이터가 null이면 점만 찍어주기
                 paint.color = Color.parseColor("#C5D6DB")
-                Setting.DECORATOR_RADIUS.let {
+                dpToPixels(context, Setting.DECORATOR_RADIUS).let {
                     canvas.drawCircle(((left + right) / 2).toFloat(), bottom + it, it, paint)
                 }
             }

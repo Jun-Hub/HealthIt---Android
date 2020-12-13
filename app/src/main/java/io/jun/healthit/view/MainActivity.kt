@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
 
         updateManager.run {
             checkUpdate()
-            checkUpdateStaleness()
+            //checkUpdateStaleness()
         }
 
         nav_view.apply {
