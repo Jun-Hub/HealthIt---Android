@@ -93,6 +93,8 @@
     <string name="subscribe_success">구독해주셔서 감사합니다.</string>
     <string name="billing_error">구매가 정상적으로 이루어지지 않았습니다.</string>
     <string name="notice_network_connection">인터넷이 연결되지 않았습니다. \n 앱이 정상적으로 작동하지 않을 수 있습니다.</string>
+    <string name="notice_update_complete">업데이트 다운로드가 완료되었습니다.</string>
+    <string name="restart">재시작</string>
 
     <!-- Memo Fragment -->
     <string name="new_log">새 일지</string>
@@ -225,11 +227,11 @@
     <string name="google_play_license_key">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAllyQvfc3zFWQQ9rQnJ1fvi3qbf6sH3w/XNCEoUddLVrEF77DbnKJ3cikVOknYvI4ry8ujEO7FJQ8bzLTJO5yilMOHHW3Vjl6uMl2YeA+ajzG42o2BGptiq2pSnl+xvii1qOKdTVSxDLiznItH1MjfkSQs9WfGTYv3rha1FHsSxlIpYJiBH/c8M1VVyGSttafvRPmbkXQp+2ELmYXyRgbytnieCa02MfZXRjWOFWy2SuBzHCx8C9Kk6kL0QBIJYDrQ8epXiuCE8H76JDK+c9Wz2chjOkjjEonv1ZwSUmxcwXUflc71/gaks/vdKhHnp+1aWh83fDpL7zw19vTdPJovwIDAQAB</string>
     <string name="sku_subs">subscribe_pro_1_month</string>
     <string name="admob_app_id">ca-app-pub-6263138384822549~7206516262</string>
-    <string name="banner_ad_unit_id1">ca-app-pub-6263138384822549/1954189581</string>
+    <string name="banner_ad_unit_routine_fragment">ca-app-pub-6263138384822549/1954189581</string>
     <string name="banner_ad_unit_id2">ca-app-pub-6263138384822549/2641201248</string>
-    <string name="banner_ad_unit_id3">ca-app-pub-6263138384822549/7318812859</string>
-    <string name="banner_ad_unit_id4">ca-app-pub-6263138384822549/4692649518</string>
-    <string name="banner_ad_unit_id5">ca-app-pub-6263138384822549/4516555540</string>
+    <string name="banner_ad_unit_memo_fragment">ca-app-pub-6263138384822549/7318812859</string>
+    <string name="banner_ad_unit_timer_fragment">ca-app-pub-6263138384822549/4692649518</string>
+    <string name="banner_ad_unit_settings_fragment">ca-app-pub-6263138384822549/4516555540</string>
     <string name="banner_ad_unit_weight_fragment">ca-app-pub-6263138384822549/5454785310</string>
     <string name="interstitial_ad_unit_new_memo">ca-app-pub-6263138384822549/3767412519</string>
     <string name="banner_ad_unit_id_for_test">ca-app-pub-3940256099942544/6300978111</string>

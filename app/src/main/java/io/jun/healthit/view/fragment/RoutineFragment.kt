@@ -1,5 +1,6 @@
 package io.jun.healthit.view.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,22 +13,35 @@ import com.cleveroad.fanlayoutmanager.FanLayoutManagerSettings
 import com.cleveroad.fanlayoutmanager.callbacks.FanChildDrawingOrderCallback
 import io.jun.healthit.R
 import io.jun.healthit.adapter.TipListAdapter
+import io.jun.healthit.databinding.FragmentRoutineBinding
 import io.jun.healthit.model.data.Tip
 import kotlinx.android.synthetic.main.fragment_routine.adView
 
 class RoutineFragment : BaseFragment() {
 
     private val TAG = "RoutineFragment"
+    
+    private var viewBinding: FragmentRoutineBinding? = null
+    private val binding get() = viewBinding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_routine, container, false)
+        viewBinding = FragmentRoutineBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        val recyclerView = root.findViewById<RecyclerView>(R.id.recyclerView)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
+        context?.let { 
+            setView(it)
+        }
+    }
 
+    private fun setView(context: Context) {
         val fanLayoutManagerSettings = FanLayoutManagerSettings
             .newBuilder(context)
             .withFanRadius(true)
@@ -36,9 +50,9 @@ class RoutineFragment : BaseFragment() {
             .withViewWidthDp(120f)
             .build()
 
-        val fanLayoutManager = FanLayoutManager(requireContext(), fanLayoutManagerSettings)
+        val fanLayoutManager = FanLayoutManager(context, fanLayoutManagerSettings)
 
-        val tipAdapter = TipListAdapter(requireContext(), fanLayoutManager)
+        val tipAdapter = TipListAdapter(context, fanLayoutManager)
         tipAdapter.apply {
             add(Tip(getString(R.string.text_common_sense), null, R.drawable.ic_moonk, "common_sense"))
             add(Tip(getString(R.string.text_common_sense_diet), null, R.drawable.ic_hamburger, "common_sense_diet"))
@@ -52,20 +66,18 @@ class RoutineFragment : BaseFragment() {
 
         tipAdapter.setOnItemClickListener(object : TipListAdapter.OnItemClickListener {
             override fun onItemClicked(pos: Int, view: View?) {
-                fanLayoutManager.switchItem(recyclerView, pos)
+                fanLayoutManager.switchItem(binding.recyclerView, pos)
             }
         })
 
-        recyclerView.apply {
+        binding.recyclerView.apply {
             layoutManager = fanLayoutManager
             itemAnimator = DefaultItemAnimator()
             adapter = tipAdapter
             setChildDrawingOrderCallback(FanChildDrawingOrderCallback(fanLayoutManager))
         }
-
-        return root
     }
-
+    
     override fun checkProVersion(isProVersion: Boolean) {
         super.checkProVersion(isProVersion)
         if(isProVersion) {

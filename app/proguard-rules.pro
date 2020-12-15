@@ -21,52 +21,52 @@
 #-renamesourcefileattribute SourceFile
 
 #----for Glide
--keep public class * implements com.bumptech.glide.module.GlideModule
--keep public class * extends com.bumptech.glide.module.AppGlideModule
--keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
-  **[] $VALUES;
-  public *;
-}
+#-keep public class * implements com.bumptech.glide.module.GlideModule
+#-keep public class * extends com.bumptech.glide.module.AppGlideModule
+#-keep public enum com.bumptech.glide.load.ImageHeaderParser$** {
+#  **[] $VALUES;
+#  public *;
+#}
 
 #-----for Room
--keep class * extends androidx.room.RoomDatabase
--dontwarn androidx.room.paging.**
+#-keep class * extends androidx.room.RoomDatabase
+#-dontwarn androidx.room.paging.**
 
 #------for Coroutine
 # ServiceLoader support
--keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
--keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
+#-keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
+#-keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
 # Most of volatile fields are updated with AFU and should not be mangled
--keepclassmembernames class kotlinx.** {
-    volatile <fields>;
-}
+#-keepclassmembernames class kotlinx.** {
+#    volatile <fields>;
+#}
 
 ##---------------Begin: proguard configuration for Gson  ----------
 # Gson uses generic type information stored in a class file when working with fields. Proguard
 # removes such information by default, so configure it to keep all of it.
--keepattributes Signature
+#-keepattributes Signature
 
 # For using GSON @Expose annotation
--keepattributes *Annotation*
+#-keepattributes *Annotation*
 
 # Gson specific classes
--dontwarn sun.misc.**
+#-dontwarn sun.misc.**
 #-keep class com.google.gson.stream.** { *; }
 
 # Application classes that will be serialized/deserialized over Gson
--keep class com.google.gson.examples.android.model.** { *; }
+#-keep class com.google.gson.examples.android.model.** { *; }
 
 # Prevent proguard from stripping interface information from TypeAdapterFactory,
 # JsonSerializer, JsonDeserializer instances (so they can be used in @JsonAdapter)
--keep class * implements com.google.gson.TypeAdapterFactory
--keep class * implements com.google.gson.JsonSerializer
--keep class * implements com.google.gson.JsonDeserializer
+#-keep class * implements com.google.gson.TypeAdapterFactory
+#-keep class * implements com.google.gson.JsonSerializer
+#-keep class * implements com.google.gson.JsonDeserializer
 
 #---OK Http
--dontwarn okhttp3.**
--dontwarn okio.**
--dontnote okhttp3.**
+#-dontwarn okhttp3.**
+#-dontwarn okio.**
+#-dontnote okhttp3.**
 
 
 #---Ad
--dontwarn com.google.ads.**
+#-dontwarn com.google.ads.**

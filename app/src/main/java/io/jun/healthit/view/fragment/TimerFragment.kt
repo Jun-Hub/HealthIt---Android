@@ -1,5 +1,6 @@
 package io.jun.healthit.view.fragment
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -15,7 +16,7 @@ import io.jun.healthit.viewmodel.TimerViewModel
 import kotlinx.android.synthetic.main.fragment_timer.*
 import kotlinx.android.synthetic.main.fragment_timer.adView
 
-class TimerFragment : BaseFragment(), View.OnClickListener {
+class TimerFragment : BaseFragment() {
 
     private lateinit var prefViewModel : PrefViewModel
     //TimerService로부터 countDown 현황을 실시간으로 보여줄 LiveData 관찰
@@ -45,11 +46,10 @@ class TimerFragment : BaseFragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        initNumberPicker()
-
-        btn_start.setOnClickListener(this)
-        btn_pause.setOnClickListener(this)
-        btn_stop.setOnClickListener(this)
+        context?.let {
+            initNumberPicker(it)
+            setListener(it)
+        }
 
         timerViewModel.run {
             getLeftTime().observe(viewLifecycleOwner, { leftTime ->
@@ -103,32 +103,33 @@ class TimerFragment : BaseFragment(), View.OnClickListener {
         super.onStop()
         mBound = false
         //마지막으로 설정했던 시간을 저장
-        binding.let {
+        context?.let { ctx ->
             prefViewModel.setPreviousTimerSet(
-                it.numberPickerMin.value,
-                it.numberPickerSec.value,
-                requireContext()
+                binding.numberPickerMin.value,
+                binding.numberPickerSec.value,
+                ctx
             )
-        }
-        if(isRunning && prefViewModel.getFloatingSettings(requireContext())) {
-            Intent(requireContext(), TimerService::class.java).let {
-                it.action = "FLOATING"
-                startForegroundService(requireContext(), it)
+
+            if (isRunning && prefViewModel.getFloatingSettings(ctx)) {
+                Intent(ctx, TimerService::class.java).let {
+                    it.action = "FLOATING"
+                    startForegroundService(ctx, it)
+                }
             }
         }
     }
 
-    private fun initNumberPicker() {
+    private fun initNumberPicker(context: Context) {
         binding.apply {
             numberPickerMin.apply {
                 minValue = 0
                 maxValue = 15
-                value = prefViewModel.getPreviousTimerSetMin(requireContext())
+                value = prefViewModel.getPreviousTimerSetMin(context)
             }
             numberPickerSec.apply {
                 minValue = 0
                 maxValue = 59
-                value = prefViewModel.getPreviousTimerSetSec(requireContext())
+                value = prefViewModel.getPreviousTimerSetSec(context)
             }
         }
     }
@@ -161,34 +162,31 @@ class TimerFragment : BaseFragment(), View.OnClickListener {
         }
     }
 
-    override fun onClick(v: View?) {
-            when (v?.id) {
-                R.id.btn_start -> {
-                    val setTime = binding.run { numberPickerMin.value * 60 + numberPickerSec.value }
+    private fun setListener(context: Context) {
+        binding.apply {
+            btnStart.setOnClickListener {
+                val setTime = binding.run { numberPickerMin.value * 60 + numberPickerSec.value }
 
-                    Intent(context, TimerService::class.java).apply {
-                        action = "PLAY"
-                        putExtra("setTime", setTime)
-                        putExtra("forReplay", isReplay)
-                        putExtra("alertSetting", prefViewModel.getAlertSettings(requireContext()))
-                        putExtra("ringSetting", prefViewModel.getRingSettings(requireContext()))
-                    }.let {
-                        startForegroundService(requireContext(), it)
-                    }
-                }
-
-                R.id.btn_pause -> {
-                    val serviceIntent = Intent(requireContext(), TimerService::class.java)
-                    serviceIntent.action = "PAUSE"
-                    startForegroundService(requireContext(), serviceIntent)
-                }
-
-                R.id.btn_stop -> {
-                    val serviceIntent = Intent(requireContext(), TimerService::class.java)
-                    serviceIntent.action = "STOP"
-                    startForegroundService(requireContext(), serviceIntent)
+                Intent(context, TimerService::class.java).apply {
+                    action = "PLAY"
+                    putExtra("setTime", setTime)
+                    putExtra("forReplay", isReplay)
+                    putExtra("alertSetting", prefViewModel.getAlertSettings(context))
+                    putExtra("ringSetting", prefViewModel.getRingSettings(context))
+                }.let {
+                    startForegroundService(context, it)
                 }
             }
-
+            btnPause.setOnClickListener {
+                val serviceIntent = Intent(context, TimerService::class.java)
+                serviceIntent.action = "PAUSE"
+                startForegroundService(context, serviceIntent)
+            }
+            btnStop.setOnClickListener {
+                val serviceIntent = Intent(context, TimerService::class.java)
+                serviceIntent.action = "STOP"
+                startForegroundService(context, serviceIntent)
+            }
+        }
     }
 }

@@ -1,5 +1,6 @@
 package io.jun.healthit.view.fragment
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -43,7 +44,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
-//TODO 난독화 해제 파일!!
+
 class MemoFragment : BaseFragment(), View.OnClickListener {
     //편집 버튼을 on 했는지 MemoListAdapter 에서 관찰하기 위한 livedata
     companion object {
@@ -51,7 +52,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
     }
     private val TAG = "MemoFragment"
 
-    private lateinit var interstitiailAd: InterstitialAd
+    private lateinit var interstitialAd: InterstitialAd
     private lateinit var prefViewModel: PrefViewModel
     private lateinit var memoViewModel: MemoViewModel
 
@@ -95,7 +96,9 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         super.onViewCreated(view, savedInstanceState)
 
         setCalendarView()
-        setMemoRecyclerView()
+        context?.let {
+            setMemoRecyclerView(it)
+        }
         initObserve()
 
         setNewMemoBtn()
@@ -112,7 +115,9 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         }
 
         loadBannerAd(adView)
-        setInterstitialAd()
+        context?.let {
+            setInterstitialAd(it)
+        }
     }
 
     private fun setCalendarView() {
@@ -127,11 +132,11 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         }
     }
 
-    private fun setMemoRecyclerView() {
+    private fun setMemoRecyclerView(context:Context) {
         memoAdapter = MemoListAdapter(this)
-        linearLayoutManager = LinearLayoutManager(this.context)
-        val itemDecoration = DividerItemDecoration(this.context, 1)
-        ContextCompat.getDrawable(requireContext(), R.drawable.divider_memo)?.let { itemDecoration.setDrawable(it) }
+        linearLayoutManager = LinearLayoutManager(context)
+        val itemDecoration = DividerItemDecoration(context, 1)
+        ContextCompat.getDrawable(context, R.drawable.divider_memo)?.let { itemDecoration.setDrawable(it) }
 
         recyclerView.apply {
             addItemDecoration(itemDecoration)
@@ -157,7 +162,9 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
                 //메모 추가시 스크롤 맨 위로 올리기
                 linearLayoutManager.scrollToPosition(0)
 
-                initDecorators(memos)
+                context?.let {
+                    initDecorators(it, memos)
+                }
                 updateCalendarCardView()
             }
             else {
@@ -182,7 +189,9 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
     override fun onPause() {
         super.onPause()
         //보기방식 저장
-        prefViewModel.setViewMode(viewSwitch.getDirection().name, requireContext())
+        context?.let {
+            prefViewModel.setViewMode(viewSwitch.getDirection().name, it)
+        }
 
         //태그 스피너와 편집 스위치 초기화
         tagSpinner.setSelection(0)
@@ -216,17 +225,16 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         }
     }
 
-    private fun initDecorators(memos: List<Memo>) {
-        context?.let { ctx ->
-            noTagDecorator = Decorator(ctx, memos.filter { it.tag == 0 }, TagColor.DEFAULT)
-            tagRedDecorator = Decorator(ctx, memos.filter { it.tag == 1 }, TagColor.RED)
-            tagOrangeDecorator = Decorator(ctx, memos.filter { it.tag == 2 }, TagColor.ORANGE)
-            tagYellowDecorator = Decorator(ctx, memos.filter { it.tag == 3 }, TagColor.YELLOW)
-            tagGreenDecorator = Decorator(ctx, memos.filter { it.tag == 4 }, TagColor.GREEN)
-            tagBlueDecorator = Decorator(ctx, memos.filter { it.tag == 5 }, TagColor.BLUE)
-            tagPurpleDecorator = Decorator(ctx, memos.filter { it.tag == 6 }, TagColor.PURPLE)
-        }
-        pinDecorator = PinDecorator(requireContext(), memos.filter { it.pin==true })
+    private fun initDecorators(context: Context, memos: List<Memo>) {
+        noTagDecorator = Decorator(context, memos.filter { it.tag == 0 }, TagColor.DEFAULT)
+        tagRedDecorator = Decorator(context, memos.filter { it.tag == 1 }, TagColor.RED)
+        tagOrangeDecorator = Decorator(context, memos.filter { it.tag == 2 }, TagColor.ORANGE)
+        tagYellowDecorator = Decorator(context, memos.filter { it.tag == 3 }, TagColor.YELLOW)
+        tagGreenDecorator = Decorator(context, memos.filter { it.tag == 4 }, TagColor.GREEN)
+        tagBlueDecorator = Decorator(context, memos.filter { it.tag == 5 }, TagColor.BLUE)
+        tagPurpleDecorator = Decorator(context, memos.filter { it.tag == 6 }, TagColor.PURPLE)
+
+        pinDecorator = PinDecorator(context, memos.filter { it.pin==true })
 
         decorateForAllTags()
     }
@@ -348,7 +356,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         inflater.inflate(R.menu.menu_list, menu)
 
         initMemoSortSpinner(menu)
-        initViewModeSwitch(menu)
+        context?.let { initViewModeSwitch(it, menu) }
         initEditModeSwitch(menu)
     }
 
@@ -372,7 +380,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         }
     }
 
-    private fun initViewModeSwitch(menu: Menu) {
+    private fun initViewModeSwitch(context: Context, menu: Menu) {
         //보기방식 스위치 셋팅
         val view = menu.findItem(R.id.action_view)
         view.setActionView(R.layout.layout_switch_view)
@@ -380,7 +388,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
 
         //마지막으로 설정했던 view mode
         val savedViewMode: StickySwitch.Direction
-        if(prefViewModel.getViewMode(requireContext())=="LEFT") {
+        if(prefViewModel.getViewMode(context)=="LEFT") {
             savedViewMode = StickySwitch.Direction.LEFT
             showListView(true)
         }
@@ -402,7 +410,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
                         }
                         else {  // not subscribe pro version
 
-                            DialogUtil.showPurchaseProDialog(requireContext(),
+                            DialogUtil.showPurchaseProDialog(context,
                                 { (activity as MainActivity).billingManager.subscribe() },
                                 { (activity as MainActivity).billingManager.onPurchaseHistoryRestored()})
                             viewSwitch.setDirection(StickySwitch.Direction.LEFT, isAnimate = true, shouldTriggerSelected = true)
@@ -491,15 +499,17 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
             when (actionItem.id) {
                 R.id.new_memo -> {
                     afterAdFlag = 0
-                    if(!(activity as MainActivity).isProVersion && interstitiailAd.isLoaded) interstitiailAd.show()
-                    else startActivity(Intent(this.context, AddEditActivity::class.java).putExtra("newMemo", true))
+                    context?.let {
+                        if(!(activity as MainActivity).isProVersion && interstitialAd.isLoaded) interstitialAd.show()
+                        else startActivity(Intent(it, AddEditActivity::class.java).putExtra("newMemo", true))
+                    }
 
                     add_memo_btn.close()
                     return@OnActionSelectedListener true // false will close it without animation
                 }
                 R.id.open_template -> {
                     afterAdFlag = 1
-                    if(!(activity as MainActivity).isProVersion && interstitiailAd.isLoaded) interstitiailAd.show()
+                    if(!(activity as MainActivity).isProVersion && interstitialAd.isLoaded) interstitialAd.show()
                     else DialogUtil.showTemplateDialog(this, false)
 
                     add_memo_btn.close()
@@ -510,27 +520,26 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         })
     }
 
-    private fun setInterstitialAd() {
-        interstitiailAd = InterstitialAd(context)
-        interstitiailAd.apply {
-            adUnitId = "ca-app-pub-3940256099942544/1033173712" //TODO test 광고 adUnitId 원래대로 재설정해주기
+    private fun setInterstitialAd(context: Context) {
+        interstitialAd = InterstitialAd(context)
+        interstitialAd.apply {
+            adUnitId = getString(R.string.interstitial_ad_unit_new_memo)
             loadAd(AdRequest.Builder().build())
 
             adListener = object: AdListener() {
                 override fun onAdClosed() {
-                    if(!interstitiailAd.isLoaded && !interstitiailAd.isLoading)
+                    if(!interstitialAd.isLoaded && !interstitialAd.isLoading)
                         loadAd(AdRequest.Builder().build())
 
-                    executeAfterAd()
-                    //TODO 광고가 부담스러우신가요?
+                    executeAfterAd(context)
                 }
             }
         }
     }
 
-    private fun executeAfterAd() {
+    private fun executeAfterAd(context: Context) {
         when(afterAdFlag) {
-            0 -> startActivity(Intent(this.context, AddEditActivity::class.java).putExtra("newMemo", true))
+            0 -> startActivity(Intent(context, AddEditActivity::class.java).putExtra("newMemo", true))
             1 -> DialogUtil.showTemplateDialog(this, false)
         }
     }
@@ -543,10 +552,12 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
 
             R.id.memo_detail -> {
                 val pinStatus = selectedMemo!!.pin //val 값으로 셋팅안해주면 원래 형태가 var이라 intent에 넣지 못함
-                startActivity(Intent(requireContext(), MemoDetailActivity::class.java).apply {
-                    putExtra("id", selectedMemo!!.id)
-                    putExtra("pin", pinStatus)    //pin 상태도 같이 넘겨야 다음 액티비티에서 초기화 null 에러가 안남
-                })
+                context?.let {
+                    startActivity(Intent(it, MemoDetailActivity::class.java).apply {
+                        putExtra("id", selectedMemo!!.id)
+                        putExtra("pin", pinStatus)    //pin 상태도 같이 넘겨야 다음 액티비티에서 초기화 null 에러가 안남
+                    })
+                }
             }
         }
     }

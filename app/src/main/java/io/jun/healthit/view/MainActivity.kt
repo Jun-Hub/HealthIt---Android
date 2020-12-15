@@ -27,7 +27,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var billingManager: BillingManager
     var isProVersion = false
 
-    private val updateManager: UpdateManager by lazy { UpdateManager(this) }
+    private val updateManager: UpdateManager by lazy { UpdateManager(this) { showSnackbarForCompleteUpdate() } }
     private var backWait:Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
 
         updateManager.run {
             checkUpdate()
+            registerStateListener()
             //checkUpdateStaleness()
         }
 
@@ -68,6 +69,17 @@ class MainActivity : AppCompatActivity() {
         )
         setupActionBarWithNavController(navController, appBarConfiguration)
         nav_view.setupWithNavController(navController)
+    }
+
+    private fun showSnackbarForCompleteUpdate() {
+        Snackbar.make(
+            nav_view,
+            getString(R.string.notice_update_complete),
+            Snackbar.LENGTH_INDEFINITE
+        ).apply {
+            setAction(getString(R.string.restart)) { updateManager.completeUpdate() }
+            show()
+        }
     }
 
     private fun initBillingManager() {
@@ -110,6 +122,11 @@ class MainActivity : AppCompatActivity() {
         } else {
             finish()
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        updateManager.unregisterStateListener()
     }
 
     override fun onDestroy() {

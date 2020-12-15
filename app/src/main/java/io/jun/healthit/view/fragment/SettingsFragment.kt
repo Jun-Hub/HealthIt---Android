@@ -39,7 +39,6 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
     private lateinit var preferences: SharedPreferences
     private lateinit var prefChangeListener: OnSharedPreferenceChangeListener
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
@@ -57,7 +56,9 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setView()
+        context?.let {
+            setView(it)
+        }
     }
 
     override fun checkProVersion(isProVersion: Boolean) {
@@ -76,14 +77,14 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
         }
     }
 
-    private fun registerPrefChangeListener() {
+    private fun registerPrefChangeListener(context: Context) {
         getString(R.string.admob_app_id)
         prefChangeListener = OnSharedPreferenceChangeListener {_, key ->
             binding.let {
                 when(key) {
-                    "alert" -> it.prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(requireContext()))
+                    "alert" -> it.prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(context))
                     "ring" -> {
-                        val ring = prefViewModel.getRingSettings(requireContext())
+                        val ring = prefViewModel.getRingSettings(context)
                         it.prefRingValue.text = prefEntryConverter(ring)
 
                         mediaPlayer = when(ring) {
@@ -100,12 +101,12 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
                         mediaPlayer.start()
                         isPlayerInit = true
                     }
-                    "tag1" -> it.prefTag1Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 1)
-                    "tag2" -> it.prefTag2Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 2)
-                    "tag3" -> it.prefTag3Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 3)
-                    "tag4" -> it.prefTag4Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 4)
-                    "tag5" -> it.prefTag5Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 5)
-                    "tag6" -> it.prefTag6Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 6)
+                    "tag1" -> it.prefTag1Value.text = prefViewModel.getOneOfTagSettings(context, 1)
+                    "tag2" -> it.prefTag2Value.text = prefViewModel.getOneOfTagSettings(context, 2)
+                    "tag3" -> it.prefTag3Value.text = prefViewModel.getOneOfTagSettings(context, 3)
+                    "tag4" -> it.prefTag4Value.text = prefViewModel.getOneOfTagSettings(context, 4)
+                    "tag5" -> it.prefTag5Value.text = prefViewModel.getOneOfTagSettings(context, 5)
+                    "tag6" -> it.prefTag6Value.text = prefViewModel.getOneOfTagSettings(context, 6)
                 }
             }
         }
@@ -154,7 +155,9 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
 
     override fun onResume() {
         super.onResume()
-        registerPrefChangeListener()
+        context?.let {
+            registerPrefChangeListener(it)
+        }
     }
 
     override fun onStop() {
@@ -170,7 +173,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
                 prefViewModel.setFloatingSettings(context, value)
             }
             override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {  //permission 거부 상태라면
-                Toast.makeText(requireContext(), getString(R.string.deny_overlay), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, getString(R.string.deny_overlay), Toast.LENGTH_LONG).show()
                 binding.switchFloating.isChecked = false
             }
         }
@@ -184,22 +187,22 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
         }
     }
 
-    private fun setView() {
+    private fun setView(context: Context) {
         binding.apply {
-            prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(requireContext()))
-            prefRingValue.text = prefEntryConverter(prefViewModel.getRingSettings(requireContext()))
+            prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(context))
+            prefRingValue.text = prefEntryConverter(prefViewModel.getRingSettings(context))
 
-            switchFloating.isChecked = prefViewModel.getFloatingSettings(requireContext())
+            switchFloating.isChecked = prefViewModel.getFloatingSettings(context)
             switchFloating.setOnCheckedChangeListener { _, isChecked ->
-                Permission(requireContext(), isChecked).checkAlertWindowPermission()
+                Permission(context, isChecked).checkAlertWindowPermission()
             }
 
-            prefTag1Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 1)
-            prefTag2Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 2)
-            prefTag3Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 3)
-            prefTag4Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 4)
-            prefTag5Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 5)
-            prefTag6Value.text = prefViewModel.getOneOfTagSettings(requireContext(), 6)
+            prefTag1Value.text = prefViewModel.getOneOfTagSettings(context, 1)
+            prefTag2Value.text = prefViewModel.getOneOfTagSettings(context, 2)
+            prefTag3Value.text = prefViewModel.getOneOfTagSettings(context, 3)
+            prefTag4Value.text = prefViewModel.getOneOfTagSettings(context, 4)
+            prefTag5Value.text = prefViewModel.getOneOfTagSettings(context, 5)
+            prefTag6Value.text = prefViewModel.getOneOfTagSettings(context, 6)
 
             buttonFreeTrial.setOnClickListener(this@SettingsFragment)
             suggestionBoard.setOnClickListener(this@SettingsFragment)
@@ -221,10 +224,12 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
     override fun onClick(v: View?) {
             when (v?.id) {
                 R.id.button_free_trial -> {
-                    DialogUtil.showPurchaseProDialog(requireContext(),
-                        { (activity as MainActivity).billingManager.subscribe() },
-                        { (activity as MainActivity).billingManager.onPurchaseHistoryRestored()}
-                    )
+                    context?.let {
+                        DialogUtil.showPurchaseProDialog(it,
+                            { (activity as MainActivity).billingManager.subscribe() },
+                            { (activity as MainActivity).billingManager.onPurchaseHistoryRestored() }
+                        )
+                    }
                 }
                 R.id.suggestion_board -> {
                     val uri = Uri.parse("https://healthit.modoo.at/?link=2proi1a4")

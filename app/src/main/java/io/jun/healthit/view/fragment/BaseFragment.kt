@@ -22,9 +22,11 @@ open class BaseFragment : Fragment() {
 
     fun loadBannerAd(adView: AdView) {
         adView.visibility = View.VISIBLE
-        MobileAds.initialize(requireContext())
-        AdRequest.Builder().build().let {
-            adView.loadAd(it)
+        context?.let { ctx ->
+            MobileAds.initialize(ctx)
+            AdRequest.Builder().build().let {
+                adView.loadAd(it)
+            }
         }
     }
 

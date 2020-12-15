@@ -1,5 +1,6 @@
 package io.jun.healthit.view.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.text.SpannableStringBuilder
@@ -177,7 +178,9 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
                         1 -> isMuscleValid = false
                         2 -> isPercentFatValid = false
                     }
-                    inActivateButton(binding.btnSave)
+                    context?.let {
+                        inActivateButton(it, binding.btnSave)
+                    }
                 } else {
                     when(flag) {
                         0 -> isWeightValid = !s.isNullOrEmpty()
@@ -194,23 +197,25 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
         })
     }
 
-    private fun activateButton(btn: Button) {
-        btn.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_body_weight)
-        btn.setTextColor(getColor(requireContext(), R.color.colorLightOrange))
+    private fun activateButton(context: Context, btn: Button) {
+        btn.background = ContextCompat.getDrawable(context, R.drawable.button_body_weight)
+        btn.setTextColor(getColor(context, R.color.colorLightOrange))
         btn.isEnabled = true
     }
 
-    private fun inActivateButton(btn: Button) {
-        btn.background = ContextCompat.getDrawable(requireContext(), R.drawable.button_body_inactive)
-        btn.setTextColor(getColor(requireContext(), R.color.colorPopOut))
+    private fun inActivateButton(context: Context, btn: Button) {
+        btn.background = ContextCompat.getDrawable(context, R.drawable.button_body_inactive)
+        btn.setTextColor(getColor(context, R.color.colorPopOut))
         btn.isEnabled = false
     }
 
     private fun checkValidState() {
-        if(isWeightValid || isMuscleValid || isPercentFatValid)
-            activateButton(binding.btnSave)
-        else
-            inActivateButton(binding.btnSave)
+        context?.let {
+            if (isWeightValid || isMuscleValid || isPercentFatValid)
+                activateButton(it, binding.btnSave)
+            else
+                inActivateButton(it, binding.btnSave)
+        }
     }
 
     private fun textToFloat(editText: EditText) =
@@ -274,9 +279,11 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
         binding.apply {
             when (v?.id) {
                 R.id.textView_free_trial -> {
-                    DialogUtil.showPurchaseProDialog(requireContext(),
-                        { (activity as MainActivity).billingManager.subscribe() },
-                        { (activity as MainActivity).billingManager.onPurchaseHistoryRestored()})
+                    context?.let {
+                        DialogUtil.showPurchaseProDialog(it,
+                            { (activity as MainActivity).billingManager.subscribe() },
+                            { (activity as MainActivity).billingManager.onPurchaseHistoryRestored() })
+                    }
                 }
                 R.id.imageBtn_up_weight -> {
                     editTextWeight.text = makePlusFloat(editTextWeight, 1f)
@@ -299,9 +306,11 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
 
                 R.id.btn_save -> {
                     if(!(activity as MainActivity).isProVersion) {
-                        DialogUtil.showPurchaseProDialog(requireContext(),
-                            { (activity as MainActivity).billingManager.subscribe() },
-                            { (activity as MainActivity).billingManager.onPurchaseHistoryRestored()})
+                        context?.let {
+                            DialogUtil.showPurchaseProDialog(it,
+                                { (activity as MainActivity).billingManager.subscribe() },
+                                { (activity as MainActivity).billingManager.onPurchaseHistoryRestored() })
+                        }
                         return
                     }
                     inbodyViewModel.insert(Inbody(

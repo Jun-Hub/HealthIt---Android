@@ -12,7 +12,7 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
         ads:adSize="SMART_BANNER"
-        ads:adUnitId="@string/banner_ad_unit_id_for_test" />
+        ads:adUnitId="@string/banner_ad_unit_weight_fragment" />
 
     <ScrollView
         android:id="@+id/scrollView_calendar"

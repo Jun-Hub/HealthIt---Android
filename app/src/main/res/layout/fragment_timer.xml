@@ -110,7 +110,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             ads:adSize="SMART_BANNER"
-            ads:adUnitId="@string/banner_ad_unit_id_for_test"/>
+            ads:adUnitId="@string/banner_ad_unit_timer_fragment"/>
 
     </LinearLayout>
 

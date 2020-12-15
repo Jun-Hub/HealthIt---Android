@@ -46,7 +46,8 @@ import kotlinx.coroutines.withContext
 import java.io.IOException
 import kotlin.properties.Delegates
 
-class AddEditActivity : AppCompatActivity(), AdapterEventListener {
+class
+AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
     private val TAG = "AddEditActivity"
 
