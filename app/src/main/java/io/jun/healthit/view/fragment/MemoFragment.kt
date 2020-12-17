@@ -189,13 +189,17 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
     override fun onPause() {
         super.onPause()
         //보기방식 저장
-        context?.let {
-            prefViewModel.setViewMode(viewSwitch.getDirection().name, it)
+        if(::viewSwitch.isInitialized) {
+            context?.let {
+                prefViewModel.setViewMode(viewSwitch.getDirection().name, it)
+            }
         }
 
         //태그 스피너와 편집 스위치 초기화
-        tagSpinner.setSelection(0)
-        editSwitch.setDirection(StickySwitch.Direction.LEFT, isAnimate = false, shouldTriggerSelected = true)
+        if(::tagSpinner.isInitialized && ::editSwitch.isInitialized) {
+            tagSpinner.setSelection(0)
+            editSwitch.setDirection(StickySwitch.Direction.LEFT, isAnimate = false, shouldTriggerSelected = true)
+        }
         editOn.value = false
     }
 
