@@ -27,10 +27,14 @@ import io.jun.healthit.view.AddEditActivity
 import io.jun.healthit.view.SetTemplateActivity
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 
-object DialogUtil {
+object DialogUtil: KoinComponent {
 
     private val TAG = "DialogUtil"
+
+    private val memoViewModel: MemoViewModel by inject()
 
         fun dateDialog(textDate:TextView, activity: Activity, layoutInflater: LayoutInflater) {
             val inflater = layoutInflater.inflate(R.layout.dialog_date, null as ViewGroup?)
@@ -58,7 +62,6 @@ object DialogUtil {
             forAdd: Boolean,
             activity: Activity,
             layoutInflater: LayoutInflater,
-            memoViewModel: MemoViewModel,
             id: Int?,
             title: String,
             content: String,
@@ -106,8 +109,7 @@ object DialogUtil {
         }
 
         fun deleteDialog(
-            owner: LifecycleOwner, activity: Activity, layoutInflater: LayoutInflater,
-            memoViewModel: MemoViewModel, liveData: LiveData<Memo>, memo: Memo
+            activity: Activity, layoutInflater: LayoutInflater, memo: Memo
         ) {
             val inflater = layoutInflater.inflate(R.layout.dialog_delete, null as ViewGroup?)
 
@@ -116,9 +118,6 @@ object DialogUtil {
                     android.R.style.Theme_DeviceDefault_Light_Dialog_NoActionBar
                 ).setView(inflater)
                 .setPositiveButton(activity.getString(R.string.ok)) { _, _ ->
-                    //에러 방지하기 위해 LiveData가 활성중이라면 종료 후 디비 제거
-                    if (liveData.hasObservers()) liveData.removeObservers(owner)
-
                     memoViewModel.delete(memo)
                     activity.finish()
                 }

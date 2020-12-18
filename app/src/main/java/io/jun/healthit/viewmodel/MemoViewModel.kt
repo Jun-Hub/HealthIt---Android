@@ -32,7 +32,7 @@ class MemoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun delete(memo: Memo) = viewModelScope.launch { repository.delete(memo) }
 
-    fun getMemoById(id: Int) = repository.getMemoById(id)
+    fun getMemoById(id: Int, callback: (Memo) -> Unit) = viewModelScope.launch { callback(repository.getMemoById(id)) }
 
     fun isExist(date: String) = repository.isExist(date)
 

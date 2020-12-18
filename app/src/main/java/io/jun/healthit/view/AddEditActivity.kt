@@ -10,7 +10,6 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -21,8 +20,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -39,21 +36,17 @@ import com.gun0912.tedpermission.TedPermission
 import io.jun.healthit.adapter.*
 import io.jun.healthit.viewmodel.PrefViewModel
 import kotlinx.android.synthetic.main.activity_add_edit.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.io.IOException
 import kotlin.properties.Delegates
 
-class
-AddEditActivity : AppCompatActivity(), AdapterEventListener {
+class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
     private val TAG = "AddEditActivity"
 
-    private lateinit var prefViewModel: PrefViewModel
-    private lateinit var memoViewModel: MemoViewModel
-    private lateinit var memoActualLive: LiveData<Memo>
+    private val prefViewModel: PrefViewModel by viewModel()
+    private val memoViewModel: MemoViewModel by viewModel()
 
     private var memoId:Int? = null
 
@@ -85,8 +78,6 @@ AddEditActivity : AppCompatActivity(), AdapterEventListener {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = null
 
-        prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
-        memoViewModel = ViewModelProvider(this).get(MemoViewModel::class.java)
 
         prefViewModel.let {
             if (!it.getTipChecking(Setting.RECORD_EDIT_TIP_FLAG, this))
@@ -94,54 +85,46 @@ AddEditActivity : AppCompatActivity(), AdapterEventListener {
         }
 
         setRecyclerView()
+        setClickListener()
 
-        if(!isNewMemo) {
-            //편집할 메모 LiveData로 가져오기
-            memoActualLive = memoViewModel.getMemoById(memoId!!)
-            memoActualLive.observe(this@AddEditActivity, { memo ->
-                editText_title.setText(memo.title)
-                editText_content.setText(memo.content)
-                for (i in memo.record!!.indices)
-                    recordAdapter.addRecord(memo.record[i])
-                memo.date?.let {
-                    textView_date.text = it
-                    dateOfOriginMemo = it }
-                tag = memo.tag!!
-                pin = memo.pin!!
-
-                CoroutineScope(Dispatchers.IO).launch {
-                    //DB에서 불러온 byteArray를 Bitmap으로 변환 및 리사이클러뷰에 저장
-                    memo.photo?.forEach {
-                        val bitmap =
-                            BitmapFactory.decodeByteArray(it, 0, it.size, BitmapFactory.Options())
-                        withContext(Dispatchers.Main) {
-                            photoAdapter.addPhoto(bitmap)
-                        }
-                    }
-                }
-            })
-        } else {
+        if(isNewMemo) {
             //오늘 날짜로 설정
             textView_date.text = getCurrentDate()
-        }
+            //새일지 쓰기로 넘어왔다면 여기서 Return
+            if(templateId == 0) return
 
-        //템플릿으로 열기로 넘어왔다면
-        if(templateId != 0) {
             recordAdapter.clearRecords()    //추가됬었던 레코드 샘플 비우기
             val records = prefViewModel.getTemplate(templateId, this)
             for(i in records.indices) {
                 recordAdapter.addRecord(records[i])
             }
+            return
         }
 
-        setClickListener()
-    }
+        memoViewModel.getMemoById(memoId!!) { memo ->
+            editText_title.setText(memo.title)
+            editText_content.setText(memo.content)
+            for (i in memo.record!!.indices)
+                recordAdapter.addRecord(memo.record[i])
+            memo.date?.let {
+                textView_date.text = it
+                dateOfOriginMemo = it
+            }
+            tag = memo.tag!!
+            pin = memo.pin!!
 
-    override fun onPause() {
-        super.onPause()
-        //메모 프래그먼트에서 메모를 삭제 했을때 livedata nullPointException 방지를 위해 observer 제거
-        if (!isNewMemo && memoActualLive.hasObservers())
-            memoActualLive.removeObservers(this)
+            CoroutineScope(Dispatchers.IO).launch {
+                //DB에서 불러온 byteArray를 Bitmap으로 변환 및 리사이클러뷰에 저장
+                memo.photo?.forEach {
+                    val bitmap =
+                        BitmapFactory.decodeByteArray(it, 0, it.size, BitmapFactory.Options())
+                    withContext(Dispatchers.Main) {
+                        photoAdapter.addPhoto(bitmap)
+                    }
+                }
+            }
+        }
+
     }
 
     //RecordAdapter의 viewHolder를 itemTouchHelper에 연결
@@ -308,24 +291,16 @@ AddEditActivity : AppCompatActivity(), AdapterEventListener {
         return when (item.itemId) {
 
             android.R.id.home -> {  //툴바의 뒤로가기 버튼
-                CoroutineScope(Dispatchers.Default).launch {
-                    val isConflict = isConflictDate()
-                    addByteArray()
-
-                    withContext(Dispatchers.Main) {
-                        DialogUtil.saveMemoDialog(isNewMemo, this@AddEditActivity, layoutInflater, memoViewModel,
-                            if(isNewMemo) null else memoId, titleToString(), contentToString(), recordAdapter.records ,byteArrayList,
-                            textView_date.text.toString(), tag, if(isNewMemo)false else pin, isConflict)
-                    }
-                }
+                onBackPressed()
                 true
             }
 
             R.id.action_save -> {   //저장 버튼
 
+            //TODO 코루틴 공부해서 여기좀 고치자
                 CoroutineScope(Dispatchers.Default).launch {
                     if(isConflictDate()) {
-                        withContext(Dispatchers.Main) { showConflicToast() }
+                        withContext(Dispatchers.Main) { showConflictToast() }
                         return@launch
                     }
 
@@ -363,7 +338,7 @@ AddEditActivity : AppCompatActivity(), AdapterEventListener {
             addByteArray()
 
             withContext(Dispatchers.Main) {
-                DialogUtil.saveMemoDialog(isNewMemo, this@AddEditActivity, layoutInflater, memoViewModel,
+                DialogUtil.saveMemoDialog(isNewMemo, this@AddEditActivity, layoutInflater,
                     if(isNewMemo) null else memoId, titleToString(), contentToString(), recordAdapter.records, byteArrayList,
                     textView_date.text.toString(), tag, if(isNewMemo) false else pin, isConflict)
             }
@@ -378,7 +353,7 @@ AddEditActivity : AppCompatActivity(), AdapterEventListener {
         return memoViewModel.isExist(selectedDate)
     }
 
-    private fun showConflicToast() {
+    private fun showConflictToast() {
         Toast.makeText(this, getString(R.string.notice_conflict_date), Toast.LENGTH_LONG).show()
     }
 

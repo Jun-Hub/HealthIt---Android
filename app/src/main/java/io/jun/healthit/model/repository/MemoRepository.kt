@@ -18,7 +18,7 @@ class MemoRepository(private val memoDao: MemoDao) {
 
     suspend fun delete(memo: Memo) = memoDao.delete(memo)
 
-    fun getMemoById(id: Int) = memoDao.loadById(id)
+    suspend fun getMemoById(id: Int) = memoDao.loadById(id)
 
     fun isExist(date: String) = memoDao.isExist(date)
 }

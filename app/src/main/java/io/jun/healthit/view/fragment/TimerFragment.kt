@@ -8,13 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat.startForegroundService
 import androidx.lifecycle.ViewModelProvider
-import io.jun.healthit.R
 import io.jun.healthit.databinding.FragmentTimerBinding
 import io.jun.healthit.service.TimerService
 import io.jun.healthit.viewmodel.PrefViewModel
 import io.jun.healthit.viewmodel.TimerViewModel
-import kotlinx.android.synthetic.main.fragment_timer.*
-import kotlinx.android.synthetic.main.fragment_timer.adView
 
 class TimerFragment : BaseFragment() {
 
@@ -92,11 +89,11 @@ class TimerFragment : BaseFragment() {
     override fun checkProVersion(isProVersion: Boolean) {
         super.checkProVersion(isProVersion)
         if(isProVersion) {
-            adView.visibility = View.GONE
+            binding.adView.visibility = View.GONE
             return
         }
 
-        loadBannerAd(adView)
+        loadBannerAd(binding.adView)
     }
 
     override fun onStop() {

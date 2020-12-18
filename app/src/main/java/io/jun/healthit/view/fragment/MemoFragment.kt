@@ -13,7 +13,6 @@ import android.widget.Spinner
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -43,6 +42,7 @@ import kotlinx.android.synthetic.main.item_memo.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.properties.Delegates
 
 class MemoFragment : BaseFragment(), View.OnClickListener {
@@ -53,8 +53,8 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
     private val TAG = "MemoFragment"
 
     private lateinit var interstitialAd: InterstitialAd
-    private lateinit var prefViewModel: PrefViewModel
-    private lateinit var memoViewModel: MemoViewModel
+    private val prefViewModel: PrefViewModel by viewModel()
+    private val memoViewModel: MemoViewModel by viewModel()
 
     private lateinit var memoList: List<Memo>
     private var selectedMemo: Memo? = null
@@ -83,12 +83,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         savedInstanceState: Bundle?
     ): View? {
         val root = inflater.inflate(R.layout.fragment_memo, container, false)
-
         setHasOptionsMenu(true)
-
-        prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
-        memoViewModel = ViewModelProvider(this).get(MemoViewModel::class.java)
-
         return root
     }
 

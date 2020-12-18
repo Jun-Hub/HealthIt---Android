@@ -12,9 +12,6 @@ import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.zagum.switchicon.SwitchIconView
@@ -33,15 +30,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MemoDetailActivity : AppCompatActivity() {
 
-    private lateinit var prefViewModel: PrefViewModel
-
     private lateinit var recordAdapter: RecordListAdapter
-    private lateinit var memoViewModel: MemoViewModel
-    private lateinit var memoActualLive: LiveData<Memo>
+
+    private val prefViewModel: PrefViewModel by viewModel()
+    private val memoViewModel: MemoViewModel by viewModel()
     private lateinit var memo: Memo
 
     private var memoId: Int? = null
@@ -58,9 +54,6 @@ class MemoDetailActivity : AppCompatActivity() {
 
         memoId = intent.getIntExtra("id", 0)
 
-        prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
-
-        memoViewModel = ViewModelProvider(this).get(MemoViewModel::class.java)
         val photoAdapter = PhotoListAdapter(this, false)
         val itemDecoration = DividerItemDecoration(this, 0).apply {
             ContextCompat.getDrawable(this@MemoDetailActivity, R.drawable.divider_photo)?.let { setDrawable(it) } //아이템간 구분선
@@ -80,8 +73,7 @@ class MemoDetailActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@MemoDetailActivity, LinearLayoutManager.HORIZONTAL, false)   //리사이클러뷰 가로 스크롤
         }
 
-        memoActualLive = memoViewModel.getMemoById(memoId!!)
-        memoActualLive.observe(this@MemoDetailActivity, { memo ->
+        memoViewModel.getMemoById(memoId!!) { memo ->
 
             this.memo = memo
 
@@ -146,14 +138,8 @@ class MemoDetailActivity : AppCompatActivity() {
             }
 
             alreadyLoad = true
-        })
-    }
+        }
 
-    override fun onPause() {
-        super.onPause()
-        //메모 프래그먼트에서 메모를 삭제 했을때 livedata nullPointException 방지를 위해 observer 제거
-        if (memoActualLive.hasObservers())
-            memoActualLive.removeObservers(this)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -205,7 +191,7 @@ class MemoDetailActivity : AppCompatActivity() {
             }
             R.id.action_delete -> { //삭제 버튼
                 val memo = Memo(memoId!!, null, null, null, null, null, null, null)
-                DialogUtil.deleteDialog(this, this, layoutInflater, memoViewModel, memoActualLive, memo)
+                DialogUtil.deleteDialog(this, layoutInflater, memo)
                 true
             }
 

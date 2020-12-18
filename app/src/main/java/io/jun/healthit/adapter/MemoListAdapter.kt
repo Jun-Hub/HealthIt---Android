@@ -9,8 +9,6 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
@@ -25,13 +23,17 @@ import io.jun.healthit.util.calculateSetAndVolume
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.core.KoinComponent
+import org.koin.core.inject
 
 class MemoListAdapter internal constructor(
     private val fragment: MemoFragment
-) : RecyclerView.Adapter<MemoListAdapter.MemoViewHolder>(), RecyclerViewFastScroller.OnPopupTextUpdate {
+) : RecyclerView.Adapter<MemoListAdapter.MemoViewHolder>(),
+    RecyclerViewFastScroller.OnPopupTextUpdate,
+    KoinComponent {
 
     private val inflater: LayoutInflater = LayoutInflater.from(fragment.context)
-    private val memoViewModel = ViewModelProvider(fragment).get(MemoViewModel::class.java)
+    private val memoViewModel: MemoViewModel by inject()
     private var memos = emptyList<Memo>()
 
     private var originSortMemos = emptyList<Memo>()
@@ -125,7 +127,7 @@ class MemoListAdapter internal constructor(
 
         //TODO viewholder에 observe하면 memory lick을 만날 수 있다?
             //MainActivity 툴바의 편집 버튼(switch) 상태를 Livedata로 관찰
-            memoViewModel.isEditMode().observe(fragment, Observer { editOn ->
+            memoViewModel.isEditMode().observe(fragment, { editOn ->
                 if (editOn)
                     holder.deleteBtn.visibility = View.VISIBLE
                 else

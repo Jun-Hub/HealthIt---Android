@@ -10,7 +10,7 @@ interface MemoDao {
     fun getAll(): LiveData<List<Memo>>
 
     @Query("SELECT * FROM memo WHERE id IN (:memoId)")
-    fun loadById(memoId: Int): LiveData<Memo>
+    suspend fun loadById(memoId: Int): Memo
 
     @Query("SELECT * FROM memo WHERE date IN (:date)")
     fun isExist(date: String): Boolean
