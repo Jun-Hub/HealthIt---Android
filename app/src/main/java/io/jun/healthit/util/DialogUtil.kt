@@ -12,9 +12,6 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.orhanobut.dialogplus.DialogPlus
 import com.orhanobut.dialogplus.ViewHolder
@@ -35,6 +32,7 @@ object DialogUtil: KoinComponent {
     private val TAG = "DialogUtil"
 
     private val memoViewModel: MemoViewModel by inject()
+    private val prefViewModel: PrefViewModel by inject()
 
         fun dateDialog(textDate:TextView, activity: Activity, layoutInflater: LayoutInflater) {
             val inflater = layoutInflater.inflate(R.layout.dialog_date, null as ViewGroup?)
@@ -128,8 +126,6 @@ object DialogUtil: KoinComponent {
 
         fun showAlertDialog(fragment: Fragment) {
 
-            val prefViewModel = ViewModelProvider(fragment).get(PrefViewModel::class.java)
-
             val alertEntries = fragment.resources.getStringArray(R.array.alert_entries)
             val alertValues = fragment.resources.getStringArray(R.array.alert_values)
             val curValue = when(fragment.context?.let { prefViewModel.getAlertSettings(it) }) {
@@ -153,8 +149,6 @@ object DialogUtil: KoinComponent {
         }
 
         fun showRingDialog(fragment:Fragment) {
-
-            val prefViewModel = ViewModelProvider(fragment).get(PrefViewModel::class.java)
 
             val ringEntries = fragment.resources.getStringArray(R.array.ring_entries)
             val ringValues = fragment.resources.getStringArray(R.array.ring_values)
@@ -184,8 +178,6 @@ object DialogUtil: KoinComponent {
 
         fun showTagDialog(fragment: Fragment, index: Int, layoutInflater: LayoutInflater) {
 
-            val prefViewModel = ViewModelProvider(fragment).get(PrefViewModel::class.java)
-
             val inflater = layoutInflater.inflate(R.layout.dialog_set_name, null as ViewGroup?)
             val titleText = inflater.findViewById<TextView>(R.id.textView_title)
             val editText = inflater.findViewById<EditText>(R.id.editText)
@@ -207,8 +199,6 @@ object DialogUtil: KoinComponent {
         }
 
         fun showTemplateDialog(fragment: Fragment, settingsMode: Boolean) {
-
-            val prefViewModel =  ViewModelProvider(fragment).get(PrefViewModel::class.java)
 
             val templates = arrayOf(
                 fragment.context?.let { prefViewModel.getTemplateName(1, it) },
@@ -257,8 +247,6 @@ object DialogUtil: KoinComponent {
 
         fun saveTemplateDialog(layoutInflater: LayoutInflater, activity: AppCompatActivity, templateId: Int,
                                templateName: String, adapter: RecordListAdapter) {
-
-            val prefViewModel = ViewModelProvider(activity).get(PrefViewModel::class.java)
 
             val inflater = layoutInflater.inflate(R.layout.dialog_save, null as ViewGroup?)
 
@@ -316,8 +304,6 @@ object DialogUtil: KoinComponent {
         }
 
         private fun showDirectlyTemplateDialog(activity: AppCompatActivity, name: String, records: List<Record>) {
-
-            val prefViewModel = ViewModelProvider(activity).get(PrefViewModel::class.java)
 
             val templates = arrayOf(
                 prefViewModel.getTemplateName(1, activity),
@@ -464,7 +450,7 @@ object DialogUtil: KoinComponent {
            .show()
    }
 
-    fun showUseTipDialog(context: Context, layoutInflater: LayoutInflater, viewModel: PrefViewModel) {
+    fun showUseTipDialog(context: Context, layoutInflater: LayoutInflater) {
         val inflater = layoutInflater.inflate(R.layout.dialog_tip_body, null as ViewGroup?)
         val imageViewGif: ImageView = inflater.findViewById(R.id.imageView_tip)
         Glide.with(context).load(R.raw.tip_edit_record).into(imageViewGif)
@@ -472,7 +458,7 @@ object DialogUtil: KoinComponent {
         DialogPlus.newDialog(context)
             .setOnClickListener { dialog, view ->
                 if(view.id == R.id.button_ok) {
-                    viewModel.setTipChecking(Setting.RECORD_EDIT_TIP_FLAG, true, context)
+                    prefViewModel.setTipChecking(Setting.RECORD_EDIT_TIP_FLAG, true, context)
                     dialog.dismiss()
                 }
             }

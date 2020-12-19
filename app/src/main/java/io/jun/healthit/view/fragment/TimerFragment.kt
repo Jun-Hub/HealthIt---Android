@@ -7,17 +7,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat.startForegroundService
-import androidx.lifecycle.ViewModelProvider
 import io.jun.healthit.databinding.FragmentTimerBinding
 import io.jun.healthit.service.TimerService
+import io.jun.healthit.view.MainActivity
 import io.jun.healthit.viewmodel.PrefViewModel
 import io.jun.healthit.viewmodel.TimerViewModel
+import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class TimerFragment : BaseFragment() {
 
-    private lateinit var prefViewModel : PrefViewModel
+    private val prefViewModel: PrefViewModel by viewModel()
     //TimerService로부터 countDown 현황을 실시간으로 보여줄 LiveData 관찰
-    private lateinit var timerViewModel: TimerViewModel
+    private val timerViewModel: TimerViewModel by viewModel()
 
     private var viewBinding: FragmentTimerBinding? = null
     private val binding get() = viewBinding!!
@@ -25,12 +27,6 @@ class TimerFragment : BaseFragment() {
     private var isRunning = false
     private var isReplay = false
     private var mBound: Boolean = false
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
-        timerViewModel = ViewModelProvider(this).get(TimerViewModel::class.java)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,

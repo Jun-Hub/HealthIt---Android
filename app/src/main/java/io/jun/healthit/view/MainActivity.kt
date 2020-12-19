@@ -13,21 +13,30 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.snackbar.Snackbar
 import io.jun.healthit.R
-import io.jun.healthit.billing.BillingCallback
 import io.jun.healthit.billing.BillingManager
 import io.jun.healthit.update.UpdateManager
 import io.jun.healthit.util.Setting
 import io.jun.healthit.util.isInternetConnected
 import kotlinx.android.synthetic.main.activity_main.*
+import org.koin.android.ext.android.inject
+import org.koin.core.parameter.parametersOf
 
 class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
 
-    lateinit var billingManager: BillingManager
+    val billingManager: BillingManager by inject {
+        parametersOf(this@MainActivity, { productId: String ->
+            if (productId == getString(R.string.sku_subs))
+                recreate() },
+            { _: Double -> },
+            { showSnackbarForBillingError() })
+    }
     var isProVersion = false
 
-    private val updateManager: UpdateManager by lazy { UpdateManager(this) { showSnackbarForCompleteUpdate() } }
+    private val updateManager: UpdateManager by inject {
+        parametersOf(this@MainActivity, { showSnackbarForCompleteUpdate()}) }
+
     private var backWait:Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         if(isInternetConnected(applicationContext)) {
-            initBillingManager()
+            isProVersion = billingManager.billingProcessor.isSubscribed(getString(R.string.sku_subs))
         } else {
             Snackbar.make(nav_view, getString(R.string.notice_network_connection), Snackbar.LENGTH_INDEFINITE)
                 .setAction(getString(R.string.ok)) { }
@@ -71,34 +80,15 @@ class MainActivity : AppCompatActivity() {
         nav_view.setupWithNavController(navController)
     }
 
+    private fun showSnackbarForBillingError() {
+        Snackbar.make(nav_view, getString(R.string.billing_error), Snackbar.LENGTH_SHORT).show()
+    }
+
     private fun showSnackbarForCompleteUpdate() {
-        Snackbar.make(
-            nav_view,
-            getString(R.string.notice_update_complete),
-            Snackbar.LENGTH_INDEFINITE
-        ).apply {
+        Snackbar.make(nav_view, getString(R.string.notice_update_complete), Snackbar.LENGTH_INDEFINITE).apply {
             setAction(getString(R.string.restart)) { updateManager.completeUpdate() }
             show()
         }
-    }
-
-    private fun initBillingManager() {
-
-        billingManager = BillingManager(this, object : BillingCallback {
-            override fun onPurchased(productId: String?) {
-                if (productId == getString(R.string.sku_subs))
-                    recreate()
-            }
-
-            override fun onUpdatePrice(price: Double?) {}
-
-            override fun onBillingError() {
-                Snackbar.make(nav_view, getString(R.string.billing_error), Snackbar.LENGTH_SHORT).show()
-            }
-        })
-
-        isProVersion = billingManager.billingProcessor.isSubscribed(getString(R.string.sku_subs))
-        Log.d(TAG, "initBillingManager proversion : $isProVersion")
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

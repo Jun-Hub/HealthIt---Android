@@ -15,16 +15,16 @@ import io.jun.healthit.adapter.ItemTouchHelperCallback
 import io.jun.healthit.adapter.RecordListAdapter
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.viewmodel.PrefViewModel
-import kotlinx.android.synthetic.main.activity_add_edit.*
 import kotlinx.android.synthetic.main.activity_set_template.*
 import kotlinx.android.synthetic.main.activity_set_template.btn_add_record
 import kotlinx.android.synthetic.main.activity_set_template.recyclerView_record
 import kotlinx.android.synthetic.main.activity_set_template.toolbar
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import kotlin.properties.Delegates
 
 class SetTemplateActivity : AppCompatActivity(), AdapterEventListener {
 
-    private lateinit var prefViewModel: PrefViewModel
+    private val prefViewModel: PrefViewModel by viewModel()
 
     private var templateId by Delegates.notNull<Int>()
     private lateinit var recordAdapter: RecordListAdapter
@@ -40,8 +40,6 @@ class SetTemplateActivity : AppCompatActivity(), AdapterEventListener {
         setSupportActionBar(toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = null
-
-        prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
 
         editText_name.text = SpannableStringBuilder(prefViewModel.getTemplateName(templateId, this))
 

@@ -3,7 +3,6 @@ package io.jun.healthit.billing
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
-import android.widget.Toast
 import com.anjlab.android.iab.v3.BillingProcessor
 import com.anjlab.android.iab.v3.BillingProcessor.IBillingHandler
 import com.anjlab.android.iab.v3.TransactionDetails
@@ -11,7 +10,9 @@ import io.jun.healthit.R
 
 class BillingManager(
     private val activity: Activity,
-    private val billingCallback: BillingCallback) : IBillingHandler {
+    private val onPurchased: (productId:String) -> Unit,
+    private val onUpdatePrice: (price: Double) -> Unit,
+    private val onBillingError: () -> Unit) : IBillingHandler {
 
     private val TAG = "BillingManager"
 
@@ -31,7 +32,7 @@ class BillingManager(
     override fun onProductPurchased(productId: String, details: TransactionDetails?) {
         Log.d(TAG, "onProductPurchased: $productId")
         billingProcessor.loadOwnedPurchasesFromGoogle() // 구매정보 업데이트
-        billingCallback.onPurchased(productId)
+        onPurchased(productId)
     }
 
     override fun onPurchaseHistoryRestored() {
@@ -41,8 +42,7 @@ class BillingManager(
 
     override fun onBillingError(errorCode: Int, error: Throwable?) {
         // # 결제 오류시 따로 토스트 메세지를 표시하고 싶으시면 여기에 하시면됩니다.
-        billingCallback.onBillingError()
-        Log.d(TAG, "onBillingError")
+        onBillingError()
     }
 
     /**
@@ -53,7 +53,7 @@ class BillingManager(
             billingProcessor.getSubscriptionListingDetails(activity.getString(R.string.sku_subs)) // 1개월 구독 정보
         
         // # SkuDetails.priceValue: ex) 1,000원일경우 => 1000.00
-        billingCallback.onUpdatePrice(subDetails.priceValue)
+        onUpdatePrice(subDetails.priceValue)
         
         billingProcessor.loadOwnedPurchasesFromGoogle() // 구매정보 업데이트
     }

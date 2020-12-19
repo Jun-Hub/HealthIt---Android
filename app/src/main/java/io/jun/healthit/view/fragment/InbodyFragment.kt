@@ -10,7 +10,6 @@ import android.view.*
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getColor
-import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import io.jun.healthit.R
@@ -25,13 +24,14 @@ import io.jun.healthit.util.makePlusFloat
 import io.jun.healthit.view.MainActivity
 import io.jun.healthit.viewmodel.InbodyViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class InbodyFragment : BaseFragment(), View.OnClickListener {
 
     private val TAG = "InbodyFragment"
 
-    private lateinit var prefViewModel: PrefViewModel
-    private lateinit var inbodyViewModel: InbodyViewModel
+    private val prefViewModel: PrefViewModel by viewModel()
+    private val inbodyViewModel: InbodyViewModel by viewModel()
 
     private var viewBinding: FragmentInbodyBinding? = null
     private val binding get() = viewBinding!!
@@ -46,12 +46,6 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
     private val textDecoratorList = mutableListOf<TextDecorator>()
 
     private lateinit var inbodySpinner: Spinner
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
-        inbodyViewModel = ViewModelProvider(this).get(InbodyViewModel::class.java)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

@@ -15,7 +15,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
-import androidx.lifecycle.ViewModelProvider
 import androidx.preference.PreferenceManager
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
@@ -24,11 +23,12 @@ import io.jun.healthit.databinding.FragmentSettingsBinding
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.view.MainActivity
 import io.jun.healthit.viewmodel.PrefViewModel
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsFragment : BaseFragment(), View.OnClickListener {
 
     private val TAG = "SettingsFragment"
-    private lateinit var prefViewModel: PrefViewModel
+    private val prefViewModel: PrefViewModel by viewModel()
     
     private var viewBinding: FragmentSettingsBinding? = null
     private val binding get() = viewBinding!!
@@ -41,7 +41,6 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        prefViewModel = ViewModelProvider(this).get(PrefViewModel::class.java)
         preferences = PreferenceManager.getDefaultSharedPreferences(context)
     }
 

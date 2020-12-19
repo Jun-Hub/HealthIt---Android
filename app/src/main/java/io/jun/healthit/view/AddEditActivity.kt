@@ -78,10 +78,8 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         supportActionBar?.title = null
 
-
-        prefViewModel.let {
-            if (!it.getTipChecking(Setting.RECORD_EDIT_TIP_FLAG, this))
-                DialogUtil.showUseTipDialog(this, layoutInflater, it)
+        if (!prefViewModel.getTipChecking(Setting.RECORD_EDIT_TIP_FLAG, this)) {
+            DialogUtil.showUseTipDialog(this, layoutInflater)
         }
 
         setRecyclerView()

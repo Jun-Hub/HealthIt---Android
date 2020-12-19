@@ -1,7 +1,8 @@
 package io.jun.healthit
 
 import android.app.Application
-import io.jun.healthit.di.serviceModule
+import io.jun.healthit.di.billingModule
+import io.jun.healthit.di.updateModule
 import io.jun.healthit.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -19,7 +20,7 @@ class App: Application() {
             //inject Android context
             androidContext(this@App)
             // use modules
-            modules(listOf(viewModelModule, serviceModule))
+            modules(listOf(viewModelModule, billingModule, updateModule))
         }
     }
 }
