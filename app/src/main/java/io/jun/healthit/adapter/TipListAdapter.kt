@@ -1,8 +1,8 @@
 package io.jun.healthit.adapter
 
 import android.content.Context
-import android.content.Intent
 import android.os.Build
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,9 +12,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.cleveroad.fanlayoutmanager.FanLayoutManager
 import io.jun.healthit.R
 import io.jun.healthit.model.data.Tip
-import io.jun.healthit.view.RoutineActivity
 
-class TipListAdapter(val context: Context, private val fanLayoutManager: FanLayoutManager):
+class TipListAdapter(
+    val context: Context,
+    private val fanLayoutManager: FanLayoutManager,
+    private val changeFragment: (Bundle) -> Unit
+):
     RecyclerView.Adapter<TipListAdapter.TipViewHolder>() {
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
@@ -47,9 +50,11 @@ class TipListAdapter(val context: Context, private val fanLayoutManager: FanLayo
 
             //이미 한 번 터치되서 카드가 올라왔을 때 또 터치하면 액티비티 전환
             if(fanLayoutManager.selectedItemPosition == position) {
-                val intent = Intent(this.context, RoutineActivity::class.java)
-                intent.putExtra("tipType", current.intentValue)
-                context.startActivity(intent)
+                Bundle().apply {
+                    putString("tipType", current.intentValue)
+                }.let {
+                    changeFragment(it) }
+
             } else {    //한 번만 터치하면 카드 올라오는 이펙트
                 onItemClickListener.onItemClicked(holder.adapterPosition, holder.tipImage)
             }

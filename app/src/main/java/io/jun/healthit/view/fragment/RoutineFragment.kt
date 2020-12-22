@@ -2,21 +2,22 @@ package io.jun.healthit.view.fragment
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DefaultItemAnimator
-import androidx.recyclerview.widget.RecyclerView
 import com.cleveroad.fanlayoutmanager.FanLayoutManager
 import com.cleveroad.fanlayoutmanager.FanLayoutManagerSettings
 import com.cleveroad.fanlayoutmanager.callbacks.FanChildDrawingOrderCallback
+import io.jun.healthit.FragmentProvider
 import io.jun.healthit.R
 import io.jun.healthit.adapter.TipListAdapter
 import io.jun.healthit.databinding.FragmentRoutineBinding
 import io.jun.healthit.model.data.Tip
+import io.jun.healthit.view.RoutineDetailFragment
 import kotlinx.android.synthetic.main.fragment_routine.adView
 
+//TODO 프래그먼트 addToBackStack 또는 popBackStack 됨에 따라 이동 애니메이션 추가하기
 class RoutineFragment : BaseFragment() {
 
     private val TAG = "RoutineFragment"
@@ -52,7 +53,10 @@ class RoutineFragment : BaseFragment() {
 
         val fanLayoutManager = FanLayoutManager(context, fanLayoutManagerSettings)
 
-        val tipAdapter = TipListAdapter(context, fanLayoutManager)
+        val tipAdapter = TipListAdapter(context, fanLayoutManager) { bundle ->
+            navigation.move(FragmentProvider.ROUTINE_DETAIL_FRAGMENT, "123", bundle)
+        }
+
         tipAdapter.apply {
             add(Tip(getString(R.string.text_common_sense), null, R.drawable.ic_moonk, "common_sense"))
             add(Tip(getString(R.string.text_common_sense_diet), null, R.drawable.ic_hamburger, "common_sense_diet"))

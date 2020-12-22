@@ -33,6 +33,7 @@
     <fragment
         android:id="@+id/navigation_settings"
         android:name="io.jun.healthit.view.fragment.SettingsFragment"
-        android:label="@string/title_activity_settings" />
+        android:label="@string/title_activity_settings" >
+    </fragment>
 
 </navigation>

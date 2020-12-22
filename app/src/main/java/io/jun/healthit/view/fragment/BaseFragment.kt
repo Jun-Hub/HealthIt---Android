@@ -13,6 +13,7 @@ import io.jun.healthit.view.MainActivity
 open class BaseFragment : Fragment() {
 
     private val TAG = "BaseFragment"
+    val navigation by lazy { (activity as MainActivity).fragmentNavigation }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

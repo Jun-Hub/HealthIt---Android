@@ -47,7 +47,7 @@
             android:exported="false" />
 
         <activity
-            android:name=".view.RoutineActivity"
+            android:name=".view.RoutineDetailFragment"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
