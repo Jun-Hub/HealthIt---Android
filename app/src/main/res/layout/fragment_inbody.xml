@@ -5,11 +5,18 @@
     android:layout_height="wrap_content"
     android:background="@color/colorPrimaryDark">
 
+    <include
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/include_actionbar"
+        android:layout_alignParentTop="true" />
+
     <com.google.android.gms.ads.AdView xmlns:ads="http://schemas.android.com/apk/res-auto"
         android:id="@+id/adView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@+id/appbar"
         android:layout_centerHorizontal="true"
         ads:adSize="SMART_BANNER"
         ads:adUnitId="@string/banner_ad_unit_weight_fragment" />

@@ -14,7 +14,6 @@ import io.jun.healthit.R
 import io.jun.healthit.adapter.TipListAdapter
 import io.jun.healthit.databinding.FragmentRoutineBinding
 import io.jun.healthit.model.data.Tip
-import io.jun.healthit.view.RoutineDetailFragment
 import kotlinx.android.synthetic.main.fragment_routine.adView
 
 //TODO 프래그먼트 addToBackStack 또는 popBackStack 됨에 따라 이동 애니메이션 추가하기
@@ -54,7 +53,7 @@ class RoutineFragment : BaseFragment() {
         val fanLayoutManager = FanLayoutManager(context, fanLayoutManagerSettings)
 
         val tipAdapter = TipListAdapter(context, fanLayoutManager) { bundle ->
-            navigation.move(FragmentProvider.ROUTINE_DETAIL_FRAGMENT, "123", bundle)
+            navigation.move(FragmentProvider.ROUTINE_DETAIL_FRAGMENT, bundle)
         }
 
         tipAdapter.apply {
@@ -90,6 +89,11 @@ class RoutineFragment : BaseFragment() {
         }
 
         loadBannerAd(adView)
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        navigation.back()
     }
 
 }

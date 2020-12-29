@@ -10,16 +10,13 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.util.Log
+import android.view.*
 import android.widget.AdapterView
 import android.widget.Spinner
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,19 +31,23 @@ import io.jun.healthit.viewmodel.MemoViewModel
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import io.jun.healthit.adapter.*
+import io.jun.healthit.databinding.FragmentAddEditBinding
+import io.jun.healthit.view.fragment.BaseFragment
 import io.jun.healthit.viewmodel.PrefViewModel
-import kotlinx.android.synthetic.main.activity_add_edit.*
 import kotlinx.coroutines.*
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.io.IOException
 import kotlin.properties.Delegates
 
-class AddEditActivity : AppCompatActivity(), AdapterEventListener {
+class AddEditFragment : BaseFragment(), AdapterEventListener {
 
-    private val TAG = "AddEditActivity"
+    private val TAG = "AddEditFragment"
 
-    private val prefViewModel: PrefViewModel by viewModel()
-    private val memoViewModel: MemoViewModel by viewModel()
+    private val prefViewModel: PrefViewModel by sharedViewModel()
+    private val memoViewModel: MemoViewModel by sharedViewModel()
+
+    private var viewBinding: FragmentAddEditBinding? = null
+    private val binding get() = viewBinding!!
 
     private var memoId:Int? = null
 
@@ -56,9 +57,9 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
     private lateinit var layoutManagerRecord: LinearLayoutManager
     private lateinit var layoutManager: LinearLayoutManager
     private lateinit var currentPhotoPath: String
-    private lateinit var photoURI: Uri
 
-    private var isNewMemo by Delegates.notNull<Boolean>()
+    private var isNewMemo: Boolean? = null
+    private var templateId: Int? = null
     private var tag by Delegates.notNull<Int>()
     private var pin by Delegates.notNull<Boolean>()
     private lateinit var dateOfOriginMemo: String
@@ -67,45 +68,67 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_add_edit)
+        isNewMemo = arguments?.getBoolean("newMemo", false)
+        templateId = arguments?.getInt("templateId", 0)
+    }
 
-        isNewMemo = intent.getBooleanExtra("newMemo", false)
-        val templateId = intent.getIntExtra("templateId", 0)
-        memoId = intent.getIntExtra("id", 0)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        viewBinding = FragmentAddEditBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        //툴바 세팅
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = null
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        if (!prefViewModel.getTipChecking(Setting.RECORD_EDIT_TIP_FLAG, this)) {
-            DialogUtil.showUseTipDialog(this, layoutInflater)
-        }
+        setBackActionBar(binding.appbar.toolbar)
 
-        setRecyclerView()
-        setClickListener()
-
-        if(isNewMemo) {
-            //오늘 날짜로 설정
-            textView_date.text = getCurrentDate()
-            //새일지 쓰기로 넘어왔다면 여기서 Return
-            if(templateId == 0) return
-
-            recordAdapter.clearRecords()    //추가됬었던 레코드 샘플 비우기
-            val records = prefViewModel.getTemplate(templateId, this)
-            for(i in records.indices) {
-                recordAdapter.addRecord(records[i])
+        context?.let {
+            if (!prefViewModel.getTipChecking(Setting.RECORD_EDIT_TIP_FLAG)) {
+                DialogUtil.showUseTipDialog(it, layoutInflater)
             }
-            return
+            isNewMemo?.let { isNew ->
+                setRecyclerView(it, isNew)
+            }
+            setClickListener(it)
         }
 
+        isNewMemo?.let {
+            Log.d(TAG, "isNewMemo : $isNewMemo")
+            if(it) {
+                //오늘 날짜로 설정
+                binding.textViewDate.text = getCurrentDate()
+                //새일지 쓰기로 넘어왔다면 여기서 Return
+                if (templateId == 0) return
+
+                templateId?.let { id ->
+                    Log.d(TAG, "11")
+                    recordAdapter.clearRecords()    //추가됬었던 레코드 샘플 비우기
+                    val records = prefViewModel.getTemplate(id)
+                    for (i in records.indices) {
+                        recordAdapter.addRecord(records[i])
+                    }
+                    return
+                }
+            }
+        }
+
+        memoId = arguments?.getInt("id", 0)
         memoViewModel.getMemoById(memoId!!) { memo ->
-            editText_title.setText(memo.title)
-            editText_content.setText(memo.content)
+
+            Log.d(TAG, "memoId : $memoId")
+            binding.apply {
+                editTextTitle.setText(memo.title)
+                editTextContent.setText(memo.content)
+            }
+
             for (i in memo.record!!.indices)
                 recordAdapter.addRecord(memo.record[i])
             memo.date?.let {
-                textView_date.text = it
+                binding.textViewDate.text = it
                 dateOfOriginMemo = it
             }
             tag = memo.tag!!
@@ -122,7 +145,11 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
                 }
             }
         }
+    }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        viewBinding = null
     }
 
     //RecordAdapter의 viewHolder를 itemTouchHelper에 연결
@@ -130,25 +157,26 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
         itemTouchHelper.startDrag(viewHolder)
     }
 
-    private fun setRecyclerView() {
-        layoutManagerRecord = LinearLayoutManager(this)
-        photoAdapter = PhotoListAdapter(this, true)
-        recordAdapter = RecordListAdapter(this, true, isNewMemo)
-        layoutManager =  LinearLayoutManager(this@AddEditActivity, LinearLayoutManager.HORIZONTAL, false)
+    private fun setRecyclerView(context: Context, isNewMemo: Boolean) {
+        Log.d(TAG, "22")
+        layoutManagerRecord = LinearLayoutManager(context)
+        photoAdapter = PhotoListAdapter(context, true)
+        recordAdapter = RecordListAdapter(context, true, isNewMemo)
+        layoutManager =  LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
         //리사이클러뷰의 아이템간 구분선
-        val itemDecoration = DividerItemDecoration(this, 0).apply {
-            ContextCompat.getDrawable(this@AddEditActivity, R.drawable.divider_photo)?.let { setDrawable(it) }
+        val itemDecoration = DividerItemDecoration(context, 0).apply {
+            ContextCompat.getDrawable(context, R.drawable.divider_photo)?.let { setDrawable(it) }
         }
 
-        recyclerView_record.apply {
+        binding.recyclerViewRecord.apply {
             adapter = recordAdapter
             layoutManager = layoutManagerRecord
         }
 
-        recyclerView_photo.apply {
+        binding.recyclerViewPhoto.apply {
             adapter = photoAdapter
-            layoutManager = LinearLayoutManager(this@AddEditActivity, LinearLayoutManager.HORIZONTAL, false)
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
             addItemDecoration(itemDecoration)
         }
 
@@ -157,42 +185,44 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
         //아이템 터치 헬퍼 연결
         val callback = ItemTouchHelperCallback(recordAdapter)
         itemTouchHelper = ItemTouchHelper(callback)
-        itemTouchHelper.attachToRecyclerView(recyclerView_record)
+        itemTouchHelper.attachToRecyclerView(binding.recyclerViewRecord)
     }
 
-    private fun setClickListener() {
+    private fun setClickListener(context: Context) {
 
-        btn_edit_date.setOnClickListener {
-            DialogUtil.dateDialog(textView_date, this, layoutInflater)
-        }
+        binding.apply {
+            btnEditDate.setOnClickListener {
+                DialogUtil.dateDialog(textViewDate, context, layoutInflater)
+            }
 
-        btn_add_record.setOnClickListener {
-            recordAdapter.addRecordDefault()
-            layoutManagerRecord.scrollToPosition(recordAdapter.itemCount-1)
-        }
+            btnAddRecord.setOnClickListener {
+                recordAdapter.addRecordDefault()
+                layoutManagerRecord.scrollToPosition(recordAdapter.itemCount - 1)
+            }
 
-        //앨범에서 사진 가져오기 버튼
-        btn_gallery.setOnClickListener {
-            if(!isFullPhoto())
-            //READ_EXTERNAL_STORAGE 권한 체크 후 앨범 접근
-                Permission(this).checkReadPermission()
-        }
+            //앨범에서 사진 가져오기 버튼
+            btnGallery.setOnClickListener {
+                if (!isFullPhoto(context))
+                //READ_EXTERNAL_STORAGE 권한 체크 후 앨범 접근
+                    Permission(context).checkReadPermission()
+            }
 
-        //사진 촬영 버튼
-        btn_take_photo.setOnClickListener {
-            if(!isFullPhoto())
-            //CAMERA 권한 체크 후 카메라 접근
-                Permission(this).checkCameraPermission()
+            //사진 촬영 버튼
+            btnTakePhoto.setOnClickListener {
+                if (!isFullPhoto(context))
+                //CAMERA 권한 체크 후 카메라 접근
+                    Permission(context).checkCameraPermission()
+            }
         }
     }
 
 
     //업로드 가능한 최대 사진 갯수 넘었는지 체크
-    private fun isFullPhoto() =
+    private fun isFullPhoto(context: Context) =
         if(photoAdapter.itemCount< Setting.MAX_PHOTO) {
             false
         } else {
-            Toast.makeText(this, String.format(getString(R.string.notice_max_photo), Setting.MAX_PHOTO), Toast.LENGTH_LONG).show()
+            Toast.makeText(context, String.format(getString(R.string.notice_max_photo), Setting.MAX_PHOTO), Toast.LENGTH_LONG).show()
             true
         }
 
@@ -200,32 +230,35 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
         val galleryIntent = Intent(Intent.ACTION_GET_CONTENT).apply {
             type = "image/*"
-            resolveActivity(packageManager)
+            activity?.packageManager?.let { resolveActivity(it) }
         }
         startActivityForResult(galleryIntent, Setting.GALLERY_REQUEST_CODE)
     }
 
     @Throws(IOException::class)
-    private fun takePhoto() {
+    private fun takePhoto(context: Context) {
         CoroutineScope(Dispatchers.Default).launch {
 
             //임시 파일 생성
             val photoFile = withContext(Dispatchers.IO) {
-                ImageUtil.createImageFile(this@AddEditActivity)
+                ImageUtil.createImageFile(context)
             }
             currentPhotoPath = photoFile.absolutePath
-            photoURI = FileProvider.getUriForFile(this@AddEditActivity, packageName, photoFile)
 
-            val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
-                resolveActivity(packageManager)
-                putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+            activity?.let {
+                val photoURI = FileProvider.getUriForFile(context, it.packageName, photoFile)
+
+                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                    resolveActivity(it.packageManager)
+                    putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                }
+                startActivityForResult(cameraIntent, Setting.TAKE_PHOTO_REQUEST_CODE)
             }
-            startActivityForResult(cameraIntent, Setting.TAKE_PHOTO_REQUEST_CODE)
         }
     }
 
     private fun addPhoto(uri: Uri?, filePath: String?) {
-        Glide.with(this@AddEditActivity)
+        Glide.with(this@AddEditFragment)
             .asBitmap()
             .load(uri ?: filePath)
             .into(object : CustomTarget<Bitmap>(800, 600) {
@@ -248,11 +281,12 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
                 if (requestCode == Setting.GALLERY_REQUEST_CODE && data != null) {
                     data.data?.also {
 
-                        if (ImageUtil.getImageSize(it, this@AddEditActivity) < Setting.IMAGE_SIZE_LIMIT)
-                            addPhoto(it, null)
-                        else
-                            Toast.makeText(this@AddEditActivity, String.format(getString(R.string.notice_max_img_capacity), Setting.IMAGE_SIZE_LIMIT_MB), Toast.LENGTH_LONG).show()
-
+                        context?.let { ctx ->
+                            if (ImageUtil.getImageSize(it, ctx) < Setting.IMAGE_SIZE_LIMIT)
+                                addPhoto(it, null)
+                            else
+                                Toast.makeText(ctx, String.format(getString(R.string.notice_max_img_capacity), Setting.IMAGE_SIZE_LIMIT_MB), Toast.LENGTH_LONG).show()
+                        }
                     }
                     //카메라 촬영으로 사진 가져왔을 때
                 } else if (requestCode == Setting.TAKE_PHOTO_REQUEST_CODE) {
@@ -262,16 +296,16 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_add_edit, menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_add_edit, menu)
         val item = menu.findItem(R.id.select_tag)
         item.setActionView(R.layout.layout_spinner)
 
         //스피닝 아이템 선언 후 연결
         val tagSpinner: Spinner = item.actionView.findViewById(R.id.tag_spinner)
-        tagSpinner.adapter = TagSpinnerAdapter(this, prefViewModel.getTagSettings(this, false))
-        if(!isNewMemo)
-            tagSpinner.setSelection(intent.getIntExtra("tag", 0))
+        tagSpinner.adapter = context?.let { TagSpinnerAdapter(it, prefViewModel.getTagSettings(false)) }
+        if(isNewMemo != null && !isNewMemo!!)
+            arguments?.getInt("tag", 0)?.let { tagSpinner.setSelection(it) }
 
         tagSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -281,7 +315,6 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
         }
-        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -297,9 +330,11 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
             //TODO 코루틴 공부해서 여기좀 고치자
                 CoroutineScope(Dispatchers.Default).launch {
-                    if(isConflictDate()) {
-                        withContext(Dispatchers.Main) { showConflictToast() }
-                        return@launch
+                    isNewMemo?.let {
+                        if (isConflictDate(it)) {
+                            withContext(Dispatchers.Main) { showConflictToast() }
+                            return@launch
+                        }
                     }
 
                     addByteArray()
@@ -309,15 +344,18 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
                     if (totalSize > Setting.TOTAL_SIZE_LIMIT) {
                         withContext(Dispatchers.Main) {
-                            Toast.makeText(this@AddEditActivity, getString(R.string.notice_max_capacity), Toast.LENGTH_LONG).show()
+                            context?.let {
+                                Toast.makeText(it, getString(R.string.notice_max_capacity), Toast.LENGTH_LONG).show()
+                            }
                         }
                     } else {
-                        if(isNewMemo)
-                            memoViewModel.insert(Memo(0, titleToString(), contentToString(), recordAdapter.records, byteArrayList, textView_date.text.toString(), tag, false))
-                        else
-                            memoViewModel.update(Memo(memoId!!, titleToString(), contentToString(), recordAdapter.records, byteArrayList, textView_date.text.toString(), tag, pin))
-
-                        finish()
+                        isNewMemo?.let {
+                            if(it)
+                                memoViewModel.insert(Memo(0, titleToString(), contentToString(), recordAdapter.records, byteArrayList, binding.textViewDate.text.toString(), tag, false))
+                            else
+                                memoViewModel.update(Memo(memoId!!, titleToString(), contentToString(), recordAdapter.records, byteArrayList, binding.textViewDate.text.toString(), tag, pin))
+                        }
+                        navigation.back()
                     }
                 }
 
@@ -330,36 +368,54 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
     //뒤로가기 버튼 클릭
     override fun onBackPressed() {
+        super.onBackPressed()
 
         CoroutineScope(Dispatchers.Default).launch {
-            val isConflict = isConflictDate()
+            isNewMemo?.let {
+            val isConflict = isConflictDate(it)
             addByteArray()
 
             withContext(Dispatchers.Main) {
-                DialogUtil.saveMemoDialog(isNewMemo, this@AddEditActivity, layoutInflater,
-                    if(isNewMemo) null else memoId, titleToString(), contentToString(), recordAdapter.records, byteArrayList,
-                    textView_date.text.toString(), tag, if(isNewMemo) false else pin, isConflict)
+
+                    context?.let { ctx ->
+                        DialogUtil.saveMemoDialog(
+                            it,
+                            ctx,
+                            layoutInflater,
+                            if (it) null else memoId,
+                            titleToString(),
+                            contentToString(),
+                            recordAdapter.records,
+                            byteArrayList,
+                            binding.textViewDate.text.toString(),
+                            tag,
+                            if (it) false else pin,
+                            isConflict) {
+                            navigation.back()
+                        }
+                    }
+                }
             }
         }
     }
 
     //해당 날짜에 이미 저장된 기록이 있나 체크
-    private fun isConflictDate(): Boolean {
-        val selectedDate = textView_date.text.toString()
+    private fun isConflictDate(isNewMemo: Boolean): Boolean {
+        val selectedDate = binding.textViewDate.text.toString()
         if(!isNewMemo && dateOfOriginMemo==selectedDate) return false   //편집하고 있는 메모의 원래 날짜와 같다면 return false
 
         return memoViewModel.isExist(selectedDate)
     }
 
-    private fun showConflictToast() {
-        Toast.makeText(this, getString(R.string.notice_conflict_date), Toast.LENGTH_LONG).show()
-    }
+    private fun showConflictToast() =
+        context?.let { Toast.makeText(it, getString(R.string.notice_conflict_date), Toast.LENGTH_LONG).show() }
 
-    private fun titleToString() = if(isAllBlank(editText_title.text.toString())) ""
-    else editText_title.text.toString()
 
-    private fun contentToString() = if(isAllBlank(editText_content.text.toString())) ""
-    else editText_content.text.toString()
+    private fun titleToString() = if(isAllBlank(binding.editTextTitle.text.toString())) ""
+    else binding.editTextTitle.text.toString()
+
+    private fun contentToString() = if(isAllBlank(binding.editTextContent.text.toString())) ""
+    else binding.editTextContent.text.toString()
 
     private fun addByteArray() {
         //byteArray로 첨부된 이미지 용량 압축
@@ -375,10 +431,10 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
         private var cameraPermission: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {    //permission 허가 상태라면
-                this@AddEditActivity.takePhoto()
+                this@AddEditFragment.takePhoto(context)
             }
             override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {  //permission 거부 상태라면
-                Toast.makeText(this@AddEditActivity, getString(R.string.deny_take_photo), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, getString(R.string.deny_take_photo), Toast.LENGTH_LONG).show()
             }
         }
         fun checkCameraPermission() {
@@ -392,10 +448,10 @@ class AddEditActivity : AppCompatActivity(), AdapterEventListener {
 
         private var readPermission: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {    //permission 허가 상태라면
-                this@AddEditActivity.openGallery()
+                this@AddEditFragment.openGallery()
             }
             override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {  //permission 거부 상태라면
-                Toast.makeText(this@AddEditActivity, getString(R.string.deny_gallery), Toast.LENGTH_LONG).show()
+                Toast.makeText(context, getString(R.string.deny_gallery), Toast.LENGTH_LONG).show()
             }
         }
         fun checkReadPermission() {

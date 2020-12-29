@@ -2,65 +2,76 @@ package io.jun.healthit.view
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
-import android.view.Menu
-import android.view.MenuItem
-import android.view.View
+import android.util.Log
+import android.view.*
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.zagum.switchicon.SwitchIconView
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
+import io.jun.healthit.FragmentProvider
 import io.jun.healthit.R
 import io.jun.healthit.adapter.PhotoListAdapter
 import io.jun.healthit.adapter.RecordListAdapter
 import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.ImageUtil
+import io.jun.healthit.view.fragment.BaseFragment
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
-import kotlinx.android.synthetic.main.activity_memo_detail.*
+import kotlinx.android.synthetic.main.fragment_memo_detail.*
+import kotlinx.android.synthetic.main.include_actionbar.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
-class MemoDetailActivity : AppCompatActivity() {
+class MemoDetailFragment : BaseFragment() {
 
+    private val TAG = javaClass.simpleName
     private lateinit var recordAdapter: RecordListAdapter
 
-    private val prefViewModel: PrefViewModel by viewModel()
-    private val memoViewModel: MemoViewModel by viewModel()
+    private val prefViewModel: PrefViewModel by sharedViewModel()
+    private val memoViewModel: MemoViewModel by sharedViewModel()
     private lateinit var memo: Memo
 
     private var memoId: Int? = null
-    private var alreadyLoad = false //데이터가 변경됨에 따라 observer에서 계속 리스트가 add되는것을 방지하기위한 변수
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_memo_detail)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.fragment_memo_detail, container, false)
+    }
 
-        //툴바 세팅
-        setSupportActionBar(toolbar)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        supportActionBar?.title = null
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        memoId = intent.getIntExtra("id", 0)
+        setBackActionBar(appbar.toolbar)
 
-        val photoAdapter = PhotoListAdapter(this, false)
-        val itemDecoration = DividerItemDecoration(this, 0).apply {
-            ContextCompat.getDrawable(this@MemoDetailActivity, R.drawable.divider_photo)?.let { setDrawable(it) } //아이템간 구분선
+        Log.d(TAG, "argument: ${arguments?.getInt("id", 0)}")
+        memoId = arguments?.getInt("id", 0)
+        context?.let {
+            setView(it)
+        }
+    }
+
+    private fun setView(context: Context) {
+        val photoAdapter = PhotoListAdapter(context, false)
+        val itemDecoration = DividerItemDecoration(context, 0).apply {
+            ContextCompat.getDrawable(context, R.drawable.divider_photo)?.let { setDrawable(it) } //아이템간 구분선
         }
 
-        val layoutManagerRecord = LinearLayoutManager(this)
-        recordAdapter = RecordListAdapter(this, false, onlyForAddNew = false)
+        val layoutManagerRecord = LinearLayoutManager(context)
+        recordAdapter = RecordListAdapter(context, false, onlyForAddNew = false)
 
         recyclerView_record.apply {
             adapter = recordAdapter
@@ -70,11 +81,13 @@ class MemoDetailActivity : AppCompatActivity() {
         recyclerView_photo.apply {
             adapter = photoAdapter
             addItemDecoration(itemDecoration)
-            layoutManager = LinearLayoutManager(this@MemoDetailActivity, LinearLayoutManager.HORIZONTAL, false)   //리사이클러뷰 가로 스크롤
+            layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)   //리사이클러뷰 가로 스크롤
         }
 
+        Log.d(TAG, "memoViewModel: $memoViewModel")
         memoViewModel.getMemoById(memoId!!) { memo ->
 
+            Log.d(TAG, "memo: $memo")
             this.memo = memo
 
             if(memo.title=="") {
@@ -95,10 +108,8 @@ class MemoDetailActivity : AppCompatActivity() {
                 }
             }
 
-            if(!alreadyLoad) {
-                for (i in memo.record!!.indices)
-                    recordAdapter.addRecord(memo.record[i])
-            }
+            for (i in memo.record!!.indices)
+                recordAdapter.addRecord(memo.record[i])
 
             textView_date.text = String.format(getString(R.string.create_date), memo.date)
             imageView_tag.setImageResource(when(memo.tag) {
@@ -112,44 +123,39 @@ class MemoDetailActivity : AppCompatActivity() {
             })
 
             textView_tag.text = if(memo.tag==0) "" else memo.tag?.let {
-                prefViewModel.getOneOfTagSettings(this,
-                    it
-                )
+                prefViewModel.getOneOfTagSettings(it)
             }
 
-            if(!alreadyLoad) {
-                if (memo.photo.isNullOrEmpty())
-                    recyclerView_photo.visibility = View.GONE
-                else {
-                    recyclerView_photo.visibility = View.VISIBLE
+            if (memo.photo.isNullOrEmpty())
+                recyclerView_photo.visibility = View.GONE
+            else {
+                recyclerView_photo.visibility = View.VISIBLE
 
-                    CoroutineScope(Dispatchers.IO).launch {
-                        //bitmap으로 디코딩 후 리사이클러뷰에 추가
-                        memo.photo.forEach {
-                            val bitmap =
-                                BitmapFactory.decodeByteArray(it, 0, it.size, BitmapFactory.Options())
-                            withContext(Dispatchers.Main) {
-                                photoAdapter.addPhoto(bitmap)
-                            }
+                CoroutineScope(Dispatchers.IO).launch {
+                    //bitmap으로 디코딩 후 리사이클러뷰에 추가
+                    memo.photo.forEach {
+                        val bitmap =
+                            BitmapFactory.decodeByteArray(it, 0, it.size, BitmapFactory.Options())
+                        withContext(Dispatchers.Main) {
+                            photoAdapter.addPhoto(bitmap)
                         }
                     }
-
                 }
+
             }
 
-            alreadyLoad = true
-        }
 
+        }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.menu_memo_detail, menu)
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_memo_detail, menu)
         val pin = menu.findItem(R.id.action_pin)
         pin.setActionView(R.layout.layout_switch_pin)
 
         val switchPinBtn:SwitchIconView = pin.actionView.findViewById(R.id.switch_toolBar)
         //스위치 버튼 초기상태를 저장 상태에 따라 on / off 해주기
-        switchPinBtn.setIconEnabled(intent.getBooleanExtra("pin", false))
+        arguments?.getBoolean("pin", false)?.let { switchPinBtn.setIconEnabled(it) }
 
         switchPinBtn.setOnClickListener {
             //클릭시 마다 스위치의 상태를 on/off함
@@ -157,46 +163,55 @@ class MemoDetailActivity : AppCompatActivity() {
             if(switchPinBtn.isIconEnabled) {
                 memo.pin = true
                 memoViewModel.update(memo)
-                Toast.makeText(this, getString(R.string.notice_pin), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, getString(R.string.notice_pin), Toast.LENGTH_SHORT).show()
             } else {
                 memo.pin = false
                 memoViewModel.update(memo)
             }
         }
 
-        return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 
         return when (item.itemId) {
             android.R.id.home -> {  //툴바의 뒤로가기 버튼
-                finish()
+                onBackPressed()
                 true
             }
             R.id.action_add_template -> {   //현 루틴 템플릿에 추가하기 버튼
-                memo.record?.let { DialogUtil.addDirectlyTemplateDialog(layoutInflater, this, it) }
+                memo.record?.let {
+                    context?.let { ctx ->
+                        DialogUtil.addDirectlyTemplateDialog(layoutInflater, ctx, it) }
+                }
                 true
             }
             R.id.action_save_as_image -> {
-                Permission(this).checkWritePermission()
+                context?.let { Permission(it).checkWritePermission() }
                 true
             }
             R.id.action_edit -> {   //편집 버튼
-                startActivity(Intent(this, AddEditActivity::class.java)
-                    .putExtra("id", memoId)
-                    .putExtra("tag", memo.tag))
-                finish()
+                navigation.finishAndMove(FragmentProvider.ADD_EDIT_FRAGMENT, Bundle().apply {
+                    memoId?.let { putInt("id", it) }
+                    memo.tag?.let { putInt("tag", it) }
+                })
                 true
             }
             R.id.action_delete -> { //삭제 버튼
                 val memo = Memo(memoId!!, null, null, null, null, null, null, null)
-                DialogUtil.deleteDialog(this, layoutInflater, memo)
+                context?.let { DialogUtil.deleteDialog(it, layoutInflater, memo) {
+                    navigation.back() }
+                }
                 true
             }
 
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        navigation.back()
     }
 
     inner class Permission(private val context: Context) {

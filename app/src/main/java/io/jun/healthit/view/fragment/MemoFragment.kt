@@ -24,6 +24,7 @@ import com.leinardi.android.speeddial.SpeedDialView
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import io.ghyeok.stickyswitch.widget.StickySwitch
 import io.ghyeok.stickyswitch.widget.StickySwitch.OnSelectedChangeListener
+import io.jun.healthit.FragmentProvider
 import io.jun.healthit.R
 import io.jun.healthit.adapter.MemoListAdapter
 import io.jun.healthit.adapter.TagSpinnerAdapter
@@ -31,18 +32,18 @@ import io.jun.healthit.decorator.*
 import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.calculateSetAndVolume
-import io.jun.healthit.view.AddEditActivity
 import io.jun.healthit.view.MainActivity
-import io.jun.healthit.view.MemoDetailActivity
+import io.jun.healthit.view.MemoDetailFragment
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
 import kotlinx.android.synthetic.main.fragment_memo.*
+import kotlinx.android.synthetic.main.include_actionbar.view.*
 import kotlinx.android.synthetic.main.item_memo.*
 import kotlinx.android.synthetic.main.item_memo.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import kotlin.properties.Delegates
 
 class MemoFragment : BaseFragment(), View.OnClickListener {
@@ -53,8 +54,8 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
     private val TAG = "MemoFragment"
 
     private lateinit var interstitialAd: InterstitialAd
-    private val prefViewModel: PrefViewModel by viewModel()
-    private val memoViewModel: MemoViewModel by viewModel()
+    private val prefViewModel: PrefViewModel by sharedViewModel()
+    private val memoViewModel: MemoViewModel by sharedViewModel()
 
     private lateinit var memoList: List<Memo>
     private var selectedMemo: Memo? = null
@@ -82,14 +83,14 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val root = inflater.inflate(R.layout.fragment_memo, container, false)
-        setHasOptionsMenu(true)
-        return root
+        Log.d(TAG, "memoVIewModel : $memoViewModel")
+        return inflater.inflate(R.layout.fragment_memo, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setActionBar(appbar.toolbar)
         setCalendarView()
         context?.let {
             setMemoRecyclerView(it)
@@ -128,7 +129,9 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun setMemoRecyclerView(context:Context) {
-        memoAdapter = MemoListAdapter(this)
+        memoAdapter = MemoListAdapter(this) { bundle ->
+            navigation.move(FragmentProvider.MEMO_DETAIL_FRAGMENT, bundle)
+        }
         linearLayoutManager = LinearLayoutManager(context)
         val itemDecoration = DividerItemDecoration(context, 1)
         ContextCompat.getDrawable(context, R.drawable.divider_memo)?.let { itemDecoration.setDrawable(it) }
@@ -186,7 +189,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         //보기방식 저장
         if(::viewSwitch.isInitialized) {
             context?.let {
-                prefViewModel.setViewMode(viewSwitch.getDirection().name, it)
+                prefViewModel.setViewMode(viewSwitch.getDirection().name)
             }
         }
 
@@ -364,7 +367,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         val sort = menu.findItem(R.id.action_sort)
         sort.setActionView(R.layout.layout_spinner)
         tagSpinner = sort.actionView.findViewById(R.id.tag_spinner)
-        tagSpinner.adapter = context?.let { TagSpinnerAdapter(it, prefViewModel.getTagSettings(it, true)) }
+        tagSpinner.adapter = context?.let { TagSpinnerAdapter(it, prefViewModel.getTagSettings(true)) }
 
         tagSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -387,7 +390,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
 
         //마지막으로 설정했던 view mode
         val savedViewMode: StickySwitch.Direction
-        if(prefViewModel.getViewMode(context)=="LEFT") {
+        if(prefViewModel.getViewMode()=="LEFT") {
             savedViewMode = StickySwitch.Direction.LEFT
             showListView(true)
         }
@@ -499,8 +502,8 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
                 R.id.new_memo -> {
                     afterAdFlag = 0
                     context?.let {
-                        if(!(activity as MainActivity).isProVersion && interstitialAd.isLoaded) interstitialAd.show()
-                        else startActivity(Intent(it, AddEditActivity::class.java).putExtra("newMemo", true))
+                        if (!(activity as MainActivity).isProVersion && interstitialAd.isLoaded) interstitialAd.show()
+                        else navigation.move(FragmentProvider.ADD_EDIT_FRAGMENT, Bundle().apply { putBoolean("newMemo", true) })
                     }
 
                     add_memo_btn.close()
@@ -508,8 +511,8 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
                 }
                 R.id.open_template -> {
                     afterAdFlag = 1
-                    if(!(activity as MainActivity).isProVersion && interstitialAd.isLoaded) interstitialAd.show()
-                    else DialogUtil.showTemplateDialog(this, false)
+                    if (!(activity as MainActivity).isProVersion && interstitialAd.isLoaded) interstitialAd.show()
+                    else DialogUtil.showTemplateDialog(this, navigation, false)
 
                     add_memo_btn.close()
                     return@OnActionSelectedListener true // false will close it without animation
@@ -530,16 +533,16 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
                     if(!interstitialAd.isLoaded && !interstitialAd.isLoading)
                         loadAd(AdRequest.Builder().build())
 
-                    executeAfterAd(context)
+                    executeAfterAd()
                 }
             }
         }
     }
 
-    private fun executeAfterAd(context: Context) {
+    private fun executeAfterAd() {
         when(afterAdFlag) {
-            0 -> startActivity(Intent(context, AddEditActivity::class.java).putExtra("newMemo", true))
-            1 -> DialogUtil.showTemplateDialog(this, false)
+            0 -> navigation.move(FragmentProvider.ADD_EDIT_FRAGMENT, Bundle().apply { putBoolean("newMemo", true) })
+            1 -> DialogUtil.showTemplateDialog(this, navigation,false)
         }
     }
 
@@ -552,12 +555,17 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
             R.id.memo_detail -> {
                 val pinStatus = selectedMemo!!.pin //val 값으로 셋팅안해주면 원래 형태가 var이라 intent에 넣지 못함
                 context?.let {
-                    startActivity(Intent(it, MemoDetailActivity::class.java).apply {
+                    startActivity(Intent(it, MemoDetailFragment::class.java).apply {
                         putExtra("id", selectedMemo!!.id)
                         putExtra("pin", pinStatus)    //pin 상태도 같이 넘겨야 다음 액티비티에서 초기화 null 에러가 안남
                     })
                 }
             }
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        navigation.back()
     }
 }

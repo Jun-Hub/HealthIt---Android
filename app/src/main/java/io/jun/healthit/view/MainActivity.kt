@@ -15,8 +15,12 @@ import io.jun.healthit.databinding.ActivityMainBinding
 import io.jun.healthit.update.UpdateManager
 import io.jun.healthit.util.Setting
 import io.jun.healthit.util.isInternetConnected
-import io.jun.healthit.view.fragment.*
+import io.jun.healthit.viewmodel.InbodyViewModel
+import io.jun.healthit.viewmodel.MemoViewModel
+import io.jun.healthit.viewmodel.PrefViewModel
+import io.jun.healthit.viewmodel.TimerViewModel
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
 class MainActivity : AppCompatActivity() {
@@ -36,6 +40,11 @@ class MainActivity : AppCompatActivity() {
     private val binding by lazy { ActivityMainBinding.inflate(layoutInflater) }
     private val updateManager: UpdateManager by inject {
         parametersOf(this@MainActivity, { showSnackbarForCompleteUpdate()}) }
+
+    private val memoViewModel: MemoViewModel by viewModel()
+    private val prefViewModel: PrefViewModel by viewModel()
+    private val inbodyViewModel: InbodyViewModel by viewModel()
+    private val timerViewModel: TimerViewModel by viewModel()
 
     private var backWait:Long = 0
 
@@ -73,11 +82,11 @@ class MainActivity : AppCompatActivity() {
 
             setOnNavigationItemSelectedListener {
                 when(it.itemId) {
-                    R.id.navigation_routine -> fragmentNavigation.replace(FragmentProvider.ROUTINE_FRAGMENT)
-                    R.id.navigation_memo -> fragmentNavigation.replace(FragmentProvider.MEMO_FRAGMENT)
-                    R.id.navigation_inbody -> fragmentNavigation.replace(FragmentProvider.INBODY_FRAGMENT)
-                    R.id.navigation_timer -> fragmentNavigation.replace(FragmentProvider.TIMER_FRAGMENT)
-                    R.id.navigation_settings -> fragmentNavigation.replace(FragmentProvider.SETTINGS_FRAGMENT)
+                    R.id.navigation_routine -> fragmentNavigation.change(FragmentProvider.ROUTINE_FRAGMENT)
+                    R.id.navigation_memo -> fragmentNavigation.change(FragmentProvider.MEMO_FRAGMENT)
+                    R.id.navigation_inbody -> fragmentNavigation.change(FragmentProvider.INBODY_FRAGMENT)
+                    R.id.navigation_timer -> fragmentNavigation.change(FragmentProvider.TIMER_FRAGMENT)
+                    R.id.navigation_settings -> fragmentNavigation.change(FragmentProvider.SETTINGS_FRAGMENT)
                 }
                 true
             }
@@ -108,10 +117,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    override fun onBackPressed() {
-        fragmentNavigation.back()
-    }
-
     fun finishApp() =
         if(System.currentTimeMillis() - backWait >= 2000) {
             backWait = System.currentTimeMillis()
@@ -119,7 +124,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             finish()
         }
-
 
     override fun onStop() {
         super.onStop()

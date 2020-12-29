@@ -23,12 +23,13 @@ import io.jun.healthit.databinding.FragmentSettingsBinding
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.view.MainActivity
 import io.jun.healthit.viewmodel.PrefViewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class SettingsFragment : BaseFragment(), View.OnClickListener {
 
     private val TAG = "SettingsFragment"
-    private val prefViewModel: PrefViewModel by viewModel()
+    private val prefViewModel: PrefViewModel by sharedViewModel()
     
     private var viewBinding: FragmentSettingsBinding? = null
     private val binding get() = viewBinding!!
@@ -81,9 +82,9 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
         prefChangeListener = OnSharedPreferenceChangeListener {_, key ->
             binding.let {
                 when(key) {
-                    "alert" -> it.prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(context))
+                    "alert" -> it.prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings())
                     "ring" -> {
-                        val ring = prefViewModel.getRingSettings(context)
+                        val ring = prefViewModel.getRingSettings()
                         it.prefRingValue.text = prefEntryConverter(ring)
 
                         mediaPlayer = when(ring) {
@@ -100,12 +101,12 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
                         mediaPlayer.start()
                         isPlayerInit = true
                     }
-                    "tag1" -> it.prefTag1Value.text = prefViewModel.getOneOfTagSettings(context, 1)
-                    "tag2" -> it.prefTag2Value.text = prefViewModel.getOneOfTagSettings(context, 2)
-                    "tag3" -> it.prefTag3Value.text = prefViewModel.getOneOfTagSettings(context, 3)
-                    "tag4" -> it.prefTag4Value.text = prefViewModel.getOneOfTagSettings(context, 4)
-                    "tag5" -> it.prefTag5Value.text = prefViewModel.getOneOfTagSettings(context, 5)
-                    "tag6" -> it.prefTag6Value.text = prefViewModel.getOneOfTagSettings(context, 6)
+                    "tag1" -> it.prefTag1Value.text = prefViewModel.getOneOfTagSettings(1)
+                    "tag2" -> it.prefTag2Value.text = prefViewModel.getOneOfTagSettings(2)
+                    "tag3" -> it.prefTag3Value.text = prefViewModel.getOneOfTagSettings(3)
+                    "tag4" -> it.prefTag4Value.text = prefViewModel.getOneOfTagSettings(4)
+                    "tag5" -> it.prefTag5Value.text = prefViewModel.getOneOfTagSettings(5)
+                    "tag6" -> it.prefTag6Value.text = prefViewModel.getOneOfTagSettings(6)
                 }
             }
         }
@@ -169,7 +170,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
 
         private var overlayPermission: PermissionListener = object : PermissionListener {
             override fun onPermissionGranted() {    //permission 허가 상태라면
-                prefViewModel.setFloatingSettings(context, value)
+                prefViewModel.setFloatingSettings(value)
             }
             override fun onPermissionDenied(deniedPermissions: MutableList<String>?) {  //permission 거부 상태라면
                 Toast.makeText(context, getString(R.string.deny_overlay), Toast.LENGTH_LONG).show()
@@ -188,20 +189,20 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
 
     private fun setView(context: Context) {
         binding.apply {
-            prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings(context))
-            prefRingValue.text = prefEntryConverter(prefViewModel.getRingSettings(context))
+            prefAlertValue.text = prefEntryConverter(prefViewModel.getAlertSettings())
+            prefRingValue.text = prefEntryConverter(prefViewModel.getRingSettings())
 
-            switchFloating.isChecked = prefViewModel.getFloatingSettings(context)
+            switchFloating.isChecked = prefViewModel.getFloatingSettings()
             switchFloating.setOnCheckedChangeListener { _, isChecked ->
                 Permission(context, isChecked).checkAlertWindowPermission()
             }
 
-            prefTag1Value.text = prefViewModel.getOneOfTagSettings(context, 1)
-            prefTag2Value.text = prefViewModel.getOneOfTagSettings(context, 2)
-            prefTag3Value.text = prefViewModel.getOneOfTagSettings(context, 3)
-            prefTag4Value.text = prefViewModel.getOneOfTagSettings(context, 4)
-            prefTag5Value.text = prefViewModel.getOneOfTagSettings(context, 5)
-            prefTag6Value.text = prefViewModel.getOneOfTagSettings(context, 6)
+            prefTag1Value.text = prefViewModel.getOneOfTagSettings(1)
+            prefTag2Value.text = prefViewModel.getOneOfTagSettings(2)
+            prefTag3Value.text = prefViewModel.getOneOfTagSettings(3)
+            prefTag4Value.text = prefViewModel.getOneOfTagSettings(4)
+            prefTag5Value.text = prefViewModel.getOneOfTagSettings(5)
+            prefTag6Value.text = prefViewModel.getOneOfTagSettings(6)
 
             buttonFreeTrial.setOnClickListener(this@SettingsFragment)
             suggestionBoard.setOnClickListener(this@SettingsFragment)
@@ -242,7 +243,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
                 R.id.pref_alert -> { DialogUtil.showAlertDialog(this@SettingsFragment) }
                 R.id.pref_ring -> { DialogUtil.showRingDialog(this@SettingsFragment) }
                 R.id.pref_floating -> { binding.switchFloating.toggle() }
-                R.id.pref_template -> { DialogUtil.showTemplateDialog(this@SettingsFragment, true) }
+                R.id.pref_template -> { DialogUtil.showTemplateDialog(this@SettingsFragment, navigation, true) }
                 R.id.pref_tag1 -> { DialogUtil.showTagDialog(this@SettingsFragment, 1, layoutInflater) }
                 R.id.pref_tag2 -> { DialogUtil.showTagDialog(this@SettingsFragment, 2, layoutInflater) }
                 R.id.pref_tag3 -> { DialogUtil.showTagDialog(this@SettingsFragment, 3, layoutInflater) }
@@ -250,6 +251,11 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
                 R.id.pref_tag5 -> { DialogUtil.showTagDialog(this@SettingsFragment, 5, layoutInflater) }
                 R.id.pref_tag6 -> { DialogUtil.showTagDialog(this@SettingsFragment, 6, layoutInflater) }
             }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        navigation.back()
     }
 }
 

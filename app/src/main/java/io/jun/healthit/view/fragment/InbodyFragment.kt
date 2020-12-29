@@ -24,14 +24,15 @@ import io.jun.healthit.util.makePlusFloat
 import io.jun.healthit.view.MainActivity
 import io.jun.healthit.viewmodel.InbodyViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class InbodyFragment : BaseFragment(), View.OnClickListener {
 
     private val TAG = "InbodyFragment"
 
-    private val prefViewModel: PrefViewModel by viewModel()
-    private val inbodyViewModel: InbodyViewModel by viewModel()
+    private val prefViewModel: PrefViewModel by sharedViewModel()
+    private val inbodyViewModel: InbodyViewModel by sharedViewModel()
 
     private var viewBinding: FragmentInbodyBinding? = null
     private val binding get() = viewBinding!!
@@ -59,6 +60,7 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        setActionBar(binding.appbar.toolbar)
         setClickListener()
         setCalendarView()
         initTextWatcher()
@@ -240,14 +242,14 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
 
         context?.let {
             inbodySpinner.adapter = InbodySpinnerAdapter(it, spinnerList)
-            inbodySpinner.setSelection(prefViewModel.getInbodySpinner(it))
+            inbodySpinner.setSelection(prefViewModel.getInbodySpinner())
 
             inbodySpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     if(::inbodyList.isInitialized) {
                         initDecorator(inbodyList, position)
                     }
-                    prefViewModel.setInbodySpinner(position, it)
+                    prefViewModel.setInbodySpinner(position)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -319,4 +321,8 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
         }
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        navigation.back()
+    }
 }

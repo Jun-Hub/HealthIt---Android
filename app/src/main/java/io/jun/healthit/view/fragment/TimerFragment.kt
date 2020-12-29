@@ -13,13 +13,14 @@ import io.jun.healthit.view.MainActivity
 import io.jun.healthit.viewmodel.PrefViewModel
 import io.jun.healthit.viewmodel.TimerViewModel
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class TimerFragment : BaseFragment() {
 
-    private val prefViewModel: PrefViewModel by viewModel()
+    private val prefViewModel: PrefViewModel by sharedViewModel()
     //TimerService로부터 countDown 현황을 실시간으로 보여줄 LiveData 관찰
-    private val timerViewModel: TimerViewModel by viewModel()
+    private val timerViewModel: TimerViewModel by sharedViewModel()
 
     private var viewBinding: FragmentTimerBinding? = null
     private val binding get() = viewBinding!!
@@ -40,9 +41,9 @@ class TimerFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         context?.let {
-            initNumberPicker(it)
             setListener(it)
         }
+        initNumberPicker()
 
         timerViewModel.run {
             getLeftTime().observe(viewLifecycleOwner, { leftTime ->
@@ -96,14 +97,12 @@ class TimerFragment : BaseFragment() {
         super.onStop()
         mBound = false
         //마지막으로 설정했던 시간을 저장
-        context?.let { ctx ->
-            prefViewModel.setPreviousTimerSet(
-                binding.numberPickerMin.value,
-                binding.numberPickerSec.value,
-                ctx
-            )
+        prefViewModel.setPreviousTimerSet(
+            binding.numberPickerMin.value,
+            binding.numberPickerSec.value,)
 
-            if (isRunning && prefViewModel.getFloatingSettings(ctx)) {
+        context?.let { ctx ->
+            if (isRunning && prefViewModel.getFloatingSettings()) {
                 Intent(ctx, TimerService::class.java).let {
                     it.action = "FLOATING"
                     startForegroundService(ctx, it)
@@ -112,17 +111,17 @@ class TimerFragment : BaseFragment() {
         }
     }
 
-    private fun initNumberPicker(context: Context) {
+    private fun initNumberPicker() {
         binding.apply {
             numberPickerMin.apply {
                 minValue = 0
                 maxValue = 15
-                value = prefViewModel.getPreviousTimerSetMin(context)
+                value = prefViewModel.getPreviousTimerSetMin()
             }
             numberPickerSec.apply {
                 minValue = 0
                 maxValue = 59
-                value = prefViewModel.getPreviousTimerSetSec(context)
+                value = prefViewModel.getPreviousTimerSetSec()
             }
         }
     }
@@ -164,8 +163,8 @@ class TimerFragment : BaseFragment() {
                     action = "PLAY"
                     putExtra("setTime", setTime)
                     putExtra("forReplay", isReplay)
-                    putExtra("alertSetting", prefViewModel.getAlertSettings(context))
-                    putExtra("ringSetting", prefViewModel.getRingSettings(context))
+                    putExtra("alertSetting", prefViewModel.getAlertSettings())
+                    putExtra("ringSetting", prefViewModel.getRingSettings())
                 }.let {
                     startForegroundService(context, it)
                 }
@@ -181,5 +180,10 @@ class TimerFragment : BaseFragment() {
                 startForegroundService(context, serviceIntent)
             }
         }
+    }
+
+    override fun onBackPressed() {
+        super.onBackPressed()
+        navigation.back()
     }
 }

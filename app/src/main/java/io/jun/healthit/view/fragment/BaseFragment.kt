@@ -1,9 +1,12 @@
 package io.jun.healthit.view.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.CallSuper
+import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.Fragment
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
@@ -14,6 +17,17 @@ open class BaseFragment : Fragment() {
 
     private val TAG = "BaseFragment"
     val navigation by lazy { (activity as MainActivity).fragmentNavigation }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+
+        activity?.onBackPressedDispatcher?.addCallback(this,
+            object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                onBackPressed()
+            }
+        })
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -31,7 +45,26 @@ open class BaseFragment : Fragment() {
         }
     }
 
+    fun setActionBar(toolBar: Toolbar) {
+        (activity as MainActivity).apply {
+            setSupportActionBar(toolBar)
+            supportActionBar?.title = null
+        }
+        setHasOptionsMenu(true)
+    }
+
+    fun setBackActionBar(toolBar: Toolbar) {
+        (activity as MainActivity).apply {
+            setSupportActionBar(toolBar)
+            supportActionBar?.title = null
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        }
+        setHasOptionsMenu(true)
+    }
+
     @CallSuper
     open fun checkProVersion(isProVersion: Boolean) {}
 
+    @CallSuper
+    open fun onBackPressed() {}
 }

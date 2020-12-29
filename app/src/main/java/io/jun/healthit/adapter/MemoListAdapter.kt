@@ -1,8 +1,8 @@
 package io.jun.healthit.adapter
 
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +15,6 @@ import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
 import io.jun.healthit.R
 import io.jun.healthit.model.data.Memo
-import io.jun.healthit.view.MemoDetailActivity
 import io.jun.healthit.view.fragment.MemoFragment
 import io.jun.healthit.viewmodel.MemoViewModel
 import com.qtalk.recyclerviewfastscroller.RecyclerViewFastScroller
@@ -27,7 +26,8 @@ import org.koin.core.KoinComponent
 import org.koin.core.inject
 
 class MemoListAdapter internal constructor(
-    private val fragment: MemoFragment
+    private val fragment: MemoFragment,
+    private val move: (Bundle) -> Unit
 ) : RecyclerView.Adapter<MemoListAdapter.MemoViewHolder>(),
     RecyclerViewFastScroller.OnPopupTextUpdate,
     KoinComponent {
@@ -141,9 +141,11 @@ class MemoListAdapter internal constructor(
             //메모 클릭시 해당 메모 상세보기로 넘어가기
             holder.itemView.setOnClickListener {
                 val pinStatus = current.pin //val 값으로 셋팅안해주면 원래 형태가 var이라 intent에 넣지 못함
-                fragment.startActivity(Intent(fragment.context, MemoDetailActivity::class.java).apply {
-                    putExtra("id", current.id)
-                    putExtra("pin", pinStatus)    //pin 상태도 같이 넘겨야 다음 액티비티에서 초기화 null 에러가 안남
+                move(Bundle().apply {
+                    putInt("id", current.id)
+                    if (pinStatus != null) {
+                        putBoolean("pin", pinStatus)
+                    }    //pin 상태도 같이 넘겨야 다음 액티비티에서 초기화 null 에러가 안남
                 })
             }
         

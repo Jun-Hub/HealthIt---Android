@@ -1,50 +1,86 @@
 package io.jun.healthit
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.*
 import io.jun.healthit.view.MainActivity
-import io.jun.healthit.view.RoutineDetailFragment
-import io.jun.healthit.view.fragment.BaseFragment
-import io.jun.healthit.view.fragment.RoutineFragment
+import io.jun.healthit.view.fragment.MemoFragment
 import java.util.*
-
-//TODO 프래그먼트 뎁스 저장
+//TODO 이거 싱글톤으로 주입하기
 class FragmentNavigation(private val activity: MainActivity) {
 
     private val TAG = javaClass.simpleName
-    private val fragmentStack = Stack<String>()
     private val manager = activity.supportFragmentManager
 
-    fun replace(fragment: FragmentProvider) =
-        manager.commit {
-            //stack clear
-            if(fragment.index() == 0 && fragmentStack.isNotEmpty()) {
-                Log.d(TAG, "rrrr${fragment.getFragment().tag}")
-                Log.d(TAG, "aaaa ${fragmentStack.peek()}")
-                manager.findFragmentByTag(fragmentStack.pop())?.let {
-                    replace(R.id.nav_host_fragment, it)
+    private val fragmentMap = HashMap<Int, Stack<Fragment>>()
+    private var currentTab = 1  //운동일지 프래그먼트가 시작점
+    private val container = R.id.nav_host_fragment
+
+    init {
+        fragmentMap[0] = Stack<Fragment>()
+        fragmentMap[1] = Stack<Fragment>().apply { push(MemoFragment()) }   //첫시작 프래그먼트를 추가해줌
+        fragmentMap[2] = Stack<Fragment>()
+        fragmentMap[3] = Stack<Fragment>()
+        fragmentMap[4] = Stack<Fragment>()
+    }
+
+    fun change(info: FragmentInfo) =
+        fragmentMap[info.tag]?.let {
+            currentTab = info.tag
+
+            if (it.isEmpty()) {
+                it.push(info.fragment)
+
+                manager.commit {
+                    replace(container, info.fragment)
                 }
-            } else {
-                Log.d(TAG, "dddd${fragment.getFragment().tag}")
-                //manager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE)
-                replace(R.id.nav_host_fragment, fragment.getFragment())
-                setReorderingAllowed(true)
+                return@let
+            }
+
+            //마지막으로 방문했던 fragment 보여주기
+            manager.commit {
+                replace(container, it.last())
             }
         }
 
-    fun move(fragment: FragmentProvider, tag: String, bundle: Bundle? = null) =
-        manager.commit {
-            Log.d(TAG, "asdfnlafj")
-            add(R.id.nav_host_fragment, fragment.getFragment(), tag)
-            fragmentStack.push(tag)
-            addToBackStack(tag)
-            setReorderingAllowed(true)
+    fun move(info: FragmentInfo, bundle: Bundle? = null) =
+        fragmentMap[info.tag]?.let {
+
+            info.fragment.let { fragment ->
+                fragment.arguments = bundle
+
+                it.push(fragment)
+                manager.commit {
+                    replace(container, fragment)
+                }
+            }
+        }
+
+    fun finishAndMove(info: FragmentInfo, bundle: Bundle? = null) =
+        fragmentMap[info.tag]?.let {
+
+            info.fragment.let { fragment ->
+                fragment.arguments = bundle
+
+                it.pop()    //현재 프래그먼트 스택에서 제거
+                it.push(fragment)
+                manager.commit {
+                    replace(container, fragment)
+                }
+            }
         }
 
     fun back() =
-        if(manager.backStackEntryCount==0)
+        if(fragmentMap[currentTab]?.size == 1)
             activity.finishApp()
         else
-            manager.popBackStack()
+            popFragment()
+
+    private fun popFragment() =
+        fragmentMap[currentTab]?.let {
+            it.pop()
+
+            manager.commit {
+                replace(container, it.peek())
+            }
+        }
 }

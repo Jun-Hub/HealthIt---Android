@@ -1,23 +1,17 @@
 package io.jun.healthit.util
 
-import android.app.Activity
 import android.content.ContentResolver
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import io.jun.healthit.R
 import java.io.*
 import java.io.File.separator
-import java.text.SimpleDateFormat
-import java.util.*
 
 
 object ImageUtil {
@@ -44,13 +38,13 @@ object ImageUtil {
         }
 
         //이미지 사이즈 가져오기 : 대용량 이미지의 저장 방지
-        fun getImageSize(imageUri: Uri, activity: Activity): Int {
+        fun getImageSize(imageUri: Uri, context: Context): Int {
             var dataSize = 0
             val scheme = imageUri.scheme
             if (scheme == ContentResolver.SCHEME_CONTENT) {
                 try {
                  val fileInputStream: InputStream? =
-                     activity.contentResolver.openInputStream(imageUri)
+                     context.contentResolver.openInputStream(imageUri)
                     if (fileInputStream != null) dataSize = fileInputStream.available()
                 } catch (e: java.lang.Exception) {
                    e.printStackTrace()

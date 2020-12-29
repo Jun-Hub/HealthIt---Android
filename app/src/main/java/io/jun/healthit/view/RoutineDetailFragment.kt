@@ -39,5 +39,9 @@ class RoutineDetailFragment : BaseFragment() {
         binding.recyclerView.adapter = adapter
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        navigation.back()
+    }
 
 }
