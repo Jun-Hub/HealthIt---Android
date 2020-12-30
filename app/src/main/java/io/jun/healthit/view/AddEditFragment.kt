@@ -117,30 +117,32 @@ class AddEditFragment : BaseFragment(), AdapterEventListener {
         }
 
         memoId = arguments?.getInt("id", 0)
-        memoViewModel.getMemoById(memoId!!) { memo ->
+        memoId?.let { id ->
+            memoViewModel.getMemoById(id) { memo ->
 
-            Log.d(TAG, "memoId : $memoId")
-            binding.apply {
-                editTextTitle.setText(memo.title)
-                editTextContent.setText(memo.content)
-            }
+                Log.d(TAG, "memoId : $memoId")
+                binding.apply {
+                    editTextTitle.setText(memo.title)
+                    editTextContent.setText(memo.content)
+                }
 
-            for (i in memo.record!!.indices)
-                recordAdapter.addRecord(memo.record[i])
-            memo.date?.let {
-                binding.textViewDate.text = it
-                dateOfOriginMemo = it
-            }
-            tag = memo.tag!!
-            pin = memo.pin!!
+                for (i in memo.record!!.indices)
+                    recordAdapter.addRecord(memo.record[i])
+                memo.date?.let {
+                    binding.textViewDate.text = it
+                    dateOfOriginMemo = it
+                }
+                tag = memo.tag!!
+                pin = memo.pin!!
 
-            CoroutineScope(Dispatchers.IO).launch {
-                //DB에서 불러온 byteArray를 Bitmap으로 변환 및 리사이클러뷰에 저장
-                memo.photo?.forEach {
-                    val bitmap =
-                        BitmapFactory.decodeByteArray(it, 0, it.size, BitmapFactory.Options())
-                    withContext(Dispatchers.Main) {
-                        photoAdapter.addPhoto(bitmap)
+                CoroutineScope(Dispatchers.IO).launch {
+                    //DB에서 불러온 byteArray를 Bitmap으로 변환 및 리사이클러뷰에 저장
+                    memo.photo?.forEach {
+                        val bitmap =
+                            BitmapFactory.decodeByteArray(it, 0, it.size, BitmapFactory.Options())
+                        withContext(Dispatchers.Main) {
+                            photoAdapter.addPhoto(bitmap)
+                        }
                     }
                 }
             }

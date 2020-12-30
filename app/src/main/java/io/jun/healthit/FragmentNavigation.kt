@@ -1,6 +1,7 @@
 package io.jun.healthit
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.*
 import io.jun.healthit.view.MainActivity
 import io.jun.healthit.view.fragment.MemoFragment
@@ -39,33 +40,27 @@ class FragmentNavigation(private val activity: MainActivity) {
             //마지막으로 방문했던 fragment 보여주기
             manager.commit {
                 replace(container, it.last())
+                Log.d(TAG, "change: ${it.last()}")
             }
         }
 
     fun move(info: FragmentInfo, bundle: Bundle? = null) =
         fragmentMap[info.tag]?.let {
 
-            info.fragment.let { fragment ->
-                fragment.arguments = bundle
-
-                it.push(fragment)
-                manager.commit {
-                    replace(container, fragment)
-                }
+            it.push(info.fragment)
+            manager.commit {
+                Log.d(TAG, "move: ${info.fragment}")
+                replace(container, info.fragment.apply { arguments = bundle })
             }
         }
 
     fun finishAndMove(info: FragmentInfo, bundle: Bundle? = null) =
         fragmentMap[info.tag]?.let {
 
-            info.fragment.let { fragment ->
-                fragment.arguments = bundle
-
-                it.pop()    //현재 프래그먼트 스택에서 제거
-                it.push(fragment)
-                manager.commit {
-                    replace(container, fragment)
-                }
+            it.pop()    //현재 프래그먼트 스택에서 제거
+            it.push(info.fragment)
+            manager.commit {
+                replace(container, info.fragment.apply { arguments = bundle })
             }
         }
 

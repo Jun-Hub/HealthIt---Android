@@ -21,7 +21,7 @@ class App: Application() {
             //inject Android context
             androidContext(this@App)
             // setup a KoinFragmentFactory instance
-            fragmentFactory()
+            //fragmentFactory()
             // use modules
             modules(listOf(viewModelModule, billingModule, updateModule))
         }

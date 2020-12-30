@@ -3,7 +3,9 @@ package io.jun.healthit.view
 import android.content.Context
 import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.util.Log
 import android.view.*
+import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -22,6 +24,7 @@ class SetTemplateFragment : BaseFragment(), AdapterEventListener {
 
     private val prefViewModel: PrefViewModel by sharedViewModel()
 
+    private val TAG = javaClass.simpleName
     private var templateId:Int? = 0
     private lateinit var recordAdapter: RecordListAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
@@ -29,6 +32,7 @@ class SetTemplateFragment : BaseFragment(), AdapterEventListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         templateId = arguments?.getInt("templateId", 0)
+        Log.d(TAG, "${templateId}")
     }
 
     override fun onCreateView(
@@ -42,6 +46,9 @@ class SetTemplateFragment : BaseFragment(), AdapterEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        editText_name.addTextChangedListener {
+            Log.d(TAG, "$it")
+        }
         setBackActionBar(appbar.toolbar)
         context?.let {
             setView(it)
@@ -50,8 +57,10 @@ class SetTemplateFragment : BaseFragment(), AdapterEventListener {
 
     private fun setView(context: Context) {
         editText_name.text = SpannableStringBuilder(templateId?.let {
+            Log.d(TAG, "${prefViewModel.getTemplateName(it)}")
             prefViewModel.getTemplateName(it)
         })
+        Log.d(TAG, "${editText_name.text}")
 
         val records = templateId?.let { prefViewModel.getTemplate(it) }
 
