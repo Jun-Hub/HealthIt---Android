@@ -1,4 +1,4 @@
-package io.jun.healthit.view
+package io.jun.healthit.view.fragment
 
 import android.os.Bundle
 import android.view.*
@@ -7,7 +7,7 @@ import io.jun.healthit.databinding.FragmentRoutineDetailBinding
 import io.jun.healthit.util.Setting
 import io.jun.healthit.view.fragment.BaseFragment
 
-class RoutineDetailFragment : BaseFragment() {
+class RoutineDetailFragment(private val tipType: String) : BaseFragment() {
 
     private var viewBinding: FragmentRoutineDetailBinding? = null
     private val binding get() = viewBinding!!
@@ -25,7 +25,7 @@ class RoutineDetailFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter = when(arguments?.getString("tipType")) {
+        adapter = when(tipType) {
             "full_body" -> ExpListAdapter(Setting.fullBodyRoutineList)
             "2day_split" -> ExpListAdapter(Setting.split2dayRoutineList)
             "3day_split" -> ExpListAdapter(Setting.split3dayRoutineList)

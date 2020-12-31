@@ -1,7 +1,9 @@
 package io.jun.healthit.adapter
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -16,11 +18,16 @@ import io.jun.healthit.R
 import io.jun.healthit.model.data.Record
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.Setting
+import org.koin.android.ext.android.inject
+import org.koin.core.KoinComponent
+import org.koin.core.inject
+import org.koin.core.parameter.parametersOf
 import java.util.*
 import kotlin.collections.ArrayList
 
-class RecordListAdapter(val context: Context, private val canBeEdited: Boolean, onlyForAddNew: Boolean)
-    : RecyclerView.Adapter<RecordListAdapter.RecordViewHolder>(),
+class RecordListAdapter(val context: Context, private val canBeEdited: Boolean, onlyForAddNew: Boolean,
+                        private val edit: (Int, Record) -> Unit)
+    : RecyclerView.Adapter<RecordListAdapter.RecordViewHolder>(), KoinComponent,
     ItemTouchHelperAdapter {
 
     private val inflater: LayoutInflater = LayoutInflater.from(context)
@@ -74,7 +81,7 @@ class RecordListAdapter(val context: Context, private val canBeEdited: Boolean, 
         if(canBeEdited) {
             //운동 기록 클릭해서 수정하기
             holder.itemView.setOnClickListener {
-                DialogUtil.editRecordDialog(this, context, inflater, position, current)
+                edit(position, current)
             }
         }
 

@@ -1,11 +1,9 @@
-package io.jun.healthit.view
+package io.jun.healthit.view.fragment
 
 import android.content.Context
 import android.os.Bundle
 import android.text.SpannableStringBuilder
-import android.util.Log
 import android.view.*
-import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -14,26 +12,21 @@ import io.jun.healthit.adapter.AdapterEventListener
 import io.jun.healthit.adapter.ItemTouchHelperCallback
 import io.jun.healthit.adapter.RecordListAdapter
 import io.jun.healthit.util.DialogUtil
-import io.jun.healthit.view.fragment.BaseFragment
 import io.jun.healthit.viewmodel.PrefViewModel
 import kotlinx.android.synthetic.main.fragment_set_template.*
 import kotlinx.android.synthetic.main.include_actionbar.view.*
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.core.parameter.parametersOf
 
-class SetTemplateFragment : BaseFragment(), AdapterEventListener {
+class SetTemplateFragment(private val templateId: Int) : BaseFragment(), AdapterEventListener {
 
     private val prefViewModel: PrefViewModel by sharedViewModel()
+    private val dialogUtil: DialogUtil by inject{ parametersOf(activity) }
 
     private val TAG = javaClass.simpleName
-    private var templateId:Int? = 0
     private lateinit var recordAdapter: RecordListAdapter
     private lateinit var itemTouchHelper: ItemTouchHelper
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        templateId = arguments?.getInt("templateId", 0)
-        Log.d(TAG, "${templateId}")
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,9 +39,6 @@ class SetTemplateFragment : BaseFragment(), AdapterEventListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        editText_name.addTextChangedListener {
-            Log.d(TAG, "$it")
-        }
         setBackActionBar(appbar.toolbar)
         context?.let {
             setView(it)
@@ -56,16 +46,14 @@ class SetTemplateFragment : BaseFragment(), AdapterEventListener {
     }
 
     private fun setView(context: Context) {
-        editText_name.text = SpannableStringBuilder(templateId?.let {
-            Log.d(TAG, "${prefViewModel.getTemplateName(it)}")
-            prefViewModel.getTemplateName(it)
-        })
-        Log.d(TAG, "${editText_name.text}")
+        editText_name.text = SpannableStringBuilder(prefViewModel.getTemplateName(templateId))
 
-        val records = templateId?.let { prefViewModel.getTemplate(it) }
+        val records = prefViewModel.getTemplate(templateId)
 
         val layoutManagerRecord = LinearLayoutManager(context)
-        recordAdapter = RecordListAdapter(context, true, onlyForAddNew = false)
+        recordAdapter = RecordListAdapter(context, true, onlyForAddNew = false) { index, record ->
+            dialogUtil.editRecordDialog(recordAdapter, layoutInflater, index, record)
+        }
 
         recyclerView_record.apply {
             adapter = recordAdapter
@@ -78,11 +66,10 @@ class SetTemplateFragment : BaseFragment(), AdapterEventListener {
         itemTouchHelper = ItemTouchHelper(callback)
         itemTouchHelper.attachToRecyclerView(recyclerView_record)
 
-        records?.let {
-            for (i in it.indices) {
-                recordAdapter.addRecord(it[i])
-            }
+        for (i in records.indices) {
+            recordAdapter.addRecord(records[i])
         }
+
 
         btn_add_record.setOnClickListener {
             recordAdapter.addRecordDefault()
@@ -113,10 +100,9 @@ class SetTemplateFragment : BaseFragment(), AdapterEventListener {
                                     else
                                         editText_name.text.toString()
                 //루틴 이름과 루틴템플릿 저장
-                templateId?.let {
-                    prefViewModel.setTemplateName(it, templateName)
-                    prefViewModel.setTemplate(it, recordAdapter.records)
-                }
+                prefViewModel.setTemplateName(templateId, templateName)
+                prefViewModel.setTemplate(templateId, recordAdapter.records)
+
                 navigation.back()
                 true
             }
@@ -129,17 +115,16 @@ class SetTemplateFragment : BaseFragment(), AdapterEventListener {
     override fun onBackPressed() {
         super.onBackPressed()
 
-        val templateName = if(editText_name.text.toString() == "")
-            String.format(getString(R.string.routine_num), templateId)
-        else
-            editText_name.text.toString()
-        context?.let {
-            templateId?.let { it1 ->
-                DialogUtil.saveTemplateDialog(layoutInflater, it,
-                    it1, templateName, recordAdapter) {
-                    navigation.back()
-                }
-            }
+        val templateName =
+            if(editText_name.text.toString() == "")
+                String.format(getString(R.string.routine_num), templateId)
+            else
+                editText_name.text.toString()
+
+        dialogUtil.saveTemplateDialog(layoutInflater,
+            templateId, templateName, recordAdapter) {
+            navigation.back()
         }
+
     }
 }

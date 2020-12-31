@@ -1,4 +1,4 @@
-package io.jun.healthit.view
+package io.jun.healthit.view.fragment
 
 import android.Manifest
 import android.app.Activity
@@ -32,24 +32,27 @@ import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
 import io.jun.healthit.adapter.*
 import io.jun.healthit.databinding.FragmentAddEditBinding
-import io.jun.healthit.view.fragment.BaseFragment
 import io.jun.healthit.viewmodel.PrefViewModel
 import kotlinx.coroutines.*
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.core.parameter.parametersOf
 import java.io.IOException
 import kotlin.properties.Delegates
-
-class AddEditFragment : BaseFragment(), AdapterEventListener {
+//TODO AddEdit 나누기
+class AddEditFragment(private val isNewMemo: Boolean = false,
+                      private val templateId:Int? = 0,
+                      private var tag:Int = 0,
+                      private val memoId:Int = 0) : BaseFragment(), AdapterEventListener {
 
     private val TAG = "AddEditFragment"
 
     private val prefViewModel: PrefViewModel by sharedViewModel()
     private val memoViewModel: MemoViewModel by sharedViewModel()
+    private val dialogUtil: DialogUtil by inject{ parametersOf(activity) }
 
     private var viewBinding: FragmentAddEditBinding? = null
     private val binding get() = viewBinding!!
-
-    private var memoId:Int? = null
 
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var recordAdapter: RecordListAdapter
@@ -58,19 +61,10 @@ class AddEditFragment : BaseFragment(), AdapterEventListener {
     private lateinit var layoutManager: LinearLayoutManager
     private lateinit var currentPhotoPath: String
 
-    private var isNewMemo: Boolean? = null
-    private var templateId: Int? = null
-    private var tag by Delegates.notNull<Int>()
     private var pin by Delegates.notNull<Boolean>()
     private lateinit var dateOfOriginMemo: String
 
     private val byteArrayList = ArrayList<ByteArray>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        isNewMemo = arguments?.getBoolean("newMemo", false)
-        templateId = arguments?.getInt("templateId", 0)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -86,67 +80,60 @@ class AddEditFragment : BaseFragment(), AdapterEventListener {
 
         setBackActionBar(binding.appbar.toolbar)
 
+        if (!prefViewModel.getTipChecking(Setting.RECORD_EDIT_TIP_FLAG)) {
+            dialogUtil.showUseTipDialog(layoutInflater)
+        }
+
         context?.let {
-            if (!prefViewModel.getTipChecking(Setting.RECORD_EDIT_TIP_FLAG)) {
-                DialogUtil.showUseTipDialog(it, layoutInflater)
-            }
-            isNewMemo?.let { isNew ->
-                setRecyclerView(it, isNew)
-            }
+            setRecyclerView(it, isNewMemo)
             setClickListener(it)
         }
 
-        isNewMemo?.let {
-            Log.d(TAG, "isNewMemo : $isNewMemo")
-            if(it) {
-                //오늘 날짜로 설정
-                binding.textViewDate.text = getCurrentDate()
-                //새일지 쓰기로 넘어왔다면 여기서 Return
-                if (templateId == 0) return
+        if(isNewMemo) {
+            //오늘 날짜로 설정
+            binding.textViewDate.text = getCurrentDate()
+            //새일지 쓰기로 넘어왔다면 여기서 Return
+            if (templateId == 0) return
 
-                templateId?.let { id ->
-                    Log.d(TAG, "11")
-                    recordAdapter.clearRecords()    //추가됬었던 레코드 샘플 비우기
-                    val records = prefViewModel.getTemplate(id)
-                    for (i in records.indices) {
-                        recordAdapter.addRecord(records[i])
-                    }
-                    return
+            recordAdapter.clearRecords()    //추가됬었던 레코드 샘플 비우기
+            templateId?.let {
+                val records = prefViewModel.getTemplate(it)
+                for (i in records.indices) {
+                    recordAdapter.addRecord(records[i])
                 }
             }
+            return
         }
 
-        memoId = arguments?.getInt("id", 0)
-        memoId?.let { id ->
-            memoViewModel.getMemoById(id) { memo ->
 
-                Log.d(TAG, "memoId : $memoId")
-                binding.apply {
-                    editTextTitle.setText(memo.title)
-                    editTextContent.setText(memo.content)
-                }
+        memoViewModel.getMemoById(memoId) { memo ->
 
-                for (i in memo.record!!.indices)
-                    recordAdapter.addRecord(memo.record[i])
-                memo.date?.let {
-                    binding.textViewDate.text = it
-                    dateOfOriginMemo = it
-                }
-                tag = memo.tag!!
-                pin = memo.pin!!
+            binding.apply {
+                editTextTitle.setText(memo.title)
+                editTextContent.setText(memo.content)
+            }
 
-                CoroutineScope(Dispatchers.IO).launch {
-                    //DB에서 불러온 byteArray를 Bitmap으로 변환 및 리사이클러뷰에 저장
-                    memo.photo?.forEach {
-                        val bitmap =
-                            BitmapFactory.decodeByteArray(it, 0, it.size, BitmapFactory.Options())
-                        withContext(Dispatchers.Main) {
-                            photoAdapter.addPhoto(bitmap)
-                        }
+            for (i in memo.record!!.indices)
+                recordAdapter.addRecord(memo.record[i])
+            memo.date?.let {
+                binding.textViewDate.text = it
+                dateOfOriginMemo = it
+            }
+            tag = memo.tag!!
+            pin = memo.pin!!
+
+            CoroutineScope(Dispatchers.IO).launch {
+                //DB에서 불러온 byteArray를 Bitmap으로 변환 및 리사이클러뷰에 저장
+                memo.photo?.forEach {
+                    val bitmap =
+                        BitmapFactory.decodeByteArray(it, 0, it.size, BitmapFactory.Options())
+                    withContext(Dispatchers.Main) {
+                        photoAdapter.addPhoto(bitmap)
                     }
                 }
             }
         }
+
     }
 
     override fun onDestroyView() {
@@ -163,7 +150,9 @@ class AddEditFragment : BaseFragment(), AdapterEventListener {
         Log.d(TAG, "22")
         layoutManagerRecord = LinearLayoutManager(context)
         photoAdapter = PhotoListAdapter(context, true)
-        recordAdapter = RecordListAdapter(context, true, isNewMemo)
+        recordAdapter = RecordListAdapter(context, true, isNewMemo) { index, record ->
+            dialogUtil.editRecordDialog(recordAdapter, layoutInflater, index, record)
+        }
         layoutManager =  LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
 
         //리사이클러뷰의 아이템간 구분선
@@ -194,7 +183,7 @@ class AddEditFragment : BaseFragment(), AdapterEventListener {
 
         binding.apply {
             btnEditDate.setOnClickListener {
-                DialogUtil.dateDialog(textViewDate, context, layoutInflater)
+                dialogUtil.dateDialog(textViewDate, layoutInflater)
             }
 
             btnAddRecord.setOnClickListener {
@@ -306,8 +295,7 @@ class AddEditFragment : BaseFragment(), AdapterEventListener {
         //스피닝 아이템 선언 후 연결
         val tagSpinner: Spinner = item.actionView.findViewById(R.id.tag_spinner)
         tagSpinner.adapter = context?.let { TagSpinnerAdapter(it, prefViewModel.getTagSettings(false)) }
-        if(isNewMemo != null && !isNewMemo!!)
-            arguments?.getInt("tag", 0)?.let { tagSpinner.setSelection(it) }
+        if(!isNewMemo) tagSpinner.setSelection(tag)
 
         tagSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -332,11 +320,9 @@ class AddEditFragment : BaseFragment(), AdapterEventListener {
 
             //TODO 코루틴 공부해서 여기좀 고치자
                 CoroutineScope(Dispatchers.Default).launch {
-                    isNewMemo?.let {
-                        if (isConflictDate(it)) {
-                            withContext(Dispatchers.Main) { showConflictToast() }
-                            return@launch
-                        }
+                    if (isConflictDate(isNewMemo)) {
+                        withContext(Dispatchers.Main) { showConflictToast() }
+                        return@launch
                     }
 
                     addByteArray()
@@ -351,12 +337,11 @@ class AddEditFragment : BaseFragment(), AdapterEventListener {
                             }
                         }
                     } else {
-                        isNewMemo?.let {
-                            if(it)
-                                memoViewModel.insert(Memo(0, titleToString(), contentToString(), recordAdapter.records, byteArrayList, binding.textViewDate.text.toString(), tag, false))
-                            else
-                                memoViewModel.update(Memo(memoId!!, titleToString(), contentToString(), recordAdapter.records, byteArrayList, binding.textViewDate.text.toString(), tag, pin))
-                        }
+                        if(isNewMemo)
+                            memoViewModel.insert(Memo(0, titleToString(), contentToString(), recordAdapter.records, byteArrayList, binding.textViewDate.text.toString(), tag, false))
+                        else
+                            memoViewModel.update(Memo(memoId, titleToString(), contentToString(), recordAdapter.records, byteArrayList, binding.textViewDate.text.toString(), tag, pin))
+
                         navigation.back()
                     }
                 }
@@ -373,31 +358,27 @@ class AddEditFragment : BaseFragment(), AdapterEventListener {
         super.onBackPressed()
 
         CoroutineScope(Dispatchers.Default).launch {
-            isNewMemo?.let {
-            val isConflict = isConflictDate(it)
+            val isConflict = isConflictDate(isNewMemo)
             addByteArray()
 
             withContext(Dispatchers.Main) {
 
-                    context?.let { ctx ->
-                        DialogUtil.saveMemoDialog(
-                            it,
-                            ctx,
-                            layoutInflater,
-                            if (it) null else memoId,
-                            titleToString(),
-                            contentToString(),
-                            recordAdapter.records,
-                            byteArrayList,
-                            binding.textViewDate.text.toString(),
-                            tag,
-                            if (it) false else pin,
-                            isConflict) {
-                            navigation.back()
-                        }
-                    }
+                dialogUtil.saveMemoDialog(
+                    isNewMemo,
+                    layoutInflater,
+                    if (isNewMemo) null else memoId,
+                    titleToString(),
+                    contentToString(),
+                    recordAdapter.records,
+                    byteArrayList,
+                    binding.textViewDate.text.toString(),
+                    tag,
+                    if (isNewMemo) false else pin,
+                    isConflict) {
+                    navigation.back()
                 }
             }
+
         }
     }
 

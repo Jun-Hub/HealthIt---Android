@@ -2,7 +2,6 @@ package io.jun.healthit.adapter
 
 import android.content.Context
 import android.os.Build
-import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +15,7 @@ import io.jun.healthit.model.data.Tip
 class TipListAdapter(
     val context: Context,
     private val fanLayoutManager: FanLayoutManager,
-    private val move: (Bundle) -> Unit
+    private val move: (String) -> Unit
 ):
     RecyclerView.Adapter<TipListAdapter.TipViewHolder>() {
 
@@ -50,10 +49,7 @@ class TipListAdapter(
 
             //이미 한 번 터치되서 카드가 올라왔을 때 또 터치하면 액티비티 전환
             if(fanLayoutManager.selectedItemPosition == position) {
-                move(Bundle().apply {
-                    putString("tipType", current.intentValue)
-                })
-
+                move(current.intentValue)
             } else {    //한 번만 터치하면 카드 올라오는 이펙트
                 onItemClickListener.onItemClicked(holder.adapterPosition, holder.tipImage)
             }

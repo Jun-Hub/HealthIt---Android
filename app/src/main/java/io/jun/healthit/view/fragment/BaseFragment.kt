@@ -11,12 +11,15 @@ import androidx.fragment.app.Fragment
 import com.google.android.gms.ads.AdRequest
 import com.google.android.gms.ads.AdView
 import com.google.android.gms.ads.MobileAds
+import io.jun.healthit.FragmentNavigation
 import io.jun.healthit.view.MainActivity
+import org.koin.android.ext.android.inject
+import org.koin.core.parameter.parametersOf
 
 open class BaseFragment : Fragment() {
 
     private val TAG = "BaseFragment"
-    val navigation by lazy { (activity as MainActivity).fragmentNavigation }
+    val navigation: FragmentNavigation by inject { parametersOf(activity) }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)

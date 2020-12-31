@@ -1,12 +1,11 @@
 package io.jun.healthit
 
-import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.*
-import io.jun.healthit.view.MainActivity
-import io.jun.healthit.view.fragment.MemoFragment
+import io.jun.healthit.view.*
+import io.jun.healthit.view.fragment.*
 import java.util.*
-//TODO 이거 싱글톤으로 주입하기
+
 class FragmentNavigation(private val activity: MainActivity) {
 
     private val TAG = javaClass.simpleName
@@ -24,15 +23,14 @@ class FragmentNavigation(private val activity: MainActivity) {
         fragmentMap[4] = Stack<Fragment>()
     }
 
-    fun change(info: FragmentInfo) =
-        fragmentMap[info.tag]?.let {
-            currentTab = info.tag
+    fun change(fragment: Fragment) =
+        fragmentMap[getFragmentTag(fragment)]?.let {
+            currentTab = getFragmentTag(fragment)
 
             if (it.isEmpty()) {
-                it.push(info.fragment)
-
+                it.push(fragment)
                 manager.commit {
-                    replace(container, info.fragment)
+                    replace(container, fragment)
                 }
                 return@let
             }
@@ -40,32 +38,29 @@ class FragmentNavigation(private val activity: MainActivity) {
             //마지막으로 방문했던 fragment 보여주기
             manager.commit {
                 replace(container, it.last())
-                Log.d(TAG, "change: ${it.last()}")
             }
         }
 
-    fun move(info: FragmentInfo, bundle: Bundle? = null) =
-        fragmentMap[info.tag]?.let {
-
-            it.push(info.fragment)
+    fun move(fragment: Fragment) =
+        fragmentMap[getFragmentTag(fragment)]?.let {
+            it.push(fragment)
             manager.commit {
-                Log.d(TAG, "move: ${info.fragment}")
-                replace(container, info.fragment.apply { arguments = bundle })
+                replace(container, fragment)
             }
         }
 
-    fun finishAndMove(info: FragmentInfo, bundle: Bundle? = null) =
-        fragmentMap[info.tag]?.let {
+    fun finishAndMove(fragment: Fragment) =
+        fragmentMap[getFragmentTag(fragment)]?.let {
 
             it.pop()    //현재 프래그먼트 스택에서 제거
-            it.push(info.fragment)
+            it.push(fragment)
             manager.commit {
-                replace(container, info.fragment.apply { arguments = bundle })
+                replace(container, fragment)
             }
         }
 
     fun back() =
-        if(fragmentMap[currentTab]?.size == 1)
+        if (fragmentMap[currentTab]?.size == 1)
             activity.finishApp()
         else
             popFragment()
@@ -77,5 +72,24 @@ class FragmentNavigation(private val activity: MainActivity) {
             manager.commit {
                 replace(container, it.peek())
             }
+        }
+
+    private fun getFragmentTag(fragment: Fragment) =
+        when(fragment) {
+            is RoutineFragment -> 0
+            is RoutineDetailFragment -> 0
+
+            is MemoFragment -> 1
+            is MemoDetailFragment -> 1
+            is AddEditFragment -> 1
+
+            is InbodyFragment -> 2
+
+            is TimerFragment -> 3
+
+            is SettingsFragment -> 4
+            is SetTemplateFragment -> 4
+
+            else -> -1
         }
 }

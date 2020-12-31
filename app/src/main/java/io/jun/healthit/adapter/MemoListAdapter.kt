@@ -27,7 +27,7 @@ import org.koin.core.inject
 
 class MemoListAdapter internal constructor(
     private val fragment: MemoFragment,
-    private val move: (Bundle) -> Unit
+    private val move: (Int, Boolean) -> Unit
 ) : RecyclerView.Adapter<MemoListAdapter.MemoViewHolder>(),
     RecyclerViewFastScroller.OnPopupTextUpdate,
     KoinComponent {
@@ -140,13 +140,7 @@ class MemoListAdapter internal constructor(
 
             //메모 클릭시 해당 메모 상세보기로 넘어가기
             holder.itemView.setOnClickListener {
-                val pinStatus = current.pin //val 값으로 셋팅안해주면 원래 형태가 var이라 intent에 넣지 못함
-                move(Bundle().apply {
-                    putInt("id", current.id)
-                    if (pinStatus != null) {
-                        putBoolean("pin", pinStatus)
-                    }    //pin 상태도 같이 넘겨야 다음 액티비티에서 초기화 null 에러가 안남
-                })
+                current.pin?.let { move(current.id, it)  }
             }
         
     }

@@ -1,4 +1,4 @@
-package io.jun.healthit.view
+package io.jun.healthit.view.fragment
 
 import android.Manifest
 import android.content.Context
@@ -9,20 +9,18 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.zagum.switchicon.SwitchIconView
 import com.gun0912.tedpermission.PermissionListener
 import com.gun0912.tedpermission.TedPermission
-import io.jun.healthit.FragmentProvider
+import io.jun.healthit.FragmentFactory
 import io.jun.healthit.R
 import io.jun.healthit.adapter.PhotoListAdapter
 import io.jun.healthit.adapter.RecordListAdapter
 import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.ImageUtil
-import io.jun.healthit.view.fragment.BaseFragment
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
 import kotlinx.android.synthetic.main.fragment_memo_detail.*
@@ -31,18 +29,20 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.core.parameter.parametersOf
 
-class MemoDetailFragment : BaseFragment() {
+class MemoDetailFragment(private val memoId:Int, private val pinState:Boolean) : BaseFragment() {
 
     private val TAG = javaClass.simpleName
     private lateinit var recordAdapter: RecordListAdapter
 
     private val prefViewModel: PrefViewModel by sharedViewModel()
     private val memoViewModel: MemoViewModel by sharedViewModel()
-    private lateinit var memo: Memo
+    private val dialogUtil: DialogUtil by inject{ parametersOf(activity) }
 
-    private var memoId: Int? = null
+    private lateinit var memo: Memo
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,8 +57,6 @@ class MemoDetailFragment : BaseFragment() {
 
         setBackActionBar(appbar.toolbar)
 
-        Log.d(TAG, "argument: ${arguments?.getInt("id", 0)}")
-        memoId = arguments?.getInt("id", 0)
         context?.let {
             setView(it)
         }
@@ -71,7 +69,9 @@ class MemoDetailFragment : BaseFragment() {
         }
 
         val layoutManagerRecord = LinearLayoutManager(context)
-        recordAdapter = RecordListAdapter(context, false, onlyForAddNew = false)
+        recordAdapter = RecordListAdapter(context, false, onlyForAddNew = false) { index, record ->
+            dialogUtil.editRecordDialog(recordAdapter, layoutInflater, index, record)
+        }
 
         recyclerView_record.apply {
             adapter = recordAdapter
@@ -84,8 +84,7 @@ class MemoDetailFragment : BaseFragment() {
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)   //리사이클러뷰 가로 스크롤
         }
 
-        Log.d(TAG, "memoViewModel: $memoViewModel")
-        memoViewModel.getMemoById(memoId!!) { memo ->
+        memoViewModel.getMemoById(memoId) { memo ->
 
             Log.d(TAG, "memo: $memo")
             this.memo = memo
@@ -155,7 +154,7 @@ class MemoDetailFragment : BaseFragment() {
 
         val switchPinBtn:SwitchIconView = pin.actionView.findViewById(R.id.switch_toolBar)
         //스위치 버튼 초기상태를 저장 상태에 따라 on / off 해주기
-        arguments?.getBoolean("pin", false)?.let { switchPinBtn.setIconEnabled(it) }
+        switchPinBtn.setIconEnabled(pinState)
 
         switchPinBtn.setOnClickListener {
             //클릭시 마다 스위치의 상태를 on/off함
@@ -181,8 +180,7 @@ class MemoDetailFragment : BaseFragment() {
             }
             R.id.action_add_template -> {   //현 루틴 템플릿에 추가하기 버튼
                 memo.record?.let {
-                    context?.let { ctx ->
-                        DialogUtil.addDirectlyTemplateDialog(layoutInflater, ctx, it) }
+                    dialogUtil.addDirectlyTemplateDialog(layoutInflater, it)
                 }
                 true
             }
@@ -191,17 +189,14 @@ class MemoDetailFragment : BaseFragment() {
                 true
             }
             R.id.action_edit -> {   //편집 버튼
-                navigation.finishAndMove(FragmentProvider.ADD_EDIT_FRAGMENT, Bundle().apply {
-                    memoId?.let { putInt("id", it) }
-                    memo.tag?.let { putInt("tag", it) }
-                })
+                memo.tag?.let {
+                    navigation.finishAndMove(FragmentFactory.getAddEditFragment(false, null, it, memoId))
+                }
                 true
             }
             R.id.action_delete -> { //삭제 버튼
-                val memo = Memo(memoId!!, null, null, null, null, null, null, null)
-                context?.let { DialogUtil.deleteDialog(it, layoutInflater, memo) {
-                    navigation.back() }
-                }
+                val memo = Memo(memoId, null, null, null, null, null, null, null)
+                dialogUtil.deleteDialog(layoutInflater, memo) { navigation.back() }
                 true
             }
 

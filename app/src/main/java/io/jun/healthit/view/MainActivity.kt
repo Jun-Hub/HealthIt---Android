@@ -7,8 +7,8 @@ import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.content.res.AppCompatResources
 import com.google.android.material.snackbar.Snackbar
+import io.jun.healthit.FragmentFactory
 import io.jun.healthit.FragmentNavigation
-import io.jun.healthit.FragmentProvider
 import io.jun.healthit.R
 import io.jun.healthit.billing.BillingManager
 import io.jun.healthit.databinding.ActivityMainBinding
@@ -20,6 +20,7 @@ import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
 import io.jun.healthit.viewmodel.TimerViewModel
 import org.koin.android.ext.android.inject
+import org.koin.androidx.fragment.android.setupKoinFragmentFactory
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 
@@ -27,7 +28,7 @@ class MainActivity : AppCompatActivity() {
 
     private val TAG = "MainActivity"
 
-    val fragmentNavigation = FragmentNavigation(this)
+    private val fragmentNavigation: FragmentNavigation by inject{ parametersOf(this) }
     val billingManager: BillingManager by inject {
         parametersOf(this@MainActivity, { productId: String ->
             if (productId == getString(R.string.sku_subs))
@@ -49,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     private var backWait:Long = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setupKoinFragmentFactory()
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
@@ -82,11 +84,11 @@ class MainActivity : AppCompatActivity() {
 
             setOnNavigationItemSelectedListener {
                 when(it.itemId) {
-                    R.id.navigation_routine -> fragmentNavigation.change(FragmentProvider.ROUTINE_FRAGMENT)
-                    R.id.navigation_memo -> fragmentNavigation.change(FragmentProvider.MEMO_FRAGMENT)
-                    R.id.navigation_inbody -> fragmentNavigation.change(FragmentProvider.INBODY_FRAGMENT)
-                    R.id.navigation_timer -> fragmentNavigation.change(FragmentProvider.TIMER_FRAGMENT)
-                    R.id.navigation_settings -> fragmentNavigation.change(FragmentProvider.SETTINGS_FRAGMENT)
+                    R.id.navigation_routine -> fragmentNavigation.change(FragmentFactory.getRoutineFragment())
+                    R.id.navigation_memo -> fragmentNavigation.change(FragmentFactory.getMemoFragment())
+                    R.id.navigation_inbody -> fragmentNavigation.change(FragmentFactory.getInbodyFragment())
+                    R.id.navigation_timer -> fragmentNavigation.change(FragmentFactory.getTimerFragment())
+                    R.id.navigation_settings -> fragmentNavigation.change(FragmentFactory.getSettingsFragment())
                 }
                 true
             }

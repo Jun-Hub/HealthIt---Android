@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import com.cleveroad.fanlayoutmanager.FanLayoutManager
 import com.cleveroad.fanlayoutmanager.FanLayoutManagerSettings
 import com.cleveroad.fanlayoutmanager.callbacks.FanChildDrawingOrderCallback
-import io.jun.healthit.FragmentProvider
+import io.jun.healthit.FragmentFactory
 import io.jun.healthit.R
 import io.jun.healthit.adapter.TipListAdapter
 import io.jun.healthit.databinding.FragmentRoutineBinding
@@ -52,8 +52,8 @@ class RoutineFragment : BaseFragment() {
 
         val fanLayoutManager = FanLayoutManager(context, fanLayoutManagerSettings)
 
-        val tipAdapter = TipListAdapter(context, fanLayoutManager) { bundle ->
-            navigation.move(FragmentProvider.ROUTINE_DETAIL_FRAGMENT, bundle)
+        val tipAdapter = TipListAdapter(context, fanLayoutManager) { tipType ->
+            navigation.move(FragmentFactory.getRoutineDetailFragment(tipType))
         }
 
         tipAdapter.apply {

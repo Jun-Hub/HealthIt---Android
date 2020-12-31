@@ -24,7 +24,7 @@ import com.leinardi.android.speeddial.SpeedDialView
 import com.prolificinteractive.materialcalendarview.CalendarDay
 import io.ghyeok.stickyswitch.widget.StickySwitch
 import io.ghyeok.stickyswitch.widget.StickySwitch.OnSelectedChangeListener
-import io.jun.healthit.FragmentProvider
+import io.jun.healthit.FragmentFactory
 import io.jun.healthit.R
 import io.jun.healthit.adapter.MemoListAdapter
 import io.jun.healthit.adapter.TagSpinnerAdapter
@@ -33,7 +33,6 @@ import io.jun.healthit.model.data.Memo
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.util.calculateSetAndVolume
 import io.jun.healthit.view.MainActivity
-import io.jun.healthit.view.MemoDetailFragment
 import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
 import kotlinx.android.synthetic.main.fragment_memo.*
@@ -43,9 +42,11 @@ import kotlinx.android.synthetic.main.item_memo.view.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
+import org.koin.core.parameter.parametersOf
 import kotlin.properties.Delegates
-
+//TODO 프래그먼트 액션바 없는거 생성해주기, 액션바 이름 설정
 class MemoFragment : BaseFragment(), View.OnClickListener {
     //편집 버튼을 on 했는지 MemoListAdapter 에서 관찰하기 위한 livedata
     companion object {
@@ -56,6 +57,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
     private lateinit var interstitialAd: InterstitialAd
     private val prefViewModel: PrefViewModel by sharedViewModel()
     private val memoViewModel: MemoViewModel by sharedViewModel()
+    private val dialogUtil: DialogUtil by inject{ parametersOf(activity) }
 
     private lateinit var memoList: List<Memo>
     private var selectedMemo: Memo? = null
@@ -129,8 +131,8 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
     }
 
     private fun setMemoRecyclerView(context:Context) {
-        memoAdapter = MemoListAdapter(this) { bundle ->
-            navigation.move(FragmentProvider.MEMO_DETAIL_FRAGMENT, bundle)
+        memoAdapter = MemoListAdapter(this) { memoId, pinState ->
+            navigation.move(FragmentFactory.getMemoDetailFragment(memoId, pinState))
         }
         linearLayoutManager = LinearLayoutManager(context)
         val itemDecoration = DividerItemDecoration(context, 1)
@@ -358,7 +360,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         inflater.inflate(R.menu.menu_list, menu)
 
         initMemoSortSpinner(menu)
-        context?.let { initViewModeSwitch(it, menu) }
+        initViewModeSwitch(menu)
         initEditModeSwitch(menu)
     }
 
@@ -382,7 +384,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         }
     }
 
-    private fun initViewModeSwitch(context: Context, menu: Menu) {
+    private fun initViewModeSwitch(menu: Menu) {
         //보기방식 스위치 셋팅
         val view = menu.findItem(R.id.action_view)
         view.setActionView(R.layout.layout_switch_view)
@@ -412,7 +414,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
                         }
                         else {  // not subscribe pro version
 
-                            DialogUtil.showPurchaseProDialog(context,
+                            dialogUtil.showPurchaseProDialog(
                                 { (activity as MainActivity).billingManager.subscribe() },
                                 { (activity as MainActivity).billingManager.onPurchaseHistoryRestored()})
                             viewSwitch.setDirection(StickySwitch.Direction.LEFT, isAnimate = true, shouldTriggerSelected = true)
@@ -503,7 +505,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
                     afterAdFlag = 0
                     context?.let {
                         if (!(activity as MainActivity).isProVersion && interstitialAd.isLoaded) interstitialAd.show()
-                        else navigation.move(FragmentProvider.ADD_EDIT_FRAGMENT, Bundle().apply { putBoolean("newMemo", true) })
+                        else navigation.move(FragmentFactory.getAddEditFragment(true))
                     }
 
                     add_memo_btn.close()
@@ -512,7 +514,7 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
                 R.id.open_template -> {
                     afterAdFlag = 1
                     if (!(activity as MainActivity).isProVersion && interstitialAd.isLoaded) interstitialAd.show()
-                    else DialogUtil.showTemplateDialog(this, navigation, false)
+                    else dialogUtil.showTemplateDialogForAdd(navigation)
 
                     add_memo_btn.close()
                     return@OnActionSelectedListener true // false will close it without animation
@@ -541,8 +543,8 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
 
     private fun executeAfterAd() {
         when(afterAdFlag) {
-            0 -> navigation.move(FragmentProvider.ADD_EDIT_FRAGMENT, Bundle().apply { putBoolean("newMemo", true) })
-            1 -> DialogUtil.showTemplateDialog(this, navigation,false)
+            0 -> navigation.move(FragmentFactory.getAddEditFragment(true))
+            1 -> dialogUtil.showTemplateDialogForAdd(navigation)
         }
     }
 

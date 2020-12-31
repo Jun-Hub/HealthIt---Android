@@ -1,10 +1,9 @@
 package io.jun.healthit
 
 import android.app.Application
-import io.jun.healthit.di.billingModule
-import io.jun.healthit.di.updateModule
-import io.jun.healthit.di.viewModelModule
+import io.jun.healthit.di.*
 import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidFileProperties
 import org.koin.android.ext.koin.androidLogger
 import org.koin.androidx.fragment.koin.fragmentFactory
 import org.koin.core.context.startKoin
@@ -20,10 +19,12 @@ class App: Application() {
             androidLogger(Level.ERROR)
             //inject Android context
             androidContext(this@App)
+            // use properties from assets/koin.properties
+            androidFileProperties()
             // setup a KoinFragmentFactory instance
-            //fragmentFactory()
+            fragmentFactory()
             // use modules
-            modules(listOf(viewModelModule, billingModule, updateModule))
+            modules(moduleList)
         }
     }
 }

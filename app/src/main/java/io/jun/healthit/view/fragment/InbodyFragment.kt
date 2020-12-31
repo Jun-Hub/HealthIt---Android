@@ -24,8 +24,9 @@ import io.jun.healthit.util.makePlusFloat
 import io.jun.healthit.view.MainActivity
 import io.jun.healthit.viewmodel.InbodyViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 class InbodyFragment : BaseFragment(), View.OnClickListener {
 
@@ -33,6 +34,7 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
 
     private val prefViewModel: PrefViewModel by sharedViewModel()
     private val inbodyViewModel: InbodyViewModel by sharedViewModel()
+    private val dialogUtil: DialogUtil by inject{ parametersOf(activity) }
 
     private var viewBinding: FragmentInbodyBinding? = null
     private val binding get() = viewBinding!!
@@ -276,7 +278,7 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
             when (v?.id) {
                 R.id.textView_free_trial -> {
                     context?.let {
-                        DialogUtil.showPurchaseProDialog(it,
+                        dialogUtil.showPurchaseProDialog(
                             { (activity as MainActivity).billingManager.subscribe() },
                             { (activity as MainActivity).billingManager.onPurchaseHistoryRestored() })
                     }
@@ -303,7 +305,7 @@ class InbodyFragment : BaseFragment(), View.OnClickListener {
                 R.id.btn_save -> {
                     if(!(activity as MainActivity).isProVersion) {
                         context?.let {
-                            DialogUtil.showPurchaseProDialog(it,
+                            dialogUtil.showPurchaseProDialog(
                                 { (activity as MainActivity).billingManager.subscribe() },
                                 { (activity as MainActivity).billingManager.onPurchaseHistoryRestored() })
                         }

@@ -23,13 +23,15 @@ import io.jun.healthit.databinding.FragmentSettingsBinding
 import io.jun.healthit.util.DialogUtil
 import io.jun.healthit.view.MainActivity
 import io.jun.healthit.viewmodel.PrefViewModel
+import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
-import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 class SettingsFragment : BaseFragment(), View.OnClickListener {
 
     private val TAG = "SettingsFragment"
     private val prefViewModel: PrefViewModel by sharedViewModel()
+    private val dialogUtil: DialogUtil by inject{ parametersOf(activity) }
     
     private var viewBinding: FragmentSettingsBinding? = null
     private val binding get() = viewBinding!!
@@ -225,7 +227,7 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
             when (v?.id) {
                 R.id.button_free_trial -> {
                     context?.let {
-                        DialogUtil.showPurchaseProDialog(it,
+                        dialogUtil.showPurchaseProDialog(
                             { (activity as MainActivity).billingManager.subscribe() },
                             { (activity as MainActivity).billingManager.onPurchaseHistoryRestored() }
                         )
@@ -240,16 +242,16 @@ class SettingsFragment : BaseFragment(), View.OnClickListener {
                     startActivity(Intent(Intent.ACTION_VIEW, uri))
                 }
                 R.id.rate_app -> { openAppInPlayStore() }
-                R.id.pref_alert -> { DialogUtil.showAlertDialog(this@SettingsFragment) }
-                R.id.pref_ring -> { DialogUtil.showRingDialog(this@SettingsFragment) }
+                R.id.pref_alert -> { dialogUtil.showAlertDialog() }
+                R.id.pref_ring -> { dialogUtil.showRingDialog() }
                 R.id.pref_floating -> { binding.switchFloating.toggle() }
-                R.id.pref_template -> { DialogUtil.showTemplateDialog(this@SettingsFragment, navigation, true) }
-                R.id.pref_tag1 -> { DialogUtil.showTagDialog(this@SettingsFragment, 1, layoutInflater) }
-                R.id.pref_tag2 -> { DialogUtil.showTagDialog(this@SettingsFragment, 2, layoutInflater) }
-                R.id.pref_tag3 -> { DialogUtil.showTagDialog(this@SettingsFragment, 3, layoutInflater) }
-                R.id.pref_tag4 -> { DialogUtil.showTagDialog(this@SettingsFragment, 4, layoutInflater) }
-                R.id.pref_tag5 -> { DialogUtil.showTagDialog(this@SettingsFragment, 5, layoutInflater) }
-                R.id.pref_tag6 -> { DialogUtil.showTagDialog(this@SettingsFragment, 6, layoutInflater) }
+                R.id.pref_template -> { dialogUtil.showTemplateDialogForSet( navigation) }
+                R.id.pref_tag1 -> { dialogUtil.showTagDialog( 1, layoutInflater) }
+                R.id.pref_tag2 -> { dialogUtil.showTagDialog( 2, layoutInflater) }
+                R.id.pref_tag3 -> { dialogUtil.showTagDialog( 3, layoutInflater) }
+                R.id.pref_tag4 -> { dialogUtil.showTagDialog( 4, layoutInflater) }
+                R.id.pref_tag5 -> { dialogUtil.showTagDialog( 5, layoutInflater) }
+                R.id.pref_tag6 -> { dialogUtil.showTagDialog( 6, layoutInflater) }
             }
     }
 

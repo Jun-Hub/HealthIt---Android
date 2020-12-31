@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/backgroundGrey"
-    tools:context=".view.AddEditFragment">
+    tools:context=".view.fragment.AddEditFragment">
 
     <include
         android:id="@+id/appbar"
