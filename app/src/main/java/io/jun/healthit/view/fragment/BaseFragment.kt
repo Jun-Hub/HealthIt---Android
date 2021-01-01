@@ -19,17 +19,24 @@ import org.koin.core.parameter.parametersOf
 open class BaseFragment : Fragment() {
 
     private val TAG = "BaseFragment"
+    private lateinit var backPressedCallback: OnBackPressedCallback
     val navigation: FragmentNavigation by inject { parametersOf(activity) }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
-        activity?.onBackPressedDispatcher?.addCallback(this,
-            object : OnBackPressedCallback(true) {
+        backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
                 onBackPressed()
             }
-        })
+        }
+        activity?.onBackPressedDispatcher?.addCallback(this, backPressedCallback)
+    }
+
+    override fun onHiddenChanged(hidden: Boolean) {
+        super.onHiddenChanged(hidden)
+        //Fragment가 바뀌면 액티비티에 연결해줫던 backPressedCallback disEnable 해주기
+        backPressedCallback.isEnabled = !hidden
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -50,6 +57,7 @@ open class BaseFragment : Fragment() {
 
     fun setActionBar(toolBar: Toolbar) {
         (activity as MainActivity).apply {
+            setSupportActionBar(null)   //다른 프래그먼트에서 추가됐던 actionBar를 지워주기 위해 null넣고 시작
             setSupportActionBar(toolBar)
             supportActionBar?.title = null
         }
@@ -58,6 +66,7 @@ open class BaseFragment : Fragment() {
 
     fun setBackActionBar(toolBar: Toolbar) {
         (activity as MainActivity).apply {
+            setSupportActionBar(null)
             setSupportActionBar(toolBar)
             supportActionBar?.title = null
             supportActionBar?.setDisplayHomeAsUpEnabled(true)

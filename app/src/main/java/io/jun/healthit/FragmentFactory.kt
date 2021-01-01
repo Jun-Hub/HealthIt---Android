@@ -44,3 +44,22 @@ object FragmentFactory: KoinComponent {
         return fragment
     }
 }
+
+fun getFragmentTag(fragment: Fragment) =
+    when(fragment) {
+        is RoutineFragment -> 0
+        is RoutineDetailFragment -> 0
+
+        is MemoFragment -> 1
+        is MemoDetailFragment -> 1
+        is AddEditFragment -> 1
+
+        is InbodyFragment -> 2
+
+        is TimerFragment -> 3
+
+        is SettingsFragment -> 4
+        is SetTemplateFragment -> 4
+
+        else -> -1
+    }
