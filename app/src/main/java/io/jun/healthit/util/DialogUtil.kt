@@ -54,7 +54,7 @@ class DialogUtil(private val activity: Activity) : KoinComponent {
     }
 
     fun saveMemoDialog(forAdd: Boolean, layoutInflater: LayoutInflater, id: Int?,
-        title: String, content: String, records: List<Record>, byteArrayList: ArrayList<ByteArray>,
+        title: String, content: String, records: List<Record>, byteArrayList: MutableList<ByteArray>,
         date: String, tag: Int, pin: Boolean, isConflictDate: Boolean, back: () -> Unit) {
 
         //저장할 이미지 총 용량 계산

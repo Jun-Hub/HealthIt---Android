@@ -25,7 +25,6 @@ import io.jun.healthit.viewmodel.MemoViewModel
 import io.jun.healthit.viewmodel.PrefViewModel
 import kotlinx.android.synthetic.main.fragment_memo_detail.*
 import kotlinx.android.synthetic.main.include_actionbar.view.*
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -84,10 +83,8 @@ class MemoDetailFragment(private val memoId:Int, private val pinState:Boolean) :
             layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)   //리사이클러뷰 가로 스크롤
         }
 
-        memoViewModel.getMemoById(memoId) { memo ->
-
-            Log.d(TAG, "memo: $memo")
-            this.memo = memo
+        scope.launch {
+            memo = memoViewModel.getMemoById(memoId)
 
             if(memo.title=="") {
                 textView_title.visibility = View.GONE
@@ -95,7 +92,6 @@ class MemoDetailFragment(private val memoId:Int, private val pinState:Boolean) :
                 textView_title.visibility = View.VISIBLE
                 textView_title.text = memo.title
             }
-
 
             if(memo.content=="") {
                 textView_content.visibility = View.GONE
@@ -107,8 +103,7 @@ class MemoDetailFragment(private val memoId:Int, private val pinState:Boolean) :
                 }
             }
 
-            for (i in memo.record!!.indices)
-                recordAdapter.addRecord(memo.record[i])
+            memo.record?.forEach { recordAdapter.addRecord(it) }
 
             textView_date.text = String.format(getString(R.string.create_date), memo.date)
             imageView_tag.setImageResource(when(memo.tag) {
@@ -130,21 +125,18 @@ class MemoDetailFragment(private val memoId:Int, private val pinState:Boolean) :
             else {
                 recyclerView_photo.visibility = View.VISIBLE
 
-                CoroutineScope(Dispatchers.IO).launch {
-                    //bitmap으로 디코딩 후 리사이클러뷰에 추가
-                    memo.photo.forEach {
-                        val bitmap =
+                //bitmap으로 디코딩 후 리사이클러뷰에 추가
+                memo.photo?.forEach {
+                    val bitmap =
+                        withContext(Dispatchers.Default) {
                             BitmapFactory.decodeByteArray(it, 0, it.size, BitmapFactory.Options())
-                        withContext(Dispatchers.Main) {
-                            photoAdapter.addPhoto(bitmap)
                         }
-                    }
+                    photoAdapter.addPhoto(bitmap)
                 }
-
             }
 
-
         }
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

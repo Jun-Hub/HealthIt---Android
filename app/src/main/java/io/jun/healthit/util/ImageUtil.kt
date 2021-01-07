@@ -17,7 +17,6 @@ import java.io.File.separator
 object ImageUtil {
 
         //촬영사진 썸네일이 아닌 풀사이즈로 가져오기
-        @Throws(IOException::class)
         fun createImageFile(context: Context): File {
             context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).also {
                 return File.createTempFile(

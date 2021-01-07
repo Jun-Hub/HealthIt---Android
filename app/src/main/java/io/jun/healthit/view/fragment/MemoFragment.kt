@@ -39,8 +39,6 @@ import kotlinx.android.synthetic.main.fragment_memo.*
 import kotlinx.android.synthetic.main.include_actionbar.view.*
 import kotlinx.android.synthetic.main.item_memo.*
 import kotlinx.android.synthetic.main.item_memo.view.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
@@ -85,7 +83,6 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        Log.d(TAG, "memoVIewModel : $memoViewModel")
         return inflater.inflate(R.layout.fragment_memo, container, false)
     }
 
@@ -312,27 +309,31 @@ class MemoFragment : BaseFragment(), View.OnClickListener {
         selectedDate = "${date.year}/${date.month+1}/${day}"
     }
 
-    private fun setImageThumbnail(photo: List<ByteArray>) {
+    private fun setImageThumbnail(photo: List<ByteArray>) = scope.launch {
+
         if (photo.isNotEmpty()) {
-            CoroutineScope(Dispatchers.Default).launch {
+            Glide.with(this@MemoFragment)
+                .asBitmap()
+                .load(photo[0])
+                .into(object : CustomTarget<Bitmap>() {
+                    override fun onResourceReady(
+                        resource: Bitmap,
+                        transition: Transition<in Bitmap>?
+                    ) {
+                        memo_detail.imageView.visibility = View.VISIBLE
+                        memo_detail.imageView.setImageBitmap(resource)
+                    }
 
-                Glide.with(this@MemoFragment)
-                    .asBitmap()
-                    .load(photo[0])
-                    .into(object : CustomTarget<Bitmap>() {
-                        override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                            memo_detail.imageView.visibility = View.VISIBLE
-                            memo_detail.imageView.setImageBitmap(resource)
-                        }
-                        override fun onLoadCleared(placeholder: Drawable?) {
-                        }
-                    })
-
-            }
-        }
-        else
+                    override fun onLoadCleared(placeholder: Drawable?) {
+                    }
+                })
+        } else {
             memo_detail.imageView.visibility = View.GONE
+        }
     }
+
+
+
 
     private fun setTag(tag: Int) {
         if(tag==0) {

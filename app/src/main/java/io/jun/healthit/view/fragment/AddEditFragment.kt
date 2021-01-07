@@ -37,8 +37,9 @@ import kotlinx.coroutines.*
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import org.koin.core.parameter.parametersOf
-import java.io.IOException
 import kotlin.properties.Delegates
+import kotlin.system.measureTimeMillis
+
 //TODO AddEdit 나누기
 class AddEditFragment(private val isNewMemo: Boolean = false,
                       private val templateId:Int? = 0,
@@ -63,8 +64,6 @@ class AddEditFragment(private val isNewMemo: Boolean = false,
 
     private var pin by Delegates.notNull<Boolean>()
     private lateinit var dateOfOriginMemo: String
-
-    private val byteArrayList = ArrayList<ByteArray>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -105,16 +104,17 @@ class AddEditFragment(private val isNewMemo: Boolean = false,
             return
         }
 
-
-        memoViewModel.getMemoById(memoId) { memo ->
+        scope.launch {
+            val memo = memoViewModel.getMemoById(memoId)
 
             binding.apply {
                 editTextTitle.setText(memo.title)
                 editTextContent.setText(memo.content)
             }
 
-            for (i in memo.record!!.indices)
-                recordAdapter.addRecord(memo.record[i])
+            memo.record?.forEach {
+                recordAdapter.addRecord(it)
+            }
             memo.date?.let {
                 binding.textViewDate.text = it
                 dateOfOriginMemo = it
@@ -122,17 +122,16 @@ class AddEditFragment(private val isNewMemo: Boolean = false,
             tag = memo.tag!!
             pin = memo.pin!!
 
-            CoroutineScope(Dispatchers.IO).launch {
-                //DB에서 불러온 byteArray를 Bitmap으로 변환 및 리사이클러뷰에 저장
-                memo.photo?.forEach {
-                    val bitmap =
+            //DB에서 불러온 byteArray를 Bitmap으로 변환 및 리사이클러뷰에 저장
+            memo.photo?.forEach {
+                val bitmap =
+                    withContext(Dispatchers.Default) {
                         BitmapFactory.decodeByteArray(it, 0, it.size, BitmapFactory.Options())
-                    withContext(Dispatchers.Main) {
-                        photoAdapter.addPhoto(bitmap)
                     }
-                }
+                photoAdapter.addPhoto(bitmap)
             }
         }
+
 
     }
 
@@ -226,25 +225,21 @@ class AddEditFragment(private val isNewMemo: Boolean = false,
         startActivityForResult(galleryIntent, Setting.GALLERY_REQUEST_CODE)
     }
 
-    @Throws(IOException::class)
-    private fun takePhoto(context: Context) {
-        CoroutineScope(Dispatchers.Default).launch {
+    private fun takePhoto(context: Context) = scope.launch {
+        //임시 파일 생성
+        val photoFile = withContext(Dispatchers.Default) {
+            ImageUtil.createImageFile(context)
+        }
+        currentPhotoPath = photoFile.absolutePath
 
-            //임시 파일 생성
-            val photoFile = withContext(Dispatchers.IO) {
-                ImageUtil.createImageFile(context)
+        activity?.let {
+            val photoURI = FileProvider.getUriForFile(context, it.packageName, photoFile)
+
+            val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                resolveActivity(it.packageManager)
+                putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
             }
-            currentPhotoPath = photoFile.absolutePath
-
-            activity?.let {
-                val photoURI = FileProvider.getUriForFile(context, it.packageName, photoFile)
-
-                val cameraIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
-                    resolveActivity(it.packageManager)
-                    putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                }
-                startActivityForResult(cameraIntent, Setting.TAKE_PHOTO_REQUEST_CODE)
-            }
+            startActivityForResult(cameraIntent, Setting.TAKE_PHOTO_REQUEST_CODE)
         }
     }
 
@@ -266,7 +261,7 @@ class AddEditFragment(private val isNewMemo: Boolean = false,
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK ) {
-            CoroutineScope(Dispatchers.Main).launch {
+            scope.launch {
 
                 //갤러리에서 사진 가져왔을 때
                 if (requestCode == Setting.GALLERY_REQUEST_CODE && data != null) {
@@ -318,17 +313,15 @@ class AddEditFragment(private val isNewMemo: Boolean = false,
 
             R.id.action_save -> {   //저장 버튼
 
-            //TODO 코루틴 공부해서 여기좀 고치자
                 CoroutineScope(Dispatchers.Default).launch {
-                    if (isConflictDate(isNewMemo)) {
+                    if (asyncIsConflictDate(isNewMemo)) {
                         withContext(Dispatchers.Main) { showConflictToast() }
                         return@launch
                     }
 
-                    addByteArray()
-
+                    val byteArrayList = asyncGetByteArrayList()
                     var totalSize = 0
-                    for (i in byteArrayList.indices) totalSize += byteArrayList[i].size
+                    byteArrayList.forEach { totalSize += it.size }
 
                     if (totalSize > Setting.TOTAL_SIZE_LIMIT) {
                         withContext(Dispatchers.Main) {
@@ -357,33 +350,19 @@ class AddEditFragment(private val isNewMemo: Boolean = false,
     override fun onBackPressed() {
         super.onBackPressed()
 
-        CoroutineScope(Dispatchers.Default).launch {
-            val isConflict = isConflictDate(isNewMemo)
-            addByteArray()
+        scope.launch {
+            val isConflict = asyncIsConflictDate(isNewMemo)
+            val byteArrayList = asyncGetByteArrayList()
 
-            withContext(Dispatchers.Main) {
-
-                dialogUtil.saveMemoDialog(
-                    isNewMemo,
-                    layoutInflater,
-                    if (isNewMemo) null else memoId,
-                    titleToString(),
-                    contentToString(),
-                    recordAdapter.records,
-                    byteArrayList,
-                    binding.textViewDate.text.toString(),
-                    tag,
-                    if (isNewMemo) false else pin,
-                    isConflict) {
-                    navigation.back()
-                }
+            dialogUtil.saveMemoDialog(isNewMemo, layoutInflater, if (isNewMemo) null else memoId, titleToString(), contentToString(),
+                recordAdapter.records, byteArrayList, binding.textViewDate.text.toString(), tag, if (isNewMemo) false else pin, isConflict) {
+                navigation.back()
             }
-
         }
     }
 
     //해당 날짜에 이미 저장된 기록이 있나 체크
-    private fun isConflictDate(isNewMemo: Boolean): Boolean {
+    private suspend fun asyncIsConflictDate(isNewMemo: Boolean): Boolean {
         val selectedDate = binding.textViewDate.text.toString()
         if(!isNewMemo && dateOfOriginMemo==selectedDate) return false   //편집하고 있는 메모의 원래 날짜와 같다면 return false
 
@@ -393,20 +372,21 @@ class AddEditFragment(private val isNewMemo: Boolean = false,
     private fun showConflictToast() =
         context?.let { Toast.makeText(it, getString(R.string.notice_conflict_date), Toast.LENGTH_LONG).show() }
 
-
     private fun titleToString() = if(isAllBlank(binding.editTextTitle.text.toString())) ""
     else binding.editTextTitle.text.toString()
 
     private fun contentToString() = if(isAllBlank(binding.editTextContent.text.toString())) ""
     else binding.editTextContent.text.toString()
 
-    private fun addByteArray() {
+    private suspend fun asyncGetByteArrayList() = withContext(Dispatchers.Default) {
+        val byteArrayList = mutableListOf<ByteArray>()
         //byteArray로 첨부된 이미지 용량 압축
         for (i in 0 until photoAdapter.itemCount) {
             ImageUtil.bitmapToByteArray(photoAdapter.getBitmap(i), 50).also {
                 byteArrayList.add(it)
             }
         }
+        return@withContext byteArrayList
     }
 
     //user permission 외부 라이브러리 : TedPermission

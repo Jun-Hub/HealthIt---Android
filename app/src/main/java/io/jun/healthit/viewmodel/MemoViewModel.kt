@@ -4,11 +4,12 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import io.jun.healthit.model.data.Memo
 import io.jun.healthit.model.MemoDatabase
+import io.jun.healthit.model.data.Memo
 import io.jun.healthit.model.repository.MemoRepository
 import io.jun.healthit.view.fragment.MemoFragment
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 // Class extends AndroidViewModel and requires application as a parameter.
 class MemoViewModel(application: Application) : AndroidViewModel(application) {
@@ -32,9 +33,9 @@ class MemoViewModel(application: Application) : AndroidViewModel(application) {
 
     fun delete(memo: Memo) = viewModelScope.launch { repository.delete(memo) }
 
-    fun getMemoById(id: Int, callback: (Memo) -> Unit) = viewModelScope.launch { callback(repository.getMemoById(id)) }
+    suspend fun getMemoById(id: Int) = withContext(viewModelScope.coroutineContext) { repository.getMemoById(id) }
 
-    fun isExist(date: String) = repository.isExist(date)
+    suspend fun isExist(date: String):Boolean = withContext(viewModelScope.coroutineContext) { repository.isExist(date) }
 
     fun isEditMode() = MemoFragment.editOn
 }
